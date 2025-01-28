@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claudette Storm!</title>
+    <Style>
+        body {
+         background-color: blue
+         ;
+        }
+       
+        #ClaudetteStorm  {height: 1000px; width: 1000px;}
+        #ClaudetteStorm {background-color:aliceblue}
+     </Style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+ <script src="Storm.geojson"></script>
+</head>
+<body>
+    
+    <div id="ClaudetteStorm"> </div>
+</body>
+
+
+<script>
+var map = L.map("ClaudetteStorm").setView([35.3086879,-80.612228], 4);
+var Esri_NatGeoWorldMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+	maxZoom: 16
+}).addTo(map);
+
+var hurricaneicon = L.icon({
+     iconUrl: 'pngimg.com_-_hurricane_PNG10-removebg-preview.png', 
+      iconSize: [50, 50], 
+      popupAnchor: [0, 0]  });
+
+ L.geoJSON(Storm, { 
+    pointToLayer: function (feature, latlng) { 
+    return L.marker(latlng, {icon: hurricaneicon});}})
+    .addTo(map)
+    .bindPopup('I am a Big Scary Hurricane called Claudette') 
+        .openPopup();
+
+
+</script>
+</html>
+
