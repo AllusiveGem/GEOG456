@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Major Stadiums / Sports Teams in North Carolina</title>
+  <style>
+    #map { height: 600px; }
+  </style>
+</head>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+
+<body>
+    <img class="header-image" src="https://content.sportslogos.net/news/2019/10/KNP-Header.png">
+    <h1>A Map of A Bunch of Sports Teams and Their Locations in NC!</h1>
+  <div id="map"></div>
+  
+ <script src="buildingpoints.js"></script>
+ 
+ <script>
+    var map = L.map('map').setView([35.75, -79.0], 7);
+
+    var OpenStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var Esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+      maxZoom: 16
+    })
+    
+    var markeroption = {
+    radius: 8,
+    fillColor: "#FB4F14",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+};
+
+    var stadiumsLayer = L.geoJSON(stadiumsGeoJSON, {
+      pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, markeroption).bindPopup(feature.properties.note);
+      }
+    }).addTo(map);
+
+ 
+    var baseLayers = {
+      "OpenStreetMap": OpenStreetMap,
+      "Esri Map": Esri
+    };
+
+    var overlays = {
+      "Major Stadiums": stadiumsLayer
+    };
+
+    // Add layer control to the map
+    L.control.layers(baseLayers, overlays).addTo(map);
+
+  </script>
+</body>
+</html>
