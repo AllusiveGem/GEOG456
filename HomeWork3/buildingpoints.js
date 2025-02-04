@@ -210,6 +210,204 @@ var stadiumsGeoJSON = {
           "type": "Point",
           "coordinates": [-80.839167, 35.225]
         }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Greensboro Coliseum Complex",
+          "note": "Greensboro Coliseum Complex (Greensboro, Greensboro Swarm NBA G League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-79.825556, 36.059722]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Bojangles Coliseum",
+          "note": "Bojangles Coliseum (Charlotte, Charlotte Checkers American Hockey League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.7903918384, 35.2030975209]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Crown Complex",
+          "note": "Crown Complex (Fayetteville, Fayetteville Marksmen Southern Professional Hockey League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-78.891714, 35.015124]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Crown Complex",
+          "note": "Crown Complex (Fayetteville, Fayetteville Fury NISL)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-78.8917143, 35.0151243]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Crown Complex",
+          "note": "Crown Complex (Fayetteville, Fayetteville Stingers The Basketball League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-78.8917145, 35.0151245]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Winston-Salem Fairgrounds Arena",
+          "note": "Winston-Salem Fairgrounds Arena (Winston-Salem, Carolina Thunderbird Federal Prospects Hockey League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.257778, 36.1275]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "WakeMed Soccer Park",
+          "note": "WakeMed Soccer Park (Cary, North Carolina Courage NWSL)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-78.7551061, 35.7861641]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "WakeMed Soccer Park",
+          "note": "WakeMed Soccer Park (Cary, Raleigh Flyers AUDL)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-78.7551062, 35.7861642]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "WakeMed Soccer Park",
+          "note": "WakeMed Soccer Park (Cary, North Carolina FC U23 USL)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-78.7551065, 35.7861645]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "American Legion Memorial Stadium",
+          "note": "American Legion Memorial Stadium (Charlotte, Carolina Ascent FC USL Super League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.8283, 35.2182]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "American Legion Memorial Stadium",
+          "note": "American Legion Memorial Stadium (Charlotte, Carolina Chaos Premier Lacrosse League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.82835, 35.21825]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "American Legion Memorial Stadium",
+          "note": "American Legion Memorial Stadium (Charlotte, Charlotte Indepemendence USL League One)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.828354, 35.218254]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Truist Point",
+          "note": "Truist Point (High Point, MLS Next Pro Carolina Core FC)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.0119446, 35.9594446]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "American Legion Memorial Stadium",
+          "note": "American Legion Memorial Stadium (Charlotte, Anthem Rugby Carolina Major League Rugby)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.8283547, 35.2182547]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Greensboro Coliseum Complex",
+          "note": "Greensboro Coliseum Complex (Greensboro, Carolina Cobras NAL)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-79.8255566, 36.0597226]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Greensboro Coliseum Complex",
+          "note": "Greensboro Coliseum Complex (Greensboro, Greensboro Gargoyles ECHL)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-79.82555665, 36.05972265]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Bojangles Coliseum",
+          "note": "Bojangles Coliseum (Charlotte, Charlotte Thunder American Arena League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-80.7951038, 35.2051648]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "St. Augustine's University",
+          "note": "St. Augustine's University (Raleigh, Raleigh Firebirds The Basketball League)"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-78.6204, 35.7861]
+        }
       }
     ]
-  }
+  } 
