@@ -42,7 +42,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-78.755107, 35.786128]
+          "coordinates": [-78.7554107, 35.786128]
         }
       },
       {
@@ -230,7 +230,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-80.7903918384, 35.2030975209]
+          "coordinates": [-80.7951038, 35.20551648]
         }
       },
       {
@@ -241,7 +241,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-78.891714, 35.015124]
+          "coordinates": [-78.891714, 35.015024]
         }
       },
       {
@@ -252,7 +252,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-78.8917143, 35.0151243]
+          "coordinates": [-78.8917143, 35.0153243]
         }
       },
       {
@@ -263,7 +263,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-78.8917145, 35.0151245]
+          "coordinates": [-78.8917145, 35.0152245]
         }
       },
       {
@@ -285,7 +285,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-78.7551061, 35.7861641]
+          "coordinates": [-78.75561061, 35.7861641]
         }
       },
       {
@@ -296,7 +296,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-78.7551062, 35.7861642]
+          "coordinates": [-78.75581062, 35.7861642]
         }
       },
       {
@@ -318,7 +318,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-80.8283, 35.2182]
+          "coordinates": [-80.8283, 35.21882]
         }
       },
       {
@@ -329,7 +329,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-80.82835, 35.21825]
+          "coordinates": [-80.82835, 35.218525]
         }
       },
       {
@@ -351,7 +351,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-80.0119446, 35.9594446]
+          "coordinates": [-80.0119446, 35.95964446]
         }
       },
       {
@@ -373,7 +373,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-79.8255566, 36.0597226]
+          "coordinates": [-79.8255566, 36.05957226]
         }
       },
       {
@@ -384,7 +384,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-79.82555665, 36.05972265]
+          "coordinates": [-79.82555665, 36.059872265]
         }
       },
       {
