@@ -340,7 +340,7 @@ var stadiumsGeoJSON = {
         },
         "geometry": {
           "type": "Point",
-          "coordinates": [-80.828354, 35.218254]
+          "coordinates": [-80.8289354, 35.218254]
         }
       },
       {
