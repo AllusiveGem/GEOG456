@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Savannah Urban Planning Projects - Showcasing sustainable designs, transportation systems, and community development projects.">
+    <meta name="keywords" content="Savannah, urban planning, sustainable design, transportation systems, community development">
+    <meta name="author" content="Corey Reichert">
+    <meta name="robots" content="index, follow">
+    <title>Savannah Urban Planning Projects | Corey Reichert</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2A5C82;
+            --secondary-color: #5C8374;
+            --accent-color: #D4A373;
+            --text-color: #333;
+            --light-bg: #f4f4f4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Navigation styles */
+        .nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .nav.hide {
+            transform: translateY(-100%);
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 1001;
+            top: 100%;
+            left: 0;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content li {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--light-bg);
+            color: var(--accent-color);
+        }
+
+        /* Video Hero Section */
+        .video-hero {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            margin-top: -76px;
+            z-index: 0;
+        }
+
+        .video-hero video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        /* Gallery Section */
+        .gallery {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .gallery-item img {
+            width: 50%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .gallery-item .description {
+            width: 50%;
+            padding: 2rem;
+        }
+
+        .gallery-item .description h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .gallery-item .description p {
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        /* Quote Section */
+        .quote {
+            padding: 5rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        .quote blockquote {
+            font-size: 1.5rem;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .quote cite {
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Footer styles */
+        footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.5rem 1rem;
+            }
+
+            .nav-brand {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+                margin-top: 0.5rem;
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+
+            .dropdown-content {
+                position: static;
+                box-shadow: none;
+                background-color: transparent;
+                min-width: unset;
+                padding: 0.5rem;
+            }
+
+            .dropdown-content a {
+                padding: 8px 12px;
+                padding-left: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .gallery-item {
+                flex-direction: column;
+            }
+
+            .gallery-item img {
+                width: 100%;
+                height: 200px;
+            }
+
+            .gallery-item .description {
+                width: 100%;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">Corey Reichert</a>
+        <ul class="nav-links">
+            <li><a href="TestingGround.html">Home</a></li>
+            <li><a href="TestingGround.html#resume">Resume</a></li>
+            <li class="dropdown">
+                <a href="TestingGround.html#portfolio">Portfolio ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="block-island-map.html">Block Island</a></li>
+                    <li><a href="savannah-map.html">Savannah Georgia</a></li>
+                    <li><a href="#">3D Prints</a></li>
+                    <li><a href="#">Photography</a></li>
+                    <li><a href="#">QGIS Maps + Graphs</a></li>
+                    <li><a href="#">Publications</a></li>
+                </ul>
+            </li>
+            <li><a href="#map">Interactive Maps</a></li>
+            <li class="dropdown">
+                <a href="#contact">Contact ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="https://www.linkedin.com/in/corey-reichert-47837a2aa/">LinkedIn</a></li>
+                    <li><a href="https://github.com/AllusiveGem">GitHub</a></li>
+                    <li><a href="mailto:reichertcorey08@gmail.com">Email</a></li>
+                    <li><a href="https://x.com/jon_bois">Twitter</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Video Hero Section -->
+    <section class="video-hero">
+        <video autoplay muted loop playsinline>
+            <source src="assets/videos/savannah.mp4" type="video/mp4">
+            <!-- Fallback sources for different formats -->
+            <source src="assets/videos/savannah.webm" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay">
+            <div class="hero-content">
+                <h1>Savannah Urban Planning</h1>
+                <p class="hero-subtitle">Sustainable Development and Community Projects</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery">
+        <!-- Gallery Item 1 -->
+        <div class="gallery-item">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Savannah_GA_historic_district.jpg/1200px-Savannah_GA_historic_district.jpg" alt="Historic District">
+            <div class="description">
+                <h3>Historic District Revitalization</h3>
+                <p>Revitalizing Savannah's historic district to preserve its cultural heritage while promoting sustainable urban development.</p>
+            </div>
+        </div>
+
+        <!-- Gallery Item 2 -->
+        <div class="gallery-item">
+            <img src="https://www.planetizen.com/files/images/AdobeStock_197347438.jpeg" alt="Transportation Planning">
+            <div class="description">
+                <h3>Transportation Planning</h3>
+                <p>Developing efficient and sustainable transportation systems to reduce traffic congestion and improve accessibility in Savannah.</p>
+            </div>
+        </div>
+
+        <!-- Gallery Item 3 -->
+        <div class="gallery-item">
+            <img src="https://www.nps.gov/subjects/climatechange/images/CoastalResilience.jpg" alt="Coastal Resilience">
+            <div class="description">
+                <h3>Coastal Resilience</h3>
+                <p>Implementing strategies to protect Savannah's coastline from erosion and rising sea levels.</p>
+            </div>
+        </div>
+
+        <!-- Gallery Item 4 -->
+        <div class="gallery-item">
+            <img src="https://www.blockislandtimes.com/sites/default/files/styles/article_large/public/field/image/BIWindFarm.jpg" alt="Renewable Energy">
+            <div class="description">
+                <h3>Renewable Energy</h3>
+                <p>Expanding wind and solar energy infrastructure to make Savannah a leader in renewable energy.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote Section -->
+    <section class="quote">
+        <blockquote>
+            "Savannah is a city where history meets innovation. Our urban planning projects aim to preserve its rich heritage while building a sustainable future."
+        </blockquote>
+        <cite>- Corey Reichert</cite>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.scrollY;
+            const nav = document.querySelector(".nav");
+
+            if (currentScroll <= 0) {
+                // At the top of the page
+                nav.classList.remove("hide");
+            } else if (currentScroll > lastScroll) {
+                // Scrolling down
+                nav.classList.add("hide");
+            } else {
+                // Scrolling up
+                nav.classList.remove("hide");
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>
