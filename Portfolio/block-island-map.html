@@ -462,16 +462,22 @@
         });
     </script>
     <script>
-        // Add this to your existing JavaScript
+        // Modified scroll behavior for nav
         let lastScroll = 0;
 
         window.addEventListener("scroll", () => {
             const currentScroll = window.scrollY;
+            const nav = document.querySelector(".nav");
 
-            if (currentScroll > lastScroll) {
-                document.querySelector(".nav").classList.add("hide");
+            if (currentScroll <= 0) {
+                // At the top of the page
+                nav.classList.remove("hide");
+            } else if (currentScroll > lastScroll) {
+                // Scrolling down
+                nav.classList.add("hide");
             } else {
-                document.querySelector(".nav").classList.remove("hide");
+                // Scrolling up
+                nav.classList.remove("hide");
             }
 
             lastScroll = currentScroll;
