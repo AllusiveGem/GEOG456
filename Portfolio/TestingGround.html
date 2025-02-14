@@ -354,14 +354,45 @@
                 margin-top: 1rem;
             }
         }
-        .hidden-message { display: none; color: var(--accent-color); font-weight: bold; text-align: center; margin-top: 1rem; }
-        .hover-reveal { display: none; color: var(--secondary-color); font-style: italic; }
+        .hidden-message { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: white; 
+            padding: 1rem 2rem; 
+            border: 2px solid #D4A373; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+            color: #D4A373; 
+            font-weight: bold; 
+            text-align: center; 
+            z-index: 9999; 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+        }
+        .hidden-message.show { 
+            display: block; 
+            opacity: 1; 
+        }
+        .close-btn { 
+            display: block; 
+            margin-top: 1rem; 
+            background: #D4A373; 
+            color: white; 
+            border: none; 
+            padding: 0.5rem 1rem; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+
     </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="nav">
-        <a href="#home" class="nav-brand">Corey Reichert</a>
+        <a href="#home" class="nav-brand" id="name-easter-egg">Corey Reichert</a>
         <ul class="nav-links">
             <li><a href="#home">Home</a></li>
             <li><a href="#resume">Resume</a></li>
@@ -370,9 +401,19 @@
             <li><a href="#contact">Contact</a></li>
         </ul>
     </nav>
-    <div id="konami-message" class="hidden-message">🎉 Konami Code Activated! You found an Easter Egg! 🎉</div>
-    <div id="click-message" class="hidden-message">Did you know? Urban planning can increase property values by up to 20%! 🚀</div>
-    <div id="secret-key-message" class="hidden-message">Surprise! You've unlocked a secret! 🎈</div>
+    <div id="konami-message" class="hidden-message">
+        🎉 Konami Code Activated! You found an Easter Egg! 🎉
+        <button class="close-btn" onclick="this.parentElement.classList.remove('show');">Close</button>
+    </div>
+    <div id="click-message" class="hidden-message">
+        Did you know? Urban planning can increase property values by up to 20%! 🚀
+        <button class="close-btn" onclick="this.parentElement.classList.remove('show');">Close</button>
+    </div>
+    <div id="secret-key-message" class="hidden-message">
+        Surprise! You've unlocked a secret! 🎈
+        <button class="close-btn" onclick="this.parentElement.classList.remove('show');">Close</button>
+    </div>
+
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-content">
@@ -640,14 +681,13 @@ const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this l
         // Add default base map
         osmLayer.addTo(map);
 
-        // Konami Code
         const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
         let konamiIndex = 0;
         document.addEventListener("keydown", function(e) {
             if (e.key === konamiCode[konamiIndex]) {
                 konamiIndex++;
                 if (konamiIndex === konamiCode.length) {
-                    document.getElementById("konami-message").style.display = "block";
+                    document.getElementById("konami-message").classList.add("show");
                     konamiIndex = 0;
                 }
             } else {
@@ -655,30 +695,14 @@ const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this l
             }
         });
 
-        // Hidden Message on Click
         document.getElementById("name-easter-egg").addEventListener("click", function() {
-            document.getElementById("click-message").style.display = "block";
+            document.getElementById("click-message").classList.add("show");
         });
 
-        // Secret Key Combination (Ctrl + Shift + C)
         document.addEventListener("keydown", function(e) {
             if (e.ctrlKey && e.shiftKey && e.key === "C") {
-                document.getElementById("secret-key-message").style.display = "block";
+                document.getElementById("secret-key-message").classList.add("show");
             }
-        });
-
-        // Hover Effects for Portfolio Items
-        document.querySelectorAll(".project-info h3").forEach(item => {
-            item.addEventListener("mouseover", function() {
-                const hoverText = document.createElement("span");
-                hoverText.classList.add("hover-reveal");
-                hoverText.textContent = " (Hidden gem!)";
-                this.appendChild(hoverText);
-                hoverText.style.display = "inline";
-            });
-            item.addEventListener("mouseout", function() {
-                this.querySelector(".hover-reveal").remove();
-            });
         });
 
 
