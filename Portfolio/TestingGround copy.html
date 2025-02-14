@@ -387,62 +387,6 @@
             cursor: pointer; 
         }
 
-        /* Add dropdown styles to your existing CSS */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            border-radius: 5px;
-            z-index: 1001;
-            top: 100%;
-            left: 0;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .dropdown-content li {
-            display: block;
-        }
-
-        .dropdown-content a {
-            color: var(--text-color);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            transition: background-color 0.3s;
-            white-space: nowrap;
-        }
-
-        .dropdown-content a:hover {
-            background-color: var(--light-bg);
-            color: var(--accent-color);
-        }
-
-        /* Update your existing media query for responsive design */
-        @media (max-width: 768px) {
-            // ... existing media query styles ...
-            
-            .dropdown-content {
-                position: static;
-                box-shadow: none;
-                background-color: transparent;
-                min-width: unset;
-            }
-
-            .dropdown-content a {
-                padding-left: 2rem;
-            }
-        }
-
     </style>
 </head>
 <body>
@@ -452,27 +396,9 @@
         <ul class="nav-links">
             <li><a href="#home">Home</a></li>
             <li><a href="#resume">Resume</a></li>
-            <li class="dropdown">
-                <a href="#portfolio">Portfolio ▼</a>
-                <ul class="dropdown-content">
-                    <li><a href="block-island-map.html">Block Island</a></li>
-                    <li><a href="#">Savannah Georgia</a></li>
-                    <li><a href="#">3D Prints</a></li>
-                    <li><a href="#">Photography</a></li>
-                    <li><a href="#">QGIS Maps</a></li>
-                    <li><a href="#">Publications</a></li>
-                </ul>
-            </li>
+            <li><a href="#portfolio">Portfolio</a></li>
             <li><a href="#maps">Interactive Maps</a></li>
-            <li class="dropdown">
-                <a href="#contact">Contact ▼</a>
-                <ul class="dropdown-content">
-                    <li><a href="https://www.linkedin.com/in/corey-reichert-47837a2aa/">LinkedIn</a></li>
-                    <li><a href="https://github.com/AllusiveGem">GitHub</a></li>
-                    <li><a href="mailto:reichertcorey08@gmail.com">Email</a></li>
-                    <li><a href="https://x.com/jon_bois">Twitter</a></li>
-                </ul>
-            </li>
+            <li><a href="#contact">Contact</a></li>
         </ul>
     </nav>
     <div id="konami-message" class="hidden-message">
