@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for SEO and accessibility -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Block Island Urban Planning Projects - Showcasing sustainable designs, transportation systems, and community development projects.">
+    <meta name="keywords" content="Block Island, urban planning, sustainable design, transportation systems, community development">
+    <meta name="author" content="Corey Reichert">
+    <meta name="robots" content="index, follow">
+    <title>Block Island Urban Planning Projects | Corey Reichert</title>
+
+    <!-- Leaflet CSS for interactive maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts for elegant typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- CSS Styles -->
+    <style>
+        /* Timeless color palette */
+        :root {
+            --primary-color: #2A5C82;  /* Deep blue */
+            --secondary-color: #5C8374; /* Muted green */
+            --accent-color: #D4A373;   /* Warm beige */
+            --text-color: #333;
+            --light-bg: #f4f4f4;
+        }
+
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Navigation styles */
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Hero section with gradient overlay */
+        .hero {
+            height: 50vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                        url('https://upload.wikimedia.org/wikipedia/commons/2/20/HiRes_BlockIsland_Aerial_7-23-2015.jpg') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            font-weight: 300;
+            animation: fadeInUp 1.5s ease;
+        }
+
+        /* Projects Section */
+        .projects {
+            padding: 5rem 2rem;
+            background: var(--light-bg);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .project-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .project-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-info {
+            padding: 1.5rem;
+        }
+
+        .project-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-info p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .project-link {
+            text-decoration: none;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .project-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Leaflet map container */
+        #map {
+            height: 500px;
+            width: 100%;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Footer styles */
+        footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-links {
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">Corey Reichert</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#resume">Resume</a></li>
+            <li><a href="index.html#portfolio">Portfolio</a></li>
+            <li><a href="index.html#maps">Interactive Maps</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Block Island Urban Planning</h1>
+            <p class="hero-subtitle">Sustainable Development and Community Projects</p>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects">
+        <div class="category-header">
+            <h2>Featured Projects</h2>
+            <p>Explore urban planning projects on Block Island</p>
+        </div>
+        <div class="projects-grid">
+            <!-- Project 1: Transportation Planning -->
+            <div class="project-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/HiRes_BlockIsland_Aerial_7-23-2015.jpg" alt="Transportation Planning">
+                <div class="project-info">
+                    <h3>Transportation Planning</h3>
+                    <p>Developing sustainable transportation systems to reduce traffic congestion and improve accessibility on Block Island.</p>
+                    <a href="#" class="project-link">View Details →</a>
+                </div>
+            </div>
+
+            <!-- Project 2: Coastal Resilience -->
+            <div class="project-item">
+                <img src="https://www.nps.gov/subjects/climatechange/images/CoastalResilience.jpg" alt="Coastal Resilience">
+                <div class="project-info">
+                    <h3>Coastal Resilience</h3>
+                    <p>Implementing strategies to protect Block Island's coastline from erosion and rising sea levels.</p>
+                    <a href="#" class="project-link">View Details →</a>
+                </div>
+            </div>
+
+            <!-- Project 3: Renewable Energy -->
+            <div class="project-item">
+                <img src="https://www.blockislandtimes.com/sites/default/files/styles/article_large/public/field/image/BIWindFarm.jpg" alt="Renewable Energy">
+                <div class="project-info">
+                    <h3>Renewable Energy</h3>
+                    <p>Expanding wind and solar energy infrastructure to make Block Island a leader in renewable energy.</p>
+                    <a href="#" class="project-link">View Details →</a>
+                </div>
+            </div>
+
+            <!-- Project 4: Community Development -->
+            <div class="project-item">
+                <img src="https://www.blockislandinfo.com/sites/default/files/styles/large/public/field/image/BICommunityCenter.jpg" alt="Community Development">
+                <div class="project-info">
+                    <h3>Community Development</h3>
+                    <p>Revitalizing public spaces and community centers to foster social engagement and economic growth.</p>
+                    <a href="#" class="project-link">View Details →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section class="projects">
+        <div class="category-header">
+            <h2>Interactive Map</h2>
+            <p>Explore spatial data and urban planning projects on Block Island</p>
+        </div>
+        <div id="map"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
+    </footer>
+
+    <!-- Leaflet JS for interactive maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize Leaflet map
+        const map = L.map('map').setView([41.1725, -71.5575], 13); // Centered on Block Island
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add markers for projects
+        const projects = [
+            {
+                name: "Transportation Planning",
+                location: [41.1725, -71.5575],
+                description: "Sustainable transportation systems for Block Island."
+            },
+            {
+                name: "Coastal Resilience",
+                location: [41.1800, -71.5600],
+                description: "Protecting the coastline from erosion and rising sea levels."
+            },
+            {
+                name: "Renewable Energy",
+                location: [41.1650, -71.5500],
+                description: "Expanding wind and solar energy infrastructure."
+            },
+            {
+                name: "Community Development",
+                location: [41.1750, -71.5550],
+                description: "Revitalizing public spaces and community centers."
+            }
+        ];
+
+        projects.forEach(project => {
+            L.marker(project.location).addTo(map)
+                .bindPopup(`<b>${project.name}</b><br>${project.description}`);
+        });
+    </script>
+</body>
+</html>
