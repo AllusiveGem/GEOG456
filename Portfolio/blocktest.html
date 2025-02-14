@@ -410,7 +410,7 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Add markers for projects
+        // Add circle markers for projects
         const projects = [
             {
                 name: "Transportation Planning",
@@ -435,8 +435,22 @@
         ];
 
         projects.forEach(project => {
-            L.marker(project.location).addTo(map)
-                .bindPopup(`<b>${project.name}</b><br>${project.description}`);
+            L.circleMarker(project.location, {
+                radius: 10,
+                fillColor: '#2A5C82',
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map)
+              .bindPopup(`
+                <div style="padding: 10px;">
+                    <h3 style="color: #2A5C82; margin-bottom: 8px;">${project.name}</h3>
+                    <p style="margin: 0;">${project.description}</p>
+                </div>
+              `, {
+                  maxWidth: 300
+              });
         });
     </script>
 </body>
