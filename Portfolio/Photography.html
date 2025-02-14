@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="3D Prints Gallery - Showcasing Corey Reichert's 3D printing projects and designs.">
-    <meta name="keywords" content="3D prints, 3D printing, urban planning, sustainable design, Corey Reichert">
+    <meta name="description" content="Photography Gallery - Showcasing Corey Reichert's photography projects and artistic vision.">
+    <meta name="keywords" content="photography, urban photography, landscape photography, Corey Reichert">
     <meta name="author" content="Corey Reichert">
     <meta name="robots" content="index, follow">
-    <title>3D Prints Gallery | Corey Reichert</title>
+    <title>Photography Gallery | Corey Reichert</title>
 
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
@@ -171,12 +171,14 @@
         .swiper-slide .overlay h2 {
             font-size: 2.5rem;
             margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
         }
 
         .swiper-slide .overlay p {
             font-size: 1.2rem;
             max-width: 800px;
             margin: 0 auto;
+            animation: fadeInUp 1.5s ease;
         }
 
         /* Swiper Navigation Arrows */
@@ -212,6 +214,18 @@
             z-index: 1000;
         }
 
+        /* Keyframe animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .swiper-slide .overlay h2 {
@@ -236,8 +250,8 @@
                 <ul class="dropdown-content">
                     <li><a href="block-island-map.html">Block Island</a></li>
                     <li><a href="savannah-map.html">Savannah Georgia</a></li>
-                    <li><a href="3D-Prints.html">3D Prints</a></li>
-                    <li><a href="Photography.html">Photography</a></li>
+                    <li><a href="3d-prints.html">3D Prints</a></li>
+                    <li><a href="photography.html">Photography</a></li>
                     <li><a href="#">QGIS Maps + Graphs</a></li>
                     <li><a href="#">Publications</a></li>
                 </ul>
@@ -260,37 +274,37 @@
         <div class="swiper-wrapper">
             <!-- Slide 1 -->
             <div class="swiper-slide">
-                <img src="https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg" alt="3D Print 1">
+                <img src="https://via.placeholder.com/1200x800" alt="Photography 1">
                 <div class="overlay">
-                    <h2>Urban Model</h2>
-                    <p>A detailed 3D model of a sustainable urban development project, showcasing green spaces and efficient transportation systems.</p>
+                    <h2>Urban Landscapes</h2>
+                    <p>Exploring the interplay of architecture, light, and human activity in urban environments.</p>
                 </div>
             </div>
 
             <!-- Slide 2 -->
             <div class="swiper-slide">
-                <img src="https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg" alt="3D Print 2">
+                <img src="https://via.placeholder.com/1200x800" alt="Photography 2">
                 <div class="overlay">
-                    <h2>Architectural Prototype</h2>
-                    <p>A prototype of a modern architectural design, highlighting innovative use of materials and space.</p>
+                    <h2>Natural Wonders</h2>
+                    <p>Capturing the raw beauty of nature, from sweeping landscapes to intricate details.</p>
                 </div>
             </div>
 
             <!-- Slide 3 -->
             <div class="swiper-slide">
-                <img src="https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg" alt="3D Print 3">
+                <img src="https://via.placeholder.com/1200x800" alt="Photography 3">
                 <div class="overlay">
-                    <h2>Historical Reconstruction</h2>
-                    <p>A 3D reconstruction of a historical building, preserving its architectural details for future generations.</p>
+                    <h2>Street Photography</h2>
+                    <p>Documenting the candid moments and stories of everyday life in the city.</p>
                 </div>
             </div>
 
             <!-- Slide 4 -->
             <div class="swiper-slide">
-                <img src="https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg" alt="3D Print 4">
+                <img src="https://via.placeholder.com/1200x800" alt="Photography 4">
                 <div class="overlay">
-                    <h2>Interactive Map</h2>
-                    <p>A 3D-printed interactive map of a city, designed for educational and planning purposes.</p>
+                    <h2>Architectural Details</h2>
+                    <p>Highlighting the intricate designs and textures of buildings and structures.</p>
                 </div>
             </div>
 
@@ -322,6 +336,15 @@
             navigation: {
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
+            },
+            keyboard: {
+                enabled: true,
+            },
+            mousewheel: {
+                invert: false,
+            },
+            lazy: {
+                loadPrevNext: true,
             },
         });
 
