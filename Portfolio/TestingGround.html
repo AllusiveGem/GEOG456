@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for SEO and accessibility -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Urban Planning Portfolio of Corey Reichert - Showcasing sustainable city designs, transportation systems, and community development projects.">
+    <meta name="keywords" content="urban planning, sustainable design, city development, transportation systems, Leaflet maps">
+    <meta name="author" content="Corey Reichert">
+    <meta name="robots" content="index, follow">
+    <title>Corey Reichert | Urban Planning Portfolio</title>
+
+    <!-- Leaflet CSS for interactive maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts for elegant typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- CSS Styles -->
+    <style>
+        /* Timeless color palette */
+        :root {
+            --primary-color: #2A5C82;  /* Deep blue */
+            --secondary-color: #5C8374; /* Muted green */
+            --accent-color: #D4A373;   /* Warm beige */
+            --text-color: #333;
+            --light-bg: #f4f4f4;
+        }
+
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        .area-label {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #333;
+}
+
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Navigation styles */
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Hero section with gradient overlay */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                        url('https://miro.medium.com/v2/resize:fit:1400/1*7sfKqs2vqDR39yT9EEoCEA.jpeg') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-content p {
+            font-size: 1.5rem;
+            font-weight: 300;
+            animation: fadeInUp 1.5s ease;
+        }
+
+        /* Resume Section */
+        .resume {
+            padding: 5rem 2rem;
+            background: white;
+            text-align: center;
+        }
+
+        .resume-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .resume-content img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-bottom: 1.5rem;
+        }
+
+        .resume-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .resume-content p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .resume-details {
+            text-align: left;
+            margin-top: 2rem;
+        }
+
+        .resume-details h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .resume-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .resume-details li {
+            margin-bottom: 1.5rem;
+        }
+
+        .resume-details strong {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .resume-download {
+            margin-top: 2rem;
+        }
+
+        .resume-download a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            border: 2px solid var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .resume-download a:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Portfolio grid */
+        .portfolio {
+            padding: 5rem 2rem;
+            background: var(--light-bg);
+        }
+
+        .category-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .category-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .portfolio-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .portfolio-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-info {
+            padding: 1.5rem;
+        }
+
+        .project-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-info p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .project-link {
+            text-decoration: none;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .project-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Leaflet map container */
+        #map {
+            height: 500px;
+            width: 100%;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 5rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .contact-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .contact-links i {
+            margin-right: 0.5rem;
+        }
+
+        /* Footer styles */
+        footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-content p {
+                font-size: 1.2rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-links {
+                margin-top: 1rem;
+            }
+        }
+        .hidden-message { display: none; color: var(--accent-color); font-weight: bold; text-align: center; margin-top: 1rem; }
+        .hover-reveal { display: none; color: var(--secondary-color); font-style: italic; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="#home" class="nav-brand">Corey Reichert</a>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#resume">Resume</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#maps">Interactive Maps</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <div id="konami-message" class="hidden-message">🎉 Konami Code Activated! You found an Easter Egg! 🎉</div>
+    <div id="click-message" class="hidden-message">Did you know? Urban planning can increase property values by up to 20%! 🚀</div>
+    <div id="secret-key-message" class="hidden-message">Surprise! You've unlocked a secret! 🎈</div>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Urban Planning & Design</h1>
+            <p class="hero-subtitle">Crafting Sustainable Cities for the Future</p>
+        </div>
+    </section>
+
+    <!-- Resume Section -->
+    <section id="resume" class="resume">
+        <div class="resume-content">
+            <img src="https://i.ibb.co/FkFc8WQc/1706119100075.jpg" alt="Corey Reichert">
+            <h2>Corey Reichert</h2>
+            <p>Urban Planner | Researcher | Designer</p>
+            <div class="resume-details">
+                <h3>Job Experience</h3>
+                <ul>
+                    <li>
+                        <strong>Host</strong> - Carrabba's Italian Grill (2023–Present)<br>
+                        Created Strong Work-ethic along with the ability to deal with diversity and working with people.
+                    </li>
+                    <li>
+                        <strong>Store Associate</strong> - Gap INC (2023-2025)<br>
+                        Gained valuable customer service experience, developed strong communication skills, and learned how to work effectively in a fast-paced retail environment.
+                    </li>
+                </ul>
+
+                <h3>Education</h3>
+                <ul>
+                    <li>
+                        <strong>Associates in History</strong> - Rowan Cabarrus Community College (2019-2023)<br>
+                        Focus: Global History.
+                    </li>
+                    <li>
+                        <strong>Bachelor of Political Science and Peace, War, And Defense</strong> - University of North Carolina At Chapel Hill (2023-2025)<br>
+                        Minor in Geographic Information Studies.
+                    </li>
+                </ul>
+            </div>
+            <div class="resume-download">
+                <a href="resume_remake.pdf" download>Download Resume</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="portfolio">
+        <div class="project-category">
+            <div class="category-header">
+                <h2>Featured Projects</h2>
+                <p>Explore my work in urban planning and design</p>
+            </div>
+            <div class="portfolio-grid">
+                <!-- Block Island Topography -->
+                <div class="portfolio-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/HiRes_BlockIsland_Aerial_7-23-2015.jpg" alt="Block Island Topography">
+                    <div class="project-info">
+                        <h3>Block Island Topography</h3>
+                        <p>Analyzing and mapping the unique topography of Block Island for sustainable development.</p>
+                        <a href="#" class="project-link">View Details →</a>
+                    </div>
+                </div>
+
+                <!-- Savannah Georgia Model -->
+                <div class="portfolio-item">
+                    <img src="https://www.planetizen.com/files/images/AdobeStock_197347438.jpeg" alt="Savannah Georgia Model">
+                    <div class="project-info">
+                        <h3>Savannah Georgia Model</h3>
+                        <p>Urban design model showcasing the historic and sustainable development of Savannah, Georgia.</p>
+                        <a href="#" class="project-link">View Details →</a>
+                    </div>
+                </div>
+
+                <!-- 3D Prints -->
+                <div class="portfolio-item">
+                    <img src="https://m.media-amazon.com/images/I/71z5LSBOZBL._UF1000,1000_QL80_.jpg" alt="3D Prints">
+                    <div class="project-info">
+                        <h3>3D Prints</h3>
+                        <p>Exploring urban landscapes through detailed 3D printed models.</p>
+                        <a href="#" class="project-link">View Details →</a>
+                    </div>
+                </div>
+
+                <!-- Photography and Drawing -->
+                <div class="portfolio-item">
+                    <img src="https://i.ibb.co/7d5F5gVw/IMG-4508.jpg" alt="Photography and Drawing">
+                    <div class="project-info">
+                        <h3>Photography and Drawing</h3>
+                        <p>Capturing urban environments through photography and hand-drawn illustrations.</p>
+                        <a href="#" class="project-link">View Details →</a>
+                    </div>
+                </div>
+
+                <!-- QGIS Maps -->
+                <div class="portfolio-item">
+                    <img src="https://us1.discourse-cdn.com/flex016/uploads/inaturalist/optimized/3X/a/1/a11c37175acfbd3f74f3837b4af239da7c5665ee_2_690x397.jpeg" alt="QGIS Maps">
+                    <div class="project-info">
+                        <h3>QGIS Maps</h3>
+                        <p>Creating detailed spatial analyses and maps using QGIS for urban planning projects.</p>
+                        <a href="#" class="project-link">View Details →</a>
+                    </div>
+                </div>
+
+                <!-- Publications -->
+                <div class="portfolio-item">
+                    <img src="https://www.nepad.org/sites/default/files/2024-07/56601f3cce2ab27f0dfe7134e0336ef2_0.jpeg" alt="Publications">
+                    <div class="project-info">
+                        <h3>Publications</h3>
+                        <p>Research papers and articles on urban planning and sustainable development.</p>
+                        <a href="#" class="project-link">View Details →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Maps Section -->
+    <section id="maps" class="portfolio">
+        <div class="category-header">
+            <h2>Interactive Maps</h2>
+            <p>Explore spatial data and urban planning projects</p>
+        </div>
+        <div id="map"></div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2>Get in Touch</h2>
+        <div class="contact-links">
+            <a href="https://www.linkedin.com/in/corey-reichert-47837a2aa/" target="_blank">
+                <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
+            <a href="https://github.com/AllusiveGem" target="_blank">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+            <a href="mailto:reichertcorey08@gmail.com">
+                <i class="fas fa-envelope"></i> Email
+            </a>
+            <a href="https://x.com/jon_bois" target="_blank">
+                <i class="fab fa-twitter"></i> Twitter
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
+    </footer>
+
+    <!-- Leaflet JS for interactive maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize Leaflet map
+// Initialize the map without setting the view yet
+const map = L.map('map');
+
+// Array of all coordinates to center the map
+const coordinates = [
+    [41.1725, -71.5575], // Block Island, RI
+    [32.0809, -81.0912], // Savannah, GA
+    [35.2271, -80.8431], // Charlotte, NC
+    [35.9132, -79.0558]  // Chapel Hill, NC
+];
+
+// Create a feature group with all the coordinates
+const markersGroup = L.featureGroup(coordinates.map(coord => L.marker(coord)));
+
+// Fit the map to the bounds of the feature group (centers the map)
+map.fitBounds(markersGroup.getBounds());
+
+        // Base map layers
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+
+        const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        });
+
+// Overlay layers (research areas)
+const blockIslandLayer = L.layerGroup().addTo(map); // Instantly activate this layer
+const savannahLayer = L.layerGroup().addTo(map);    // Instantly activate this layer
+const charlotteLayer = L.layerGroup().addTo(map);   // Instantly activate this layer
+const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this layer
+
+        // Add circle markers for research areas
+        const researchAreas = [
+            {
+                name: "Block Island, RI",
+                location: [41.1725, -71.5575],
+                layer: blockIslandLayer,
+                link: "block-island-map.html"
+            },
+            {
+                name: "Savannah, GA",
+                location: [32.0809, -81.0912],
+                layer: savannahLayer,
+                link: "savannah-map.html"
+            },
+            {
+                name: "Charlotte, NC",
+                location: [35.2271, -80.8431],
+                layer: charlotteLayer,
+                link: "charlotte-map.html"
+            },
+            {
+                name: "Chapel Hill, NC",
+                location: [35.9132, -79.0558],
+                layer: chapelHillLayer,
+                link: "chapel-hill-map.html"
+            }
+        ];
+
+        researchAreas.forEach(area => {
+    const circle = L.circleMarker(area.location, {
+        radius: 10,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    }).addTo(area.layer);
+
+    // Bind popup to allow redirection on click
+    circle.bindPopup(`<b>${area.name}</b><br>Click to view detailed map.`);
+    circle.on('click', () => {
+        window.location.href = area.link;
+    });
+
+    // Bind tooltip and open it automatically
+    circle.bindTooltip(area.name, {
+        permanent: true,
+        direction: 'top',
+        className: 'area-label'
+    }).openTooltip();  // Open the tooltip automatically
+});
+
+
+        // Add base maps and overlays to the map
+        const baseMaps = {
+            "OpenStreetMap": osmLayer,
+            "Satellite": satelliteLayer,
+            "Terrain": terrainLayer,
+            "Dark Mode": darkLayer
+        };
+
+        const overlayMaps = {
+            "Block Island": blockIslandLayer,
+            "Savannah": savannahLayer,
+            "Charlotte": charlotteLayer,
+            "Chapel Hill": chapelHillLayer
+        };
+
+        // Add layer control to the map
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        // Add default base map
+        osmLayer.addTo(map);
+
+        // Konami Code
+        const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+        let konamiIndex = 0;
+        document.addEventListener("keydown", function(e) {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    document.getElementById("konami-message").style.display = "block";
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        // Hidden Message on Click
+        document.getElementById("name-easter-egg").addEventListener("click", function() {
+            document.getElementById("click-message").style.display = "block";
+        });
+
+        // Secret Key Combination (Ctrl + Shift + C)
+        document.addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === "C") {
+                document.getElementById("secret-key-message").style.display = "block";
+            }
+        });
+
+        // Hover Effects for Portfolio Items
+        document.querySelectorAll(".project-info h3").forEach(item => {
+            item.addEventListener("mouseover", function() {
+                const hoverText = document.createElement("span");
+                hoverText.classList.add("hover-reveal");
+                hoverText.textContent = " (Hidden gem!)";
+                this.appendChild(hoverText);
+                hoverText.style.display = "inline";
+            });
+            item.addEventListener("mouseout", function() {
+                this.querySelector(".hover-reveal").remove();
+            });
+        });
+
+
+    </script>
+</body>
