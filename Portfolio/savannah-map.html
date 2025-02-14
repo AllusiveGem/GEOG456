@@ -299,6 +299,140 @@
                 padding: 1rem;
             }
         }
+
+        /* Quote Section Styles */
+        .quote-section {
+            padding: 6rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            margin: 2rem 0;
+        }
+
+        .quote-section blockquote {
+            max-width: 900px;
+            margin: 0 auto;
+            font-size: 2rem;
+            font-family: 'Playfair Display', serif;
+            line-height: 1.6;
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .quote-section blockquote::before,
+        .quote-section blockquote::after {
+            content: '"';
+            font-size: 4rem;
+            position: absolute;
+            opacity: 0.3;
+        }
+
+        .quote-section blockquote::before {
+            top: -20px;
+            left: -20px;
+        }
+
+        .quote-section blockquote::after {
+            bottom: -40px;
+            right: -20px;
+        }
+
+        /* Gallery Styles */
+        .gallery-container {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .gallery-item {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            margin-bottom: 6rem;
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .gallery-image {
+            flex: 1;
+            max-width: 50%;
+        }
+
+        .gallery-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gallery-text {
+            flex: 1;
+        }
+
+        .gallery-text h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .gallery-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .gallery-item,
+            .gallery-item.reverse {
+                flex-direction: column;
+                padding: 2rem;
+                gap: 2rem;
+            }
+
+            .gallery-image {
+                max-width: 100%;
+            }
+
+            .gallery-text h2 {
+                font-size: 2rem;
+            }
+
+            .quote-section blockquote {
+                font-size: 1.5rem;
+                padding: 1rem;
+            }
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .area-label {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .category-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
@@ -348,51 +482,59 @@
         </div>
     </section>
 
-    <!-- Gallery Section -->
-    <section class="gallery">
-        <!-- Gallery Item 1 -->
-        <div class="gallery-item">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Savannah_GA_historic_district.jpg/1200px-Savannah_GA_historic_district.jpg" alt="Historic District">
-            <div class="description">
-                <h3>Historic District Revitalization</h3>
-                <p>Revitalizing Savannah's historic district to preserve its cultural heritage while promoting sustainable urban development.</p>
-            </div>
-        </div>
-
-        <!-- Gallery Item 2 -->
-        <div class="gallery-item">
-            <img src="https://www.planetizen.com/files/images/AdobeStock_197347438.jpeg" alt="Transportation Planning">
-            <div class="description">
-                <h3>Transportation Planning</h3>
-                <p>Developing efficient and sustainable transportation systems to reduce traffic congestion and improve accessibility in Savannah.</p>
-            </div>
-        </div>
-
-        <!-- Gallery Item 3 -->
-        <div class="gallery-item">
-            <img src="https://www.nps.gov/subjects/climatechange/images/CoastalResilience.jpg" alt="Coastal Resilience">
-            <div class="description">
-                <h3>Coastal Resilience</h3>
-                <p>Implementing strategies to protect Savannah's coastline from erosion and rising sea levels.</p>
-            </div>
-        </div>
-
-        <!-- Gallery Item 4 -->
-        <div class="gallery-item">
-            <img src="https://www.blockislandtimes.com/sites/default/files/styles/article_large/public/field/image/BIWindFarm.jpg" alt="Renewable Energy">
-            <div class="description">
-                <h3>Renewable Energy</h3>
-                <p>Expanding wind and solar energy infrastructure to make Savannah a leader in renewable energy.</p>
-            </div>
-        </div>
+    <!-- Quote Section -->
+    <section class="quote-section">
+        <blockquote>
+            "Savannah's historic squares represent one of America's finest achievements in city planning — a testament to how thoughtful urban design can create enduring, vibrant communities that stand the test of time."
+        </blockquote>
     </section>
 
-    <!-- Quote Section -->
-    <section class="quote">
-        <blockquote>
-            "Savannah is a city where history meets innovation. Our urban planning projects aim to preserve its rich heritage while building a sustainable future."
-        </blockquote>
-        <cite>- Corey Reichert</cite>
+    <!-- Gallery Section -->
+    <div class="gallery-container">
+        <!-- Project 1 -->
+        <div class="gallery-item">
+            <div class="gallery-image">
+                <img src="assets/images/savannah-squares.jpg" alt="Savannah's Historic Squares">
+            </div>
+            <div class="gallery-text">
+                <h2>The Oglethorpe Plan</h2>
+                <p>The Oglethorpe Plan, conceived in 1733, represents a masterpiece of urban planning. Its system of squares, each surrounded by civic buildings and residences, created intimate public spaces that continue to define Savannah's character. The plan's genius lies in its scalability and its integration of public spaces with private development.</p>
+                <p>Each square serves as a small park, a social gathering space, and a focal point for surrounding buildings. This creates a rhythm of open and built spaces that makes Savannah one of the most walkable cities in America.</p>
+            </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="gallery-item reverse">
+            <div class="gallery-image">
+                <img src="assets/images/savannah-architecture.jpg" alt="Architectural Heritage">
+            </div>
+            <div class="gallery-text">
+                <h2>Architectural Evolution</h2>
+                <p>Savannah's architectural heritage spans three centuries, showcasing styles from Georgian to Greek Revival and Victorian. Each building tells a story of the city's evolution, while maintaining a harmonious relationship with its neighbors and the urban fabric.</p>
+                <p>The preservation of these architectural treasures, combined with sensitive new development, ensures that Savannah remains a living museum of American urban design.</p>
+            </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="gallery-item">
+            <div class="gallery-image">
+                <img src="assets/images/savannah-modern.jpg" alt="Modern Development">
+            </div>
+            <div class="gallery-text">
+                <h2>Contemporary Integration</h2>
+                <p>Modern development in Savannah demonstrates how new construction can respect historical context while meeting contemporary needs. Projects focus on sustainable design principles and maintaining the human scale that makes Savannah unique.</p>
+                <p>These developments show how historical preservation and modern innovation can work together to create vibrant urban spaces.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Maps Section -->
+    <section id="maps" class="portfolio">
+        <div class="category-header">
+            <h2>Interactive Map of Savannah</h2>
+            <p>Explore historic districts and urban planning features</p>
+        </div>
+        <div id="map"></div>
     </section>
 
     <!-- Footer -->
@@ -423,6 +565,101 @@
 
             lastScroll = currentScroll;
         });
+
+        // Initialize the map centered on Savannah
+        const map = L.map('map').setView([32.0809, -81.0912], 14);
+
+        // Base map layers
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+        });
+
+        const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        });
+
+        // Points of interest in Savannah
+        const locations = [
+            {
+                name: "Forsyth Park",
+                location: [32.0697, -81.0954],
+                description: "30-acre park and iconic fountain"
+            },
+            {
+                name: "City Market",
+                location: [32.0807, -81.0910],
+                description: "Historic market and entertainment district"
+            },
+            {
+                name: "River Street",
+                location: [32.0814, -81.0912],
+                description: "Historic waterfront promenade"
+            },
+            {
+                name: "Bonaventure Cemetery",
+                location: [32.0452, -81.0488],
+                description: "Historic cemetery with Southern Gothic architecture"
+            },
+            {
+                name: "SCAD Museum of Art",
+                location: [32.0773, -81.0957],
+                description: "Contemporary art museum in historic railroad depot"
+            }
+        ];
+
+        // Create feature group for all markers
+        const markersGroup = L.featureGroup();
+
+        // Add markers for each location
+        locations.forEach(loc => {
+            const marker = L.circleMarker(loc.location, {
+                radius: 10,
+                fillColor: "#ff7800",
+                color: "#000",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+
+            marker.bindPopup(`<b>${loc.name}</b><br>${loc.description}`);
+            
+            // Bind tooltip and open it automatically
+            marker.bindTooltip(loc.name, {
+                permanent: true,
+                direction: 'top',
+                className: 'area-label'
+            }).openTooltip();
+
+            markersGroup.addLayer(marker);
+        });
+
+        // Add markers group to map
+        markersGroup.addTo(map);
+
+        // Fit map bounds to show all markers
+        map.fitBounds(markersGroup.getBounds());
+
+        // Add base maps to layer control
+        const baseMaps = {
+            "OpenStreetMap": osmLayer,
+            "Satellite": satelliteLayer,
+            "Terrain": terrainLayer,
+            "Dark Mode": darkLayer
+        };
+
+        // Add layer control to map
+        L.control.layers(baseMaps).addTo(map);
+
+        // Add default base map
+        osmLayer.addTo(map);
     </script>
 </body>
 </html>
