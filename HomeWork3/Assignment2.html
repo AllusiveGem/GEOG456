@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iron Man Location</title>
+    <Style>
+       body {
+        background-color: rgb(112, 41, 99)
+        ;
+       }
+      
+       #map  {height: 800px; width: 800px;}
+       #map {background-color:aliceblue}
+
+       #adam{
+        orientation: center;
+       }
+    </Style>
+
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+crossorigin=""/>
+
+</head>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+
+
+<body>
+    <h1>Where Is Iron Man</h1>
+    <p>Check out this image of Iron Man to help you Find Him!</p>
+    <img src="https://static1.srcdn.com/wordpress/wp-content/uploads/2024/06/iron-man-from-marvel-rivals.jpg" width="300" height="450">
+    <img src="https://i.makeagif.com/media/5-12-2023/CTrzhO.gif" width="300" height="450" id="adam">
+    <div id="map"></div> 
+</body>
+
+<script>
+    var map = L.map('map').setView([38.8977, -77.0365], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+	maxZoom: 20,
+	attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+        var iamironmanicon = L.icon({
+    iconUrl: 'https://i.pinimg.com/474x/93/eb/f3/93ebf36db5392a1f067d166b6842dbd9.jpg', 
+    iconSize: [1, 1], 
+    popupAnchor: [0, 0] 
+});
+
+var marker = L.marker([38.8977, -77.0365], { icon: iamironmanicon }).addTo(map)
+    .bindPopup('I am Iron Man')
+    .openPopup();
+
+        var ironmancon = L.icon({    
+        iconUrl: 'https://www.tfw2005.com/boards/attachments/marvel-iron-man-mark-xlvi-sixth-scale-captain-america-civil-war-hot-toys-silo-902622-png.27647195/',   
+        iconSize: [50,50], 
+        popupAnchor: [0,0]
+        });
+ var ironManMarker = L.marker([38.8977, -77.0365], { icon: ironmancon }).addTo(map);
+
+var popupContent = `
+    <h1>Iron Man is in the White House!</h1>
+    <img src="https://creator.nightcafe.studio/jobs/aQl5FEg6FxHP8RPm7F6I/aQl5FEg6FxHP8RPm7F6I-WKDTR-adjusted.jpg" 
+    width="200">
+`;
+ironManMarker.bindPopup(popupContent);
+
+
+   
+</script>
+</html>
+

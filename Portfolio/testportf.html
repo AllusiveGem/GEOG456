@@ -522,7 +522,22 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Initialize Leaflet map
-        const map = L.map('map').setView([35.2271, -80.8431], 6); // Centered on Charlotte, NC
+// Initialize the map without setting the view yet
+const map = L.map('map');
+
+// Array of all coordinates to center the map
+const coordinates = [
+    [41.1725, -71.5575], // Block Island, RI
+    [32.0809, -81.0912], // Savannah, GA
+    [35.2271, -80.8431], // Charlotte, NC
+    [35.9132, -79.0558]  // Chapel Hill, NC
+];
+
+// Create a feature group with all the coordinates
+const markersGroup = L.featureGroup(coordinates.map(coord => L.marker(coord)));
+
+// Fit the map to the bounds of the feature group (centers the map)
+map.fitBounds(markersGroup.getBounds());
 
         // Base map layers
         const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
