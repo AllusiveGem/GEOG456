@@ -699,9 +699,12 @@ const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this l
             document.getElementById("click-message").classList.add("show");
         });
 
+        let codeInput = "";
         document.addEventListener("keydown", function(e) {
-            if (e.ctrlKey && e.shiftKey && e.key === "V") {
+            codeInput += e.key;
+            if (codeInput.includes("1984")) {
                 document.getElementById("secret-key-message").classList.add("show");
+                codeInput = ""; // Reset after triggering
             }
         });
 
