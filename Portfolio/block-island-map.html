@@ -53,7 +53,7 @@
 
         /* Navigation styles */
         .nav {
-            position: fixed;
+            position: sticky;
             top: 0;
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -63,6 +63,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .nav.hide {
+            transform: translateY(-100%);
         }
 
         .nav-brand {
@@ -453,6 +458,22 @@
         projects.forEach(project => {
             L.marker(project.location).addTo(map)
                 .bindPopup(`<b>${project.name}</b><br>${project.description}`);
+        });
+    </script>
+    <script>
+        // Add this to your existing JavaScript
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.scrollY;
+
+            if (currentScroll > lastScroll) {
+                document.querySelector(".nav").classList.add("hide");
+            } else {
+                document.querySelector(".nav").classList.remove("hide");
+            }
+
+            lastScroll = currentScroll;
         });
     </script>
 </body>
