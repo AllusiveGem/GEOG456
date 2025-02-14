@@ -146,6 +146,7 @@
 @media (max-width: 768px) {
     .nav {
         padding: 0.5rem 1rem; /* Reduce padding */
+        height: auto; /* Allow the nav to adjust its height based on content */
     }
 
     .nav-brand {
@@ -153,20 +154,32 @@
     }
 
     .nav-links {
-        gap: 1rem; /* Reduce gap between links */
+        flex-direction: column; /* Stack links vertically */
+        gap: 0.5rem; /* Reduce gap between links */
         margin-top: 0.5rem; /* Reduce margin */
+        width: 100%; /* Full width */
     }
 
     .nav-links a {
         font-size: 0.9rem; /* Reduce font size for links */
+        padding: 0.5rem 0; /* Add padding to links for better touch targets */
     }
 
     .dropdown-content {
-        padding: 0.5rem; /* Reduce padding in dropdown */
+        position: static; /* Make dropdown content flow naturally */
+        box-shadow: none; /* Remove shadow for a cleaner look */
+        background-color: transparent; /* Transparent background */
+        padding: 0; /* Remove padding */
     }
 
     .dropdown-content a {
-        padding: 8px 12px; /* Reduce padding for dropdown links */
+        padding: 0.5rem 1rem; /* Adjust padding for dropdown links */
+        padding-left: 2rem; /* Indent dropdown links for hierarchy */
+    }
+
+    /* Ensure the hero section has enough top margin to avoid overlap */
+    .hero {
+        margin-top: 60px; /* Adjust based on the height of the nav */
     }
 }
 
