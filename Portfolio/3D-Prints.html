@@ -315,7 +315,7 @@
         grid-row: 2;
         width: 100%;
         position: absolute;
-        top: calc(100% + 10px);  /* Add 10px gap between nav and dropdown */
+        top: calc(100% + 10px);
         left: 0;
         background: white;
         padding: 1rem;
@@ -325,13 +325,11 @@
     .nav-links.show {
         display: flex;
         flex-direction: column;
+        gap: 0.25rem;  /* Reduced from default gap */
     }
 
     .nav-links a {
-        font-size: 1rem;  /* Standardize font size */
-        padding: 0.75rem 0;  /* Standardize padding */
-        display: block;
-        width: 100%;
+        padding: 0.5rem 0;  /* Reduced padding */
     }
 
     .dropdown-content {
