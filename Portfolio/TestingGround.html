@@ -951,11 +951,22 @@ const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this l
         });
 
         let codeInput = "";
+        const secretCode = "1984";
         document.addEventListener("keydown", function(e) {
-            codeInput += e.key;
-            if (codeInput.includes("1984")) {
-                document.getElementById("secret-key-message").classList.add("show");
-                codeInput = ""; // Reset after triggering
+            // Only add numerical inputs
+            if (/^\d$/.test(e.key)) {
+                codeInput += e.key;
+                console.log("Current input:", codeInput); // Debug line
+                
+                // Trim codeInput to match secretCode length
+                if (codeInput.length > secretCode.length) {
+                    codeInput = codeInput.slice(-secretCode.length);
+                }
+                
+                if (codeInput === secretCode) {
+                    document.getElementById("secret-key-message").classList.add("show");
+                    codeInput = ""; // Reset after triggering
+                }
             }
         });
 
@@ -983,5 +994,32 @@ const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this l
         document.getElementById('nav-toggle').addEventListener('click', function() {
             document.getElementById('nav-links').classList.toggle('show');
         });
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+        let codeInput = "";
+        const secretCode = "1984";
+
+        document.addEventListener("keydown", function(e) {
+            // Only add numerical inputs
+            if (/^\d$/.test(e.key)) {
+                codeInput += e.key;
+                console.log("Current input:", codeInput); // Debugging
+
+                // Trim codeInput to match secretCode length
+                if (codeInput.length > secretCode.length) {
+                    codeInput = codeInput.slice(-secretCode.length);
+                }
+
+                console.log("Trimmed input:", codeInput); // Debugging
+
+                if (codeInput === secretCode) {
+                    console.log("Secret code activated!"); // Debugging
+                    document.getElementById("secret-key-message").classList.add("show");
+                    codeInput = ""; // Reset after triggering
+                }
+            }
+        });
+    });
     </script>
 </body>
