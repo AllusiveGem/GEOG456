@@ -315,12 +315,11 @@
         grid-row: 2;
         width: 100%;
         position: absolute;
-        top: 100%;
+        top: calc(100% + 10px);  /* Add 10px gap between nav and dropdown */
         left: 0;
         background: white;
         padding: 1rem;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        gap: 0.5rem;  /* Standardize spacing between items */
     }
 
     .nav-links.show {
