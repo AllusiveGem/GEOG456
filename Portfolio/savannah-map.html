@@ -476,13 +476,53 @@
     0%   { transform: rotateX(0) rotateY(0); }
     100% { transform: rotateX(360deg) rotateY(360deg); }
 }
+
+/* Navigation styles */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .nav-links.show {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+        padding-left: 1rem;
+    }
+}
     </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="nav">
         <a href="index.html" class="nav-brand">Corey Reichert</a>
-        <ul class="nav-links">
+        <button class="nav-toggle" id="nav-toggle">☰</button>
+        <ul class="nav-links" id="nav-links">
             <li><a href="TestingGround.html">Home</a></li>
             <li><a href="TestingGround.html#resume">Resume</a></li>
             <li class="dropdown">
@@ -713,6 +753,11 @@
 
         // Add default base map
         osmLayer.addTo(map);
+
+        // Mobile navigation toggle
+        document.getElementById('nav-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('show');
+        });
     </script>
 </body>
 </html>
