@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Portfolio</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
+    <!-- Leaflet CSS (for maps) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <!-- Chart.js CSS (for graphs) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.css">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #2A5C82;
+            --secondary-color: #5C8374;
+            --accent-color: #D4A373;
+            --text-color: #333;
+            --light-bg: #f4f4f4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Navigation styles */
+        .nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .nav.hide {
+            transform: translateY(-100%);
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            z-index: 1001;
+            top: 100%;
+            left: 0;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content li {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--light-bg);
+            color: var(--accent-color);
+        }
+
+        /* Hero Section with Gradient Background */
+        .hero {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .hero-content {
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 2s ease;
+            color: white;
+        }
+
+        .typewriter {
+            display: inline-block;
+            overflow: hidden;
+            border-right: 0.15em solid var(--accent-color);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.15em;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+            color: white;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--accent-color); }
+        }
+
+        /* Tabbed Interface */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: var(--accent-color);
+        }
+
+        .tab-button:hover {
+            background: var(--secondary-color);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Map and Chart Containers with Paragraphs */
+        .map-container, .chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .map-container .map, .chart-container canvas {
+            height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-container p, .chart-container p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        /* HTML Links Grid with Images */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .link-card {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1.5rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .link-card img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .link-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .link-content a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .link-content a:hover {
+            color: var(--accent-color);
+        }
+
+        .link-content p {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 1rem;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.show {
+                display: flex;
+            }
+
+            .nav-toggle {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: var(--primary-color);
+                cursor: pointer;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+            }
+
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .link-card {
+                grid-template-columns: 1fr;
+            }
+            
+            .link-card img {
+                width: 100%;
+                height: 200px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .nav-toggle {
+                display: none;
+            }
+        }
+
+        /* Graph Container Styles */
+        .chart-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 400px !important;
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-description {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1rem;
+            position: relative;
+            z-index: 0;
+        }
+
+        .chart-description h3 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-description p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .key-findings {
+            margin-top: 1rem;
+        }
+
+        .key-findings ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .key-findings li {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .key-findings li:before {
+            content: "•";
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        /* Ensure tab content is properly positioned */
+        .tab-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Update map container to not interfere */
+        .map-container {
+            position: relative;
+            z-index: 0;
+        }
+
+        /* Remove the !important flags from the canvas styles and let Chart.js handle the sizing */
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Footer styles */
+        footer {
+            position: relative;
+            height: 200px;
+            background: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            flex-direction: column;
+            color: white;
+        }
+
+        .cube {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            transform-style: preserve-3d;
+            transform: rotateX(45deg) rotateY(45deg);
+            animation: spin 5s infinite linear;
+            margin-top: 20px;
+        }
+
+        .side {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .front  { transform: translateZ(30px); }
+        .back   { transform: rotateY(180deg) translateZ(30px); }
+        .left   { transform: rotateY(-90deg) translateZ(30px); }
+        .right  { transform: rotateY(90deg) translateZ(30px); }
+        .top    { transform: rotateX(90deg) translateZ(30px); }
+        .bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+        @keyframes spin {
+            0%   { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">Corey Reichert</a>
+        <button class="nav-toggle" id="nav-toggle">☰</button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="TestingGround.html">Home</a></li>
+            <li><a href="TestingGround.html#resume">Resume</a></li>
+            <li class="dropdown">
+                <a href="TestingGround.html#portfolio">Portfolio ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="block-island-map.html">Block Island</a></li>
+                    <li><a href="savannah-map.html">Savannah Georgia</a></li>
+                    <li><a href="3d-Prints.html">3D Prints</a></li>
+                    <li><a href="Photography.html">Photography</a></li>
+                    <li><a href="QGIS.html">QGIS Maps + Graphs</a></li>
+                    <li><a href="publications.html">Publications</a></li>
+                </ul>
+            </li>
+            <li><a href="#map">Interactive Maps</a></li>
+            <li class="dropdown">
+                <a href="#contact">Contact ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="https://www.linkedin.com/in/corey-reichert-47837a2aa/">LinkedIn</a></li>
+                    <li><a href="https://github.com/AllusiveGem">GitHub</a></li>
+                    <li><a href="mailto:reichertcorey08@gmail.com">Email</a></li>
+                    <li><a href="https://x.com/jon_bois">Twitter</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section with Gradient Background -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1><span class="typewriter" id="typewriter"></span></h1>
+        </div>
+    </section>
+
+    <!-- Tabbed Interface -->
+    <section class="section">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="maps">Maps</button>
+            <button class="tab-button" data-tab="graphs">Graphs</button>
+            <button class="tab-button" data-tab="images">Images</button>
+            <button class="tab-button" data-tab="links">HTML Links</button>
+        </div>
+
+        <!-- Maps Tab -->
+        <div class="tab-content active" id="maps">
+            <h2>Interactive Maps</h2>
+            <div class="chart-container">
+                <div id="map1" class="map"></div>
+                <div class="chart-description">
+                    <h3>Charlotte Urban Growth Analysis</h3>
+                    <p>This map showcases urban growth in Charlotte, NC, over the past decade. The data highlights key areas of development and population density changes.</p>
+                    <div class="key-findings">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>High-growth development zones</li>
+                            <li>Population density hotspots</li>
+                            <li>Infrastructure expansion areas</li>
+                            <li>New residential districts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div id="map2" class="map"></div>
+                <div class="chart-description">
+                    <h3>Los Angeles Traffic Patterns</h3>
+                    <p>This map illustrates traffic patterns in Los Angeles, CA, focusing on peak hours and congestion hotspots.</p>
+                    <div class="key-findings">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>Major traffic corridors</li>
+                            <li>Peak hour congestion zones</li>
+                            <li>Alternative route suggestions</li>
+                            <li>Public transit integration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div id="map3" class="map"></div>
+                <div class="chart-description">
+                    <h3>New York Zoning Changes</h3>
+                    <p>This map displays zoning changes in New York, NY, over the last 20 years, emphasizing shifts in residential and commercial areas.</p>
+                    <div class="key-findings">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>Rezoned districts</li>
+                            <li>Commercial development zones</li>
+                            <li>Residential expansion areas</li>
+                            <li>Mixed-use developments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Images Tab (formerly Charts) -->
+        <div class="tab-content" id="images">
+            <h2>Project Images</h2>
+            <div class="chart-container">
+                <img src="https://cdn.pixabay.com/photo/2015/10/01/17/17/car-967387_1280.png" alt="Urban Development Project" style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Urban Development Visualization</h3>
+                    <p>Comprehensive visualization of urban development patterns in major metropolitan areas, highlighting key growth indicators and planning strategies.</p>
+                    <div class="key-findings">
+                        <h4>Image Highlights:</h4>
+                        <ul>
+                            <li>3D city modeling techniques</li>
+                            <li>Infrastructure integration</li>
+                            <li>Sustainable development zones</li>
+                            <li>Green space preservation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img src="https://cdn.pixabay.com/photo/2015/10/01/17/17/car-967387_1280.png" alt="Environmental Impact Study" style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Environmental Impact Analysis</h3>
+                    <p>Visual representation of environmental impact studies, showing the relationship between urban development and ecological preservation.</p>
+                    <div class="key-findings">
+                        <h4>Image Highlights:</h4>
+                        <ul>
+                            <li>Ecological corridor mapping</li>
+                            <li>Wildlife habitat preservation</li>
+                            <li>Water resource management</li>
+                            <li>Green infrastructure planning</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img src="https://cdn.pixabay.com/photo/2015/10/01/17/17/car-967387_1280.png" alt="Transportation Network Analysis" style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Transportation Network Analysis</h3>
+                    <p>Detailed analysis of transportation networks and their impact on urban mobility and accessibility.</p>
+                    <div class="key-findings">
+                        <h4>Image Highlights:</h4>
+                        <ul>
+                            <li>Public transit coverage</li>
+                            <li>Pedestrian accessibility</li>
+                            <li>Bike lane networks</li>
+                            <li>Multi-modal integration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphs Tab -->
+        <div class="tab-content" id="graphs">
+            <h2>Graphs</h2>
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="graph1"></canvas>
+                </div>
+                <div class="chart-description">
+                    <h3>Urban Growth Trends in Charlotte</h3>
+                    <p>This comprehensive analysis tracks Charlotte's urban development from 2010 to 2023, revealing significant patterns in city expansion and population growth.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>50% increase in urban development since 2010</li>
+                            <li>Highest growth rate observed in the South End district</li>
+                            <li>Consistent 3.5% annual growth in residential areas</li>
+                            <li>Notable spike in development during 2018-2020</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="graph2"></canvas>
+                </div>
+                <div class="chart-description">
+                    <h3>Los Angeles Population Density Analysis</h3>
+                    <p>A detailed examination of population distribution across Los Angeles neighborhoods, highlighting demographic shifts and urbanization patterns.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Downtown LA shows highest density at 25,000 people/sq mile</li>
+                            <li>Suburban areas experiencing 15% growth rate</li>
+                            <li>Emerging high-density clusters in transit corridors</li>
+                            <li>Significant variation between coastal and inland regions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="graph3"></canvas>
+                </div>
+                <div class="chart-description">
+                    <h3>New York Transportation Modal Split</h3>
+                    <p>Analysis of New York City's transportation preferences, showing the distribution between different modes of transit and their evolution over time.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Public transit accounts for 40% of all trips</li>
+                            <li>Walking shows increasing trend in Manhattan</li>
+                            <li>Bicycle usage doubled since 2015</li>
+                            <li>Reduced private vehicle usage in central business districts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HTML Links Tab -->
+        <div class="tab-content" id="links">
+            <h2>HTML Links</h2>
+            <div class="links-grid">
+                <div class="link-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Block Island Map">
+                    <div class="link-content">
+                        <a href="block-island-map.html">Block Island Map</a>
+                        <p>An interactive map showcasing the beautiful Block Island region, highlighting key landmarks, trails, and points of interest for visitors and researchers.</p>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Savannah Georgia Map">
+                    <div class="link-content">
+                        <a href="savannah-map.html">Savannah Georgia Map</a>
+                        <p>Explore the historic city of Savannah through this detailed map, featuring historical sites, cultural landmarks, and urban development patterns.</p>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="3D Prints">
+                    <div class="link-content">
+                        <a href="3d-Prints.html">3D Prints</a>
+                        <p>A collection of 3D printed models and prototypes, demonstrating innovative applications in urban planning and architectural visualization.</p>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Photography">
+                    <div class="link-content">
+                        <a href="Photography.html">Photography</a>
+                        <p>A visual journey through urban landscapes and architectural photography, capturing the essence of cities and their development.</p>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="QGIS Maps">
+                    <div class="link-content">
+                        <a href="QGIS.html">QGIS Maps + Graphs</a>
+                        <p>Advanced spatial analysis and data visualization using QGIS, featuring custom maps and analytical graphs for urban studies.</p>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Publications">
+                    <div class="link-content">
+                        <a href="publications.html">Publications</a>
+                        <p>A comprehensive collection of research papers, articles, and academic publications in urban planning and development.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
+
+        <div class="cube">
+            <div class="side front" onclick="window.location.href='3D-Prints.html'" style="cursor: pointer;"><img src="https://www.newark.com/wcsstore/ExtendedSitesCatalogAssetStore/cms/asset/images/common/campaign/3d-printing-18/3D-Homepage-Header.png?v=4" alt="back" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side back" onclick="window.location.href='block-island-map.html'" style="cursor: pointer;"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0xiSaPGIr7yXkNl9n9qanEGoSNITRqgnslw&s" alt="back" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side left" onclick="window.location.href='Photography.html'" style="cursor: pointer;"><img src="https://amateurphotographer.com/wp-content/uploads/sites/7/2022/08/fujifilm-x-pro3.jpg" alt="left" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side right" onclick="window.location.href='publications.html'" style="cursor: pointer;"><img src="https://www.cjr.org/wp-content/uploads/2019/01/AdobeStock_46790787-scaled.jpeg" alt="right" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side top" onclick="window.location.href='savannah-map.html'" style="cursor: pointer;"><img src="https://images.squarespace-cdn.com/content/v1/5f825f6001f5227645324800/9fa1e251-fd9a-4c91-8da9-bb53a02f9bb6/Savannah%2BGeorgia%2BDrone%2B%2BServices.jpeg?format=2500w" alt="top" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side bottom" onclick="window.location.href='TestingGround.html'" style="cursor: pointer;"><img src="https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4426338.png" alt="bottom" style="width:100%; height:100%; object-fit:cover;"></div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        // Base map layers for all maps
+        const osmLayer = {
+            standard: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }),
+            humanitarian: L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team'
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }),
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            })
+        };
+
+        // Create separate layers for each map to avoid sharing issues
+        const createBaseMaps = () => ({
+            'Standard': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }),
+            'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }),
+            'Dark Mode': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            })
+        });
+
+        // Charlotte Map (map1)
+        const charlotteBaseMaps = createBaseMaps();
+        const map1 = L.map('map1', {
+            center: [35.2271, -80.8431],
+            zoom: 10,
+            layers: [charlotteBaseMaps['Standard']]
+        });
+
+        const charlotteOverlays = {
+            'Population Density': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
+                opacity: 0.5
+            }),
+            'Development Zones': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+                opacity: 0.5
+            })
+        };
+
+        L.control.layers(charlotteBaseMaps, charlotteOverlays, {collapsed: false}).addTo(map1);
+
+        // Los Angeles Map (map2)
+        const laBaseMaps = createBaseMaps();
+        const map2 = L.map('map2', {
+            center: [34.0522, -118.2437],
+            zoom: 10,
+            layers: [laBaseMaps['Standard']]
+        });
+
+        const laOverlays = {
+            'Traffic Patterns': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-hybrid/{z}/{x}/{y}.png', {
+                opacity: 0.5
+            }),
+            'Transit Routes': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+                opacity: 0.5
+            })
+        };
+
+        L.control.layers(laBaseMaps, laOverlays, {collapsed: false}).addTo(map2);
+
+        // New York Map (map3)
+        const nyBaseMaps = createBaseMaps();
+        const map3 = L.map('map3', {
+            center: [40.7128, -74.0060],
+            zoom: 10,
+            layers: [nyBaseMaps['Dark Mode']]
+        });
+
+        const nyOverlays = {
+            'Zoning Areas': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png', {
+                opacity: 0.5
+            }),
+            'Historic Districts': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+                opacity: 0.5
+            })
+        };
+
+        L.control.layers(nyBaseMaps, nyOverlays, {collapsed: false}).addTo(map3);
+
+        // Initialize Chart.js Graphs
+        const graph1 = new Chart(document.getElementById('graph1'), {
+            type: 'line',
+            data: {
+                labels: ['2010', '2015', '2020', '2023'],
+                datasets: [{
+                    label: 'Urban Growth (%)',
+                    data: [10, 12, 14, 15],
+                    borderColor: 'rgba(42, 92, 130, 1)',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        const graph2 = new Chart(document.getElementById('graph2'), {
+            type: 'bar',
+            data: {
+                labels: ['2010', '2015', '2020', '2023'],
+                datasets: [{
+                    label: 'Population Density',
+                    data: [2000, 2200, 2400, 2500],
+                    backgroundColor: 'rgba(92, 131, 116, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        const graph3 = new Chart(document.getElementById('graph3'), {
+            type: 'pie',
+            data: {
+                labels: ['Public Transport', 'Private Vehicles', 'Walking'],
+                datasets: [{
+                    data: [40, 50, 10],
+                    backgroundColor: ['#2A5C82', '#5C8374', '#D4A373']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Tabbed Interface Logic
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Typewriter Effect
+        const phrases = [
+            "Explore My Research",
+            "Discover New Insights",
+            "Dive Into Data Visualizations"
+        ];
+        let currentPhrase = 0;
+        const typewriterElement = document.getElementById('typewriter');
+
+        function typeWriter() {
+            typewriterElement.textContent = phrases[currentPhrase];
+            currentPhrase = (currentPhrase + 1) % phrases.length;
+        }
+
+        setInterval(typeWriter, 3000);
+
+        // Mobile Navigation Toggle
+        document.getElementById('nav-toggle').addEventListener('click', () => {
+            document.getElementById('nav-links').classList.toggle('show');
+        });
+    </script>
+</body>
+</html>
