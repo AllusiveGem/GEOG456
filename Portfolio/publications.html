@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Publications</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
+    <!-- Three.js (3D Library) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r146/three.min.js"></script>
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #2A5C82;
+            --secondary-color: #5C8374;
+            --accent-color: #D4A373;
+            --text-color: #333;
+            --light-bg: #f4f4f4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Navigation styles */
+        .nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .nav.hide {
+            transform: translateY(-100%);
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            z-index: 1001;
+            top: 100%;
+            left: 0;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content li {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--light-bg);
+            color: var(--accent-color);
+        }
+
+        /* Hero Section with Video Background */
+        .hero {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .hero-content {
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 2s ease;
+            color: white;
+        }
+
+        .typewriter {
+            display: inline-block;
+            overflow: hidden;
+            border-right: 0.15em solid var(--accent-color);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.15em;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+            color: white;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--accent-color); }
+        }
+
+        /* SVG Wave Transition (Flipped) */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg); /* Flip the wave */
+        }
+
+        .wave svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 150px;
+        }
+
+        .wave .shape-fill {
+            fill: var(--light-bg);
+        }
+
+        /* Publication Carousel */
+        .publication-carousel {
+            padding: 5rem 2rem;
+            background: var(--light-bg);
+        }
+
+        .swiper {
+            width: 100%;
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        .swiper-slide {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .swiper-slide img {
+            width: 45%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .publication-description {
+            width: 50%;
+            padding: 1.5rem;
+            text-align: left;
+        }
+
+        .swiper-button-prev,
+        .swiper-button-next {
+            color: var(--primary-color);
+        }
+
+        /* PDF Viewer Modal */
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            overflow: auto;
+        }
+
+        .pdf-modal-content {
+            width: 90%;
+            height: 90%;
+            margin: 5% auto;
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .pdf-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Footer with CSS 3D Cube */
+        footer {
+            position: relative;
+            height: 200px;
+            background: #2A5C82;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            flex-direction: column;
+            color: white;
+        }
+
+        .cube {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            transform-style: preserve-3d;
+            transform: rotateX(45deg) rotateY(45deg);
+            animation: spin 5s infinite linear;
+            margin-top: 20px;
+        }
+
+        .side {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .front  { transform: translateZ(30px); }
+        .back   { transform: rotateY(180deg) translateZ(30px); }
+        .left   { transform: rotateY(-90deg) translateZ(30px); }
+        .right  { transform: rotateY(90deg) translateZ(30px); }
+        .top    { transform: rotateX(90deg) translateZ(30px); }
+        .bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+        @keyframes spin {
+            0%   { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .swiper-slide {
+                flex-direction: column;
+            }
+
+            .swiper-slide img {
+                width: 100%;
+                height: 200px;
+            }
+
+            .publication-description {
+                width: 100%;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">Corey Reichert</a>
+        <ul class="nav-links">
+            <li><a href="TestingGround.html">Home</a></li>
+            <li><a href="TestingGround.html#resume">Resume</a></li>
+            <li class="dropdown">
+                <a href="TestingGround.html#portfolio">Portfolio ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="block-island-map.html">Block Island</a></li>
+                    <li><a href="savannah-map.html">Savannah Georgia</a></li>
+                    <li><a href="3d-Prints.html">3D Prints</a></li>
+                    <li><a href="Photography.html">Photography</a></li>
+                    <li><a href="#">QGIS Maps + Graphs</a></li>
+                    <li><a href="publications.html">Publications</a></li>
+                </ul>
+            </li>
+            <li><a href="#map">Interactive Maps</a></li>
+            <li class="dropdown">
+                <a href="#contact">Contact ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="https://www.linkedin.com/in/corey-reichert-47837a2aa/">LinkedIn</a></li>
+                    <li><a href="https://github.com/AllusiveGem">GitHub</a></li>
+                    <li><a href="mailto:reichertcorey08@gmail.com">Email</a></li>
+                    <li><a href="https://x.com/jon_bois">Twitter</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section with Video Background -->
+    <section class="hero" id="home">
+        <video autoplay muted loop playsinline>
+            <source src="assets/videos/write.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="hero-content">
+            <h1><span class="typewriter" id="typewriter"></span></h1>
+        </div>
+        <!-- SVG Wave Transition (Flipped) -->
+        <div class="wave">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Publication Carousel -->
+    <section class="publication-carousel" id="publications">
+        <div class="swiper">
+            <div class="swiper-wrapper">
+                <!-- Publication 1 -->
+                <div class="swiper-slide">
+                    <img src="https://www.africanleadershipmagazine.co.uk/wp-content/uploads/2024/07/WhatsApp-Image-2024-07-24-at-16.06.40_ebfcd87c.jpg" alt="Publication 1">
+                    <div class="publication-description">
+                        <h3>Publication at JOURney UNC</h3>
+                        <p>Agenda 2063: The Enforcement of Soft Law.</p>
+                        <a href="#" onclick="openPDF('assets/pdf/foreignAffairs.pdf')">Read PDF</a>
+                    </div>
+                </div>
+                <!-- Publication 2 -->
+                <div class="swiper-slide">
+                    <img src="https://www.africanleadershipmagazine.co.uk/wp-content/uploads/2024/07/WhatsApp-Image-2024-07-24-at-16.06.40_ebfcd87c.jpg" alt="Publication 2">
+                    <div class="publication-description">
+                        <h3>Publication at Journal of Foreign Affairs at Carolina</h3>
+                        <p>Agenda 2063: The Enforcement of Soft Law.</p>
+                        <a href="#" onclick="openPDF('assets/pdf/Journey.pdf')">Read PDF</a>
+                    </div>
+                </div>
+                <!-- Publication 3 -->
+                <div class="swiper-slide">
+                    <img src="https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F51fcc0f3-eb39-4199-a02e-9718cb189e37_3000x2000.jpeg" alt="Publication 3">
+                    <div class="publication-description">
+                        <h3>Geography 370 - Intro to Geog Info</h3>
+                        <p>The Effects of Proximity to Public Transportation and Property Tax Within Mecklenburg County.</p>
+                        <a href="#" onclick="openPDF('assets/pdf/Mecklenburg_Transport.pdf')">Read PDF</a>
+                    </div>
+                </div>
+                <!-- Publication 4 -->
+                <div class="swiper-slide">
+                    <img src="https://substackcdn.com/image/fetch/f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F500fddde-c426-495b-b3ea-ca734f72b6ba_1456x958.jpeg" alt="Publication 4">
+                    <div class="publication-description">
+                        <h3>POLI 405 - Local Politics in the US</h3>
+                        <p>Assessing Resistance: Analyzing Factors Behind the Success of NIMBY Movements in Charlotte's Housing Development.</p>
+                        <a href="#" onclick="openPDF('assets/pdf/Charlotte_Movement.pdf')">Read PDF</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Add navigation buttons -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+        </div>
+    </section>
+
+    <!-- PDF Viewer Modal -->
+    <div class="pdf-modal" id="pdf-modal">
+        <div class="pdf-modal-content">
+            <span class="pdf-modal-close" onclick="closePDF()">&times;</span>
+            <iframe class="pdf-viewer" id="pdf-viewer" src="" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <!-- Footer with CSS 3D Cube -->
+    <footer>
+        <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
+        <div class="cube">
+            <div class="side front" onclick="window.location.href='3D-Prints.html'" style="cursor: pointer;"><img src="https://www.newark.com/wcsstore/ExtendedSitesCatalogAssetStore/cms/asset/images/common/campaign/3d-printing-18/3D-Homepage-Header.png?v=4" alt="back" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side back" onclick="window.location.href='Block-Island-Map.html'" style="cursor: pointer;"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0xiSaPGIr7yXkNl9n9qanEGoSNITRqgnslw&s" alt="back" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side left" onclick="window.location.href='Photography.html'" style="cursor: pointer;"><img src="https://amateurphotographer.com/wp-content/uploads/sites/7/2022/08/fujifilm-x-pro3.jpg" alt="left" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side right" onclick="window.location.href='publications.html'" style="cursor: pointer;"><img src="https://www.cjr.org/wp-content/uploads/2019/01/AdobeStock_46790787-scaled.jpeg" alt="right" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side top" onclick="window.location.href='savannah-map.html'" style="cursor: pointer;"><img src="https://images.squarespace-cdn.com/content/v1/5f825f6001f5227645324800/9fa1e251-fd9a-4c91-8da9-bb53a02f9bb6/Savannah%2BGeorgia%2BDrone%2B%2BServices.jpeg?format=2500w" alt="top" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side bottom" onclick="window.location.href='TestingGround.html'" style="cursor: pointer;"><img src="https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4426338.png" alt="bottom" style="width:100%; height:100%; object-fit:cover;"></div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
+    <script>
+        // Initialize Swiper
+        const swiper = new Swiper('.swiper', {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            loop: true,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+        });
+
+        // Typewriter Effect
+        const phrases = [
+            "Explore My Written Works",
+            "Discover New Perspectives",
+            "Dive Into Urban Planning Insights"
+        ];
+        let currentPhrase = 0;
+        const typewriterElement = document.getElementById('typewriter');
+
+        function typeWriter() {
+            typewriterElement.textContent = phrases[currentPhrase];
+            currentPhrase = (currentPhrase + 1) % phrases.length;
+        }
+
+        setInterval(typeWriter, 3000);
+
+        // PDF Viewer Functions
+        function openPDF(pdfUrl) {
+            const pdfModal = document.getElementById('pdf-modal');
+            const pdfViewer = document.getElementById('pdf-viewer');
+            pdfModal.style.display = 'block';
+            pdfViewer.src = pdfUrl;
+        }
+
+        function closePDF() {
+            const pdfModal = document.getElementById('pdf-modal');
+            const pdfViewer = document.getElementById('pdf-viewer');
+            pdfModal.style.display = 'none';
+            pdfViewer.src = '';
+        }
+
+        // Sticky Nav Behavior
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.scrollY;
+            const nav = document.querySelector(".nav");
+
+            if (currentScroll <= 0) {
+                nav.classList.remove("hide");
+            } else if (currentScroll > lastScroll) {
+                nav.classList.add("hide");
+            } else {
+                nav.classList.remove("hide");
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>
