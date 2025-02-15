@@ -642,10 +642,6 @@
             </li>
         </ul>
     </nav>
-    <div id="konami-message" class="hidden-message">
-        🎉 Konami Code Activated! Nuclear Codes have been sent to Montana! 🎉
-        <button class="close-btn" onclick="this.parentElement.classList.remove('show');">Close</button>
-    </div>
     <div id="click-message" class="hidden-message">
         Did you know? Public Transport has a Marginal Difference on Charlotte Property Tax! 🚀
         <button class="close-btn" onclick="this.parentElement.classList.remove('show');">Close</button>
@@ -938,7 +934,7 @@ const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this l
             if (e.key === konamiCode[konamiIndex]) {
                 konamiIndex++;
                 if (konamiIndex === konamiCode.length) {
-                    document.getElementById("konami-message").classList.add("show");
+                    window.location.href = 'flappy.html';  // Redirect to flappy.html
                     konamiIndex = 0;
                 }
             } else {

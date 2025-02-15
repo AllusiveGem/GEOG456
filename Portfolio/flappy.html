@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flappy Bird</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #highScore {
+            font-size: 24px;
+            margin: 10px;
+        }
+        #skinSelector {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="highScore">High Score: 0</div>
+    <canvas id="gameCanvas" width="1000" height="600"></canvas>
+
+    <!-- Add skin selection UI -->
+    <div id="skinSelector">
+        <button id="skin1">Skin 1</button>
+        <button id="skin2">Skin 2</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const highScoreElement = document.getElementById('highScore');
+
+        // Game state
+        let score = 0;
+        let highScore = localStorage.getItem('flappyHighScore') || 0;
+        highScoreElement.textContent = `High Score: ${highScore}`;
+
+        // Bird properties
+        const bird = {
+            x: 200,  // Adjusted for new canvas size
+            y: 300,  // Adjusted for new canvas size
+            velocity: 0,
+            gravity: 0.4,
+            jump: -8,
+            width: 50,  // Slightly reduced size
+            height: 50, // Slightly reduced size
+            currentSkin: 1
+        };
+
+        // Load bird images
+        bird.skins = {
+            1: {
+                up: new Image(),
+                down: new Image()
+            },
+            2: {
+                up: new Image(),
+                down: new Image()
+            }
+        };
+        
+        // Load skin 1
+        bird.skins[1].up.src = 'https://i.ibb.co/7J0RBCnr/q13r.png';
+        bird.skins[1].down.src = 'https://i.ibb.co/dsJ71YcS/2131244.png';
+        
+        // Load skin 2
+        bird.skins[2].up.src = 'https://i.ibb.co/8g7YjjBM/24141412434.jpg';
+        bird.skins[2].down.src = 'https://i.ibb.co/Y7V6mcXh/IMG-1088.jpg';
+
+        // Obstacles array
+        const obstacles = [];
+        const obstacleWidth = 70;
+        const gap = 200;
+        let obstacleTimer = 0;
+        let isGameOver = false;
+
+        // Add game speed variable
+        let gameSpeed = 1.5;  // Base speed
+
+        function createObstacle() {
+            const height = Math.random() * (canvas.height - gap - 150) + 75;
+            obstacles.push({
+                x: canvas.width,
+                height: height,
+                passed: false
+            });
+        }
+
+        function updateHighScore() {
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('flappyHighScore', highScore);
+                highScoreElement.textContent = `High Score: ${highScore}`;
+            }
+        }
+
+        function gameOver() {
+            updateHighScore();
+            isGameOver = true;
+            // Show game over screen
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.font = '48px Arial';
+            ctx.fillText('Game Over!', canvas.width/2 - 100, canvas.height/2);
+            ctx.font = '24px Arial';
+            ctx.fillText(`Final Score: ${score}`, canvas.width/2 - 60, canvas.height/2 + 40);
+            ctx.fillText('Press Space to restart', canvas.width/2 - 100, canvas.height/2 + 80);
+        }
+
+        function resetGame() {
+            score = 0;
+            gameSpeed = 1.5;  // Reset speed when game restarts
+            bird.y = 300;
+            bird.velocity = 0;
+            obstacles.length = 0;
+            obstacleTimer = 0;
+            isGameOver = false;
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            // Bird physics
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+
+            // Obstacle generation
+            obstacleTimer++;
+            if (obstacleTimer > 150) {
+                createObstacle();
+                obstacleTimer = 0;
+            }
+
+            // Update obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= gameSpeed;
+
+                // Collision detection
+                if (bird.x + bird.width > obstacles[i].x && 
+                    bird.x < obstacles[i].x + obstacleWidth) {
+                    if (bird.y < obstacles[i].height || 
+                        bird.y + bird.height > obstacles[i].height + gap) {
+                        gameOver();
+                        return;
+                    }
+                }
+
+                // Score counting
+                if (!obstacles[i].passed && obstacles[i].x + obstacleWidth < bird.x) {
+                    score++;
+                    obstacles[i].passed = true;
+                    
+                    // Increase speed every 10 points
+                    if (score % 10 === 0) {
+                        gameSpeed += 0.2;
+                    }
+                }
+
+                // Remove off-screen obstacles
+                if (obstacles[i].x + obstacleWidth < 0) {
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            // Boundary checking
+            if (bird.y + bird.height > canvas.height || bird.y < 0) {
+                gameOver();
+                return;
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw bird
+            const currentImage = bird.velocity < 0 
+                ? bird.skins[bird.currentSkin].up 
+                : bird.skins[bird.currentSkin].down;
+            
+            ctx.drawImage(currentImage, bird.x, bird.y, bird.width, bird.height);
+
+            // Draw obstacles as rectangles
+            ctx.fillStyle = '#FFD700';  // Changed to Gold/Yellow color
+            obstacles.forEach(obstacle => {
+                // Top obstacle
+                ctx.fillRect(obstacle.x, 0, obstacleWidth, obstacle.height);
+                // Bottom obstacle
+                ctx.fillRect(obstacle.x, obstacle.height + gap, obstacleWidth, canvas.height - (obstacle.height + gap));
+            });
+
+            // Draw score
+            ctx.fillStyle = 'black';
+            ctx.font = '24px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 30);
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', event => {
+            if (event.code === 'Space') {
+                if (isGameOver) {
+                    resetGame();
+                } else {
+                    bird.velocity = bird.jump;
+                }
+            }
+        });
+
+        // Update the click event listener to check canvas boundaries
+        document.addEventListener('click', (event) => {
+            if (!isGameOver) {
+                // Get canvas boundaries
+                const canvasRect = canvas.getBoundingClientRect();
+                
+                // Check if click is within canvas boundaries
+                if (event.clientX >= canvasRect.left && 
+                    event.clientX <= canvasRect.right && 
+                    event.clientY >= canvasRect.top && 
+                    event.clientY <= canvasRect.bottom) {
+                    bird.velocity = bird.jump;
+                }
+            }
+        });
+
+        // Add event listeners for skin selection
+        document.getElementById('skin1').addEventListener('click', () => {
+            bird.currentSkin = 1;
+        });
+
+        document.getElementById('skin2').addEventListener('click', () => {
+            bird.currentSkin = 2;
+        });
+
+        // Start the game
+        gameLoop();
+
+        // Update the Konami code message HTML
+        const konamiMessage = document.createElement('div');
+        konamiMessage.id = 'konami-message';
+        konamiMessage.className = 'hidden-message';
+        konamiMessage.innerHTML = `
+            🎉 Konami Code Activated! Nuclear Codes have been sent to Montana! 🎉
+            <br>
+            <a href="flappy.html" style="color: #D4A373; text-decoration: underline; margin-top: 10px; display: inline-block;">Return to Flappy Bird</a>
+            <button class="close-btn" onclick="this.parentElement.classList.remove('show');">Close</button>
+        `;
+        document.body.appendChild(konamiMessage);
+
+        // Add styles for the link
+        const styles = document.createElement('style');
+        styles.textContent = `
+            .hidden-message { 
+                display: none; 
+                position: fixed; 
+                top: 50%; 
+                left: 50%; 
+                transform: translate(-50%, -50%); 
+                background: white; 
+                padding: 1rem 2rem; 
+                border: 2px solid #D4A373; 
+                border-radius: 10px; 
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+                color: #D4A373; 
+                font-weight: bold; 
+                text-align: center; 
+                z-index: 9999; 
+                opacity: 0; 
+                transition: opacity 0.3s ease; 
+            }
+            .hidden-message.show { 
+                display: block; 
+                opacity: 1; 
+            }
+            .hidden-message a:hover {
+                color: #b88c5d;
+            }
+            .close-btn { 
+                display: block; 
+                margin-top: 1rem; 
+                background: #D4A373; 
+                color: white; 
+                border: none; 
+                padding: 0.5rem 1rem; 
+                border-radius: 5px; 
+                cursor: pointer; 
+            }
+        `;
+        document.head.appendChild(styles);
+    </script>
+</body>
+</html>
+
