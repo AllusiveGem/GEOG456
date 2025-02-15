@@ -488,15 +488,19 @@
         display: grid;
         grid-template-columns: auto 1fr auto;
         padding: 1rem;
+        align-items: center;
     }
 
     .nav-brand {
         grid-column: 1;
         margin-right: auto;
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
 
     .nav-toggle {
-        display: block;
+        display: flex;
         grid-column: 3;
         background: none;
         border: none;
@@ -505,6 +509,8 @@
         color: var(--primary-color);
         padding: 0.5rem;
         margin-left: auto;
+        align-items: center;
+        height: 100%;
     }
 
     .nav-links {
