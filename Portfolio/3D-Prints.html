@@ -67,6 +67,10 @@
             transform: translateY(-100%);
         }
 
+        .nav-toggle {
+            display: none;
+        }
+
         .nav-brand {
             font-family: 'Playfair Display', serif;
             font-size: 1.5rem;
@@ -272,13 +276,70 @@
         0%   { transform: rotateX(0) rotateY(0); }
         100% { transform: rotateX(360deg) rotateY(360deg); }
     }
+
+    /* Mobile styles */
+    @media screen and (max-width: 768px) {
+        .nav {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            padding: 1rem;
+            align-items: center;
+        }
+
+        .nav-brand {
+            grid-column: 1;
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nav-toggle {
+            display: flex;
+            grid-column: 3;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 0.5rem;
+            margin-left: auto;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nav-links {
+            display: none;
+            grid-column: 1 / -1;
+            grid-row: 2;
+            width: 100%;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-links.show {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dropdown-content {
+            position: static;
+            box-shadow: none;
+            padding-left: 1rem;
+        }
+    }
     </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="nav">
         <a href="index.html" class="nav-brand">Corey Reichert</a>
-        <ul class="nav-links">
+        <button class="nav-toggle" id="nav-toggle">☰</button>
+        <ul class="nav-links" id="nav-links">
             <li><a href="TestingGround.html">Home</a></li>
             <li><a href="TestingGround.html#resume">Resume</a></li>
             <li class="dropdown">
@@ -414,6 +475,13 @@
             }
 
             lastScroll = currentScroll;
+        });
+    </script>
+
+    <!-- Mobile navigation toggle -->
+    <script>
+        document.getElementById('nav-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('show');
         });
     </script>
 </body>
