@@ -390,6 +390,28 @@
         100% { transform: rotateX(360deg) rotateY(360deg); }
     }
 
+    /* Navigation styles */
+    .nav-toggle {
+        display: none;  /* Hide by default on desktop */
+    }
+
+    /* Mobile styles */
+    @media screen and (max-width: 768px) {
+        .nav-toggle {
+            display: flex;  /* Only show on mobile */
+            grid-column: 3;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 0.5rem;
+            margin-left: auto;
+            align-items: center;
+            height: 100%;
+        }
+    }
+
     </style>
 </head>
 <body>
