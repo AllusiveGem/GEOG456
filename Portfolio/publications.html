@@ -345,14 +345,25 @@
             }
         }
 
+        /* Hide hamburger by default (desktop) */
+        .nav-toggle {
+            display: none; /* Hidden on desktop */
+            cursor: pointer;
+            padding: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
         /* Mobile Navigation Styles */
         @media screen and (max-width: 768px) {
-            .nav {
-                padding: 1rem;
+            .nav-toggle {
+                display: block; /* Only show on mobile */
             }
 
             .nav-links {
-                display: none; /* Hide by default on mobile */
+                display: none;
                 position: absolute;
                 top: 100%;
                 left: 0;
@@ -364,32 +375,7 @@
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
 
-            .nav-links.active {
-                display: flex;
-            }
-
-            .dropdown-content {
-                position: static;
-                width: 100%;
-                box-shadow: none;
-                display: none;
-                padding-left: 1rem;
-            }
-
-            .dropdown:hover .dropdown-content {
-                display: none;
-            }
-
-            .dropdown.active .dropdown-content {
-                display: block;
-            }
-
-            /* Add hamburger menu button */
-            .nav-toggle {
-                display: block;
-                cursor: pointer;
-                padding: 0.5rem;
-            }
+            /* ... rest of mobile styles ... */
         }
     </style>
 </head>
@@ -397,7 +383,6 @@
     <!-- Navigation -->
     <nav class="nav">
         <a href="index.html" class="nav-brand">Corey Reichert</a>
-        <button class="nav-toggle">☰</button>
         <ul class="nav-links">
             <li><a href="TestingGround.html">Home</a></li>
             <li><a href="TestingGround.html#resume">Resume</a></li>
@@ -575,22 +560,6 @@
             }
 
             lastScroll = currentScroll;
-        });
-
-        // Add mobile nav toggle functionality
-        const navToggle = document.querySelector('.nav-toggle');
-        const navLinks = document.querySelector('.nav-links');
-        const dropdowns = document.querySelectorAll('.dropdown');
-
-        navToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-
-        dropdowns.forEach(dropdown => {
-            dropdown.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdown.classList.toggle('active');
-            });
         });
     </script>
 </body>
