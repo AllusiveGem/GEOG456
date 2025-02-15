@@ -65,7 +65,7 @@
 
        /* Navigation styles */
 .nav {
-    position: fixed;
+    position: sticky;
     top: 0;
     width: 100%;
     background: rgba(255, 255, 255, 0.95);
@@ -75,11 +75,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: transform 0.3s ease; /* Add transition for smooth hiding/showing */
+    transition: transform 0.3s ease;
 }
 
 .nav.hide {
-    transform: translateY(-100%); /* Add hide class */
+    transform: translateY(-100%);
+}
+
+.nav-toggle {
+    display: none;
 }
 
 .nav-brand {
@@ -147,44 +151,59 @@
     color: var(--accent-color);
 }
 
-/* Mobile Navigation */
-@media (max-width: 768px) {
+/* Mobile styles */
+@media screen and (max-width: 768px) {
     .nav {
-        padding: 0.5rem 1rem; /* Reduce padding */
-        height: auto; /* Allow the nav to adjust its height based on content */
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        padding: 1rem;
+        align-items: center;
     }
 
     .nav-brand {
-        font-size: 1.2rem; /* Reduce font size for the brand */
+        grid-column: 1;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    .nav-toggle {
+        display: flex;
+        grid-column: 3;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--primary-color);
+        padding: 0.5rem;
+        margin-left: auto;
+        align-items: center;
+        height: 100%;
     }
 
     .nav-links {
-        flex-direction: column; /* Stack links vertically */
-        gap: 0.5rem; /* Reduce gap between links */
-        margin-top: 0.5rem; /* Reduce margin */
-        width: 100%; /* Full width */
+        display: none;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    .nav-links a {
-        font-size: 0.9rem; /* Reduce font size for links */
-        padding: 0.5rem 0; /* Add padding to links for better touch targets */
+    .nav-links.show {
+        display: flex;
+        flex-direction: column;
     }
 
     .dropdown-content {
-        position: static; /* Make dropdown content flow naturally */
-        box-shadow: none; /* Remove shadow for a cleaner look */
-        background-color: transparent; /* Transparent background */
-        padding: 0; /* Remove padding */
-    }
-
-    .dropdown-content a {
-        padding: 0.5rem 1rem; /* Adjust padding for dropdown links */
-        padding-left: 2rem; /* Indent dropdown links for hierarchy */
-    }
-
-    /* Ensure the hero section has enough top margin to avoid overlap */
-    .hero {
-        margin-top: 60px; /* Adjust based on the height of the nav */
+        position: static;
+        box-shadow: none;
+        padding-left: 1rem;
     }
 }
 
@@ -931,17 +950,19 @@ const chapelHillLayer = L.layerGroup().addTo(map);  // Instantly activate this l
             const nav = document.querySelector(".nav");
 
             if (currentScroll <= 0) {
-                // At the top of the page
                 nav.classList.remove("hide");
             } else if (currentScroll > lastScroll) {
-                // Scrolling down
                 nav.classList.add("hide");
             } else {
-                // Scrolling up
                 nav.classList.remove("hide");
             }
 
             lastScroll = currentScroll;
+        });
+
+        // Mobile navigation toggle
+        document.getElementById('nav-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('show');
         });
     </script>
 </body>
