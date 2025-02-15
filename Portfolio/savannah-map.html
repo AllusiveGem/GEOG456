@@ -63,7 +63,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.3s ease;
         }
 
         .nav.hide {
@@ -489,8 +488,19 @@
 
 /* Mobile styles */
 @media screen and (max-width: 768px) {
+    .nav {
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .nav-brand {
+        order: 1;
+    }
+
     .nav-toggle {
         display: block;
+        order: 2;
     }
 
     .nav-links {
@@ -502,6 +512,7 @@
         background: white;
         padding: 1rem;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        order: 3;
     }
 
     .nav-links.show {
