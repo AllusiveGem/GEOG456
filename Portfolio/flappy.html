@@ -83,12 +83,12 @@
         // Obstacles array
         const obstacles = [];
         const obstacleWidth = 70;
-        const gap = 200;
+        const gap = 180;
         let obstacleTimer = 0;
         let isGameOver = false;
 
         // Add game speed variable
-        let gameSpeed = 1.5;  // Base speed
+        let gameSpeed = 3;  // Base speed
 
         function createObstacle() {
             const height = Math.random() * (canvas.height - gap - 150) + 75;
@@ -123,7 +123,7 @@
 
         function resetGame() {
             score = 0;
-            gameSpeed = 1.5;  // Reset speed when game restarts
+            gameSpeed = 3;  // Reset speed when game restarts
             bird.y = 300;
             bird.velocity = 0;
             obstacles.length = 0;
@@ -140,7 +140,7 @@
 
             // Obstacle generation
             obstacleTimer++;
-            if (obstacleTimer > 150) {
+            if (obstacleTimer > 100) {
                 createObstacle();
                 obstacleTimer = 0;
             }
