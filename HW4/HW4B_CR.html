@@ -31,7 +31,7 @@ tr:nth-child(even) {
 <body>
 
 <h2 style="font-family: 'Verdana', sans-serif; color: #007acc;">Train Data from 1826 to 1911</h2>
-<h4 style="font-family: 'Verdana', sans-serif; color: #3498db;">Colors in the Operation By column show the year the railroad was first used: pre-Civil War (red), during Civil War (gray), and post-Civil War (blue).</h4>
+<h4 style="font-family: 'Verdana', sans-serif; color: #3498db;">Colors in the Operation By column show the year the railroad was first used: pre-Civil War (purple), during Civil War (gray), and post-Civil War (blue).</h4>
 
 <table id="trainTable">
   <tr>
@@ -65,7 +65,7 @@ tr:nth-child(even) {
 
   function getBackgroundColor(year) {
     if (year < 1861) {
-      return 'red';
+      return 'purple';
     } else if (year >= 1861 && year <= 1865) {
       return 'gray';
     } else {
