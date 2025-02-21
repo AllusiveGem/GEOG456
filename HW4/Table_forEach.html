@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+/* style and html from https://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_intro */
+table {
+  font-family: Tahoma, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 8px; 
+  overflow: hidden; 
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 10px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.high {
+  background-color: yellow;
+}
+.low {
+  background-color: gray;
+}
+</style>
+</head>
+<script src="Data.js"></script>
+<body>
+
+<h2 style="font-family: 'Verdana', sans-serif; color: #007acc;" >United States Hydropower Plants</h2>
+<h4 style="font-family: 'Verdana', sans-serif; color: #3498db;">The average energy prodcued by all the listed hydropower plants in 2019 was 39.7 GWh (gigawatt hours). Those in yellow generated more than that and those in grey generated less than that</h4>
+
+<table id="mytable">
+  <tr>
+    <th>Name</th>
+    <th>Power Generated in 2019 (in GWh)</th>
+  </tr>
+  
+</table>
+</script>
+
+<script>
+  var x = document.getElementById('mytable')
+  
+  data.forEach(element => {makeCell(element)});
+
+    function makeCell(e) {
+      var myNewRow = document.createElement('tr');
+      var myNewCell1 = document.createElement('td');
+      var myNewCell2 = document.createElement('td');
+
+      myNewCell1.innerHTML = e.name;
+      myNewCell2.innerHTML = e.generation_gwh_2019;
+
+    // myNewCell2.innerHTML = Math.round([i].generation_gwh_2019 *100)/100;
+    // myNewCell2.innerHTML = checkType(data[i].generation_gwh_2019);
+    // myNewCell2.innerHTML = parseFloat(data[i].generation_gwh_2019).toFixed(2);
+
+
+
+    // if(data[i].generation_gwh_2019 > 39.7 ){ myNewCell2.style.backgroundColor = 'yellow'}
+    // if(data[i].generation_gwh_2019 <= 39.7 ){ myNewCell2.style.backgroundColor = 'grey'}
+    
+    // Color method using a function 
+    // myNewCell2.style.backgroundColor = getBackgroundColor(data[i].generation_gwh_2019)
+
+    //Color method using class
+    // myNewCell2.className = getClassName(data[i].generation_gwh_2019)
+
+    myNewRow.append(myNewCell1);
+    myNewRow.append(myNewCell2);
+    x.append(myNewRow);
+
+  } // The loop ends 
+ 
+
+
+  function checkType(value) {
+    if (typeof value === "string") {
+        return "String";
+    } else if (typeof value === "number") {
+        return "Number";
+    } else {
+        return "Other";
+    }
+}
+
+function getBackgroundColor(d){
+  return d > 39.7 ? 'yellow' : 'gray';
+}
+
+function getClassName(d){
+  return d > 39.7 ? 'high' : 'low';
+}
+
+</script>
+
+</body>
+
+
+</html>
+
+

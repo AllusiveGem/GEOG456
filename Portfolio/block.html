@@ -175,46 +175,6 @@
             font-weight: 300;
         }
 
-              /* Video Hero Section */
-              .video-hero {
-            position: relative;
-            height: 100vh;
-            overflow: hidden;
-            margin-top: -76px;
-            z-index: 0;
-        }
-
-        .video-hero video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-        }
-
-        .hero-content h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: white;
-        }
-
-        .hero-content p {
-            font-size: 1.2rem;
-            font-weight: 300;
-        }
-
         /* Elevation Section */
         .elevation-section {
             padding: 5rem 2rem;
@@ -271,202 +231,92 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-/* Callout */
 
-.map-container {
-    display: grid; /* Use CSS Grid */
-    max-width: 70%;
-    margin: 10px auto;
-    text-align: center;
-    position: relative;
-}
-
-.map-image {
-    grid-area: 1 / 1; /* Place both images in the same grid cell */
-    width: 100%;
-    height: auto;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.hidden {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.callout {
-    position: absolute;
-    width: 20%; /* Adjust based on your needs */
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid #333;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    margin-bottom: 10px;
-    z-index: 2;
-}
-
-.callout img {
-    width: 100%;
-    height: auto;
-    max-height: 150px;
-    margin-bottom: 10px;
-}
-
-.callout h3 {
-    font-size: 1.2rem;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-}
-
-.callout p {
-    font-size: 0.9rem;
-    color: var(--text-color);
-}
-
-/* Connection points (dots) */
-.connection-point {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    z-index: 2;
-}
-
-/* Connection lines */
-.connection-line {
-    position: absolute;
-    height: 2px;
-    background-color: var(--primary-color);
-    transform-origin: 0 0;
-    z-index: 5;
-}
-
-/* Specific positions for points and callouts */
-.point-north {
-    top: 11%; /* Adjust based on your map */
-    left: 56%;
-}
-
-.point-south {
-    top: 81%; /* Adjust based on your map */
-    left: 83%;
-}
-
-.point-east {
-    top: 48%; /* Adjust based on your map */
-    left: 62%;
-}
-
-.callout-north {
-    top: 15%; /* Adjust based on your map */
-    left: -5%;
-}
-
-.callout-south {
-    top: 60%; /* Adjust based on your map */
-    left: -5%;
-}
-
-.callout-east {
-    top: 35%; /* Adjust based on your map */
-    left: 95%;
-}
-
-        /* Add responsive design for mobile */
-        @media screen and (max-width: 768px) {
-            .nav {
-                display: grid;
-                grid-template-columns: auto 1fr auto;
-                padding: 1rem;
-                align-items: center;
-            }
-
-            .nav-brand {
-                grid-column: 1;
-                margin-right: auto;
-                display: flex;
-                align-items: center;
-                height: 100%;
-            }
-
-            .nav-toggle {
-                display: flex;
-                grid-column: 3;
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                cursor: pointer;
-                color: var(--primary-color);
-                padding: 0.5rem;
-                margin-left: auto;
-                align-items: center;
-                height: 100%;
-            }
-
-            .nav-links {
-                display: none;
-                grid-column: 1 / -1;
-                grid-row: 2;
-                width: 100%;
-                position: absolute;
-                top: calc(100% + 10px);
-                left: 0;
-                background: white;
-                padding: 1rem;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            }
-
-            .nav-links.show {
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-            }
-
-            .nav-links a {
-                padding: 0.5rem 0;
-            }
-
-            .dropdown-content {
-                position: static;
-                box-shadow: none;
-                padding-left: 1.5rem;
-                margin-top: 0;
-                background: transparent;
-                width: 100%;
-            }
-
-            .dropdown-content a {
-                padding: 0.5rem 0;
-                font-size: 1rem;
-            }
-
-            .dropdown-content li {
-                margin: 0;
-            }
+        /* Interactive Map Section */
+        .map-section {
+            padding: 5rem 2rem;
+            text-align: center; /* Center text */
         }
 
-        /* Map styles */
-        #map {
-            height: 700px;
+        .map-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .map-image {
             width: 100%;
-            margin: 2rem 0;
+            height: auto;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        .callout {
+            position: absolute;
+            width: 200px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .callout img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
         /* Footer styles */
         footer {
-        position: relative;
-        height: 200px;
-        background: #2A5C82;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        flex-direction: column;
-        color: white;
-    }
+            position: relative;
+            height: 200px;
+            background: #2A5C82;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            flex-direction: column;
+            color: white;
+        }
+
+        /* Cube styles */
+        .cube {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            transform-style: preserve-3d;
+            transform: rotateX(45deg) rotateY(45deg);
+            animation: spin 5s infinite linear;
+            margin-top: 20px;
+        }
+
+        .side {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .front  { transform: translateZ(30px); }
+        .back   { transform: rotateY(180deg) translateZ(30px); }
+        .left   { transform: rotateY(-90deg) translateZ(30px); }
+        .right  { transform: rotateY(90deg) translateZ(30px); }
+        .top    { transform: rotateX(90deg) translateZ(30px); }
+        .bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+        @keyframes spin {
+            0%   { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
 
         /* Responsive design */
         @media (max-width: 768px) {
@@ -511,71 +361,36 @@
             .hero-content p {
                 font-size: 1rem;
             }
+
+            .elevation-content {
+                flex-direction: column;
+            }
+
+            .elevation-item {
+                width: 100%;
+            }
         }
 
-        .map-section .container {
-            text-align: center;
-        }
-
-        .cube {
-        position: relative;
-        width: 60px;
-        height: 60px;
-        transform-style: preserve-3d;
-        transform: rotateX(45deg) rotateY(45deg);
-        animation: spin 5s infinite linear;
-        margin-top: 20px;
-    }
-
-    .side {
-        position: absolute;
-        width: 60px;
-        height: 60px;
-        background: rgba(255, 255, 255, 0.8);
-        border: 1px solid #ccc;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.5em;
-        font-weight: bold;
-        color: #333;
-        overflow: hidden;
-    }
-
-    .front  { transform: translateZ(30px); }
-    .back   { transform: rotateY(180deg) translateZ(30px); }
-    .left   { transform: rotateY(-90deg) translateZ(30px); }
-    .right  { transform: rotateY(90deg) translateZ(30px); }
-    .top    { transform: rotateX(90deg) translateZ(30px); }
-    .bottom { transform: rotateX(-90deg) translateZ(30px); }
-
-    @keyframes spin {
-        0%   { transform: rotateX(0) rotateY(0); }
-        100% { transform: rotateX(360deg) rotateY(360deg); }
-    }
-
-    /* Navigation styles */
-    .nav-toggle {
-        display: none;  /* Hide by default on desktop */
-    }
-
-    /* Mobile styles */
-    @media screen and (max-width: 768px) {
+        /* Hide hamburger on desktop */
         .nav-toggle {
-            display: flex;  /* Only show on mobile */
-            grid-column: 3;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--primary-color);
-            padding: 0.5rem;
-            margin-left: auto;
-            align-items: center;
-            height: 100%;
+            display: none;
         }
-    }
 
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: flex;
+                grid-column: 3;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: var(--primary-color);
+                padding: 0.5rem;
+                margin-left: auto;
+                align-items: center;
+                height: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -620,89 +435,71 @@
         </video>
         <div class="video-overlay">
             <div class="hero-content">
-                <h1>Block Island Mapping</h1>
-                <p class="hero-subtitle">Topography</p>
+                <h1>Block Island Urban Planning</h1>
+                <p class="hero-subtitle">Sustainable Development and Community Projects</p>
             </div>
         </div>
     </section>
 
-   <!-- DEM and Contour Sections -->
-   <section class="elevation-section">
-    <div class="container">
-        <h2>Elevation Data</h2>
-        <div class="elevation-content">
-            <div class="elevation-item">
-                <h3>Digital Elevation Model (DEM)</h3>
-                <img src="assets/images/DEM.png" alt="DEM Image">
-                <p>This is a Digital Elevation Model (DEM) showing the terrain of Block Island.</p>
-            </div> 
-            <div class="elevation-item">
-                <h3>Contour Lines</h3>
-                <a href="https://i.ibb.co/fV0k0BzR/Contour.png"> <!-- Replace with your desired URL -->
-                    <img src="assets/images/dr2.png" alt="Contour Image">
-                </a>
-                <p>This is a contour map showing elevation changes across Block Island.</p>
+    <!-- DEM and Contour Sections -->
+    <section class="elevation-section">
+        <div class="container">
+            <h2>Elevation Data</h2>
+            <div class="elevation-content">
+                <div class="elevation-item">
+                    <h3>Digital Elevation Model (DEM)</h3>
+                    <img src="https://via.placeholder.com/800x400" alt="DEM Image">
+                    <p>This is a Digital Elevation Model (DEM) showing the terrain of Block Island.</p>
+                </div>
+                <div class="elevation-item">
+                    <h3>Contour Lines</h3>
+                    <img src="https://via.placeholder.com/800x400" alt="Contour Image">
+                    <p>This is a contour map showing elevation changes across Block Island.</p>
+                </div>
             </div>
+            <p class="elevation-description">
+                The elevation data provides critical insights into the topography of Block Island, helping in urban planning, flood risk assessment, and environmental conservation. The DEM and contour maps are essential tools for understanding the island's terrain.
+            </p>
         </div>
-        <p class="elevation-description">
-            The elevation data provides critical insights into the topography of Block Island, helping in urban planning, flood risk assessment, and environmental conservation. The DEM and contour maps are essential tools for understanding the island's terrain.
-        </p>
-    </div>
-</section>
-
-<!-- Callout Map -->
-<section class="map-section">
-    <div class="container">
-        <h2 style="text-align: center; margin-bottom: 20px;">Points of Interest on Block Island</h2>
-        
-        <!-- Button to toggle between maps -->
-        <button id="toggle-map-button" style="display: block; margin: 0 auto 20px; padding: 10px 20px; background: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
-            Switch Map
-        </button>
-
-        <div class="map-container">
-            <!-- First map image (visible by default) -->
-            <img src="https://cmsphoto.ww-cdn.com/superstatic/1476990/art/grande/25596809-26798032.jpg" alt="Map of Block Island" class="map-image" id="map-image-1">
-            
-            <!-- Second map image (hidden by default) -->
-            <img src="https://i.ibb.co/C3Sb1mHw/blockisland-Map3-fotor-20250220181151.png" alt="Alternate Map of Block Island" class="map-image hidden" id="map-image-2">
-            
-            <!-- Connection points -->
-            <div class="connection-point point-north"></div>
-            <div class="connection-point point-south"></div>
-            <div class="connection-point point-east"></div>
-            
-            <!-- Callouts -->
-            <div class="callout callout-north">
-                <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/0d/41/7a/approaching-north-lighthouse.jpg?w=1200&h=-1&s=1" alt="North Light">
-                <h3>Northern Light</h3>
-                <p>Built in 1867, this granite lighthouse sits on Sandy Point.</p>
-            </div>
-            
-            <div class="callout callout-south">
-                <img src="https://southeastlighthouse.org/wp-content/uploads/SELH-Spinnakers.jpg" alt="Southeast Light">
-                <h3>Southeast Light</h3>
-                <p>Gothic-style lighthouse constructed in 1875, moved back from eroding bluffs in 1993.</p>
-            </div>
-
-            <div class="callout callout-east">
-                <img src="https://i.ibb.co/S8895Fv/IMG-3280.jpg" alt="East Point">
-                <h3>The Great Salt Pond</h3>
-                <p>This is the main body of water within Block Island and acts as a natural harbor for the inhabitants of Block Island.</p>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
     <!-- Interactive Map Section -->
     <section class="map-section">
         <div class="container">
-            <h2>Interactive Map</h2>
-            <div id="map"></div>
+            <h2>Points of Interest on Block Island</h2>
+            <div class="map-container">
+                <img src="https://cmsphoto.ww-cdn.com/superstatic/1476990/art/grande/25596809-26798032.jpg" alt="Map of Block Island" class="map-image">
+                
+                <!-- Callouts -->
+                <div class="callout callout-north">
+                    <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/0d/41/7a/approaching-north-lighthouse.jpg?w=1200&h=-1&s=1" alt="North Light">
+                    <h3>North Light</h3>
+                    <p>Built in 1867, this granite lighthouse sits on Sandy Point.</p>
+                </div>
+                
+                <div class="callout callout-south">
+                    <img src="https://southeastlighthouse.org/wp-content/uploads/SELH-Spinnakers.jpg" alt="Southeast Light">
+                    <h3>Southeast Light</h3>
+                    <p>Gothic-style lighthouse constructed in 1875, moved back from eroding bluffs in 1993.</p>
+                </div>
+
+                <div class="callout callout-east">
+                    <img src="https://via.placeholder.com/200x150" alt="East Point">
+                    <h3>East Point</h3>
+                    <p>This is a description of the East Point area on Block Island.</p>
+                </div>
+            </div>
         </div>
     </section>
 
-    
+    <!-- Leaflet Map Section -->
+    <section class="map-section">
+        <div class="container">
+            <h2>Interactive Map of Block Island</h2>
+            <div id="map" style="height: 500px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);"></div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer>
         <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
@@ -712,16 +509,14 @@
             <div class="side back" onclick="window.location.href='Block-Island-Map.html'" style="cursor: pointer;"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0xiSaPGIr7yXkNl9n9qanEGoSNITRqgnslw&s" alt="back" style="width:100%; height:100%; object-fit:cover;"></div>
             <div class="side left" onclick="window.location.href='Photography.html'" style="cursor: pointer;"><img src="https://amateurphotographer.com/wp-content/uploads/sites/7/2022/08/fujifilm-x-pro3.jpg" alt="left" style="width:100%; height:100%; object-fit:cover;"></div>
             <div class="side right" onclick="window.location.href='publications.html'" style="cursor: pointer;"><img src="https://www.cjr.org/wp-content/uploads/2019/01/AdobeStock_46790787-scaled.jpeg" alt="right" style="width:100%; height:100%; object-fit:cover;"></div>
-            <div class="side top" onclick="window.location.href='savannah-map.html'" style="cursor: pointer;"><img src="https://images.squarespace-cdn.com/content/v1/5f825f6001f5227645324800/9fa1e251-fd9a-4c91-8da9-bb53a02f9bb6/Savannah%2BGeorgia%2BDrone%2B%2BServices.jpeg?format=2500w" alt="top" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side top" onclick="window.location.href='savannah-map.html'" style="cursor: pointer;"><img src="https://images.squarespace-cdn.com/content/v1/5f825f6001f5227645324800/9fa1e251-fd9a-4c91/8da9-bb53a02f9bb6/Savannah%2BGeorgia%2BDrone%2B%2BServices.jpeg?format=2500w" alt="top" style="width:100%; height:100%; object-fit:cover;"></div>
             <div class="side bottom" onclick="window.location.href='TestingGround.html'" style="cursor: pointer;"><img src="https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4426338.png" alt="bottom" style="width:100%; height:100%; object-fit:cover;"></div>
         </div>
-
     </footer>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <script>
         // Initialize Swiper
         const swiper = new Swiper('.swiper', {
@@ -741,11 +536,9 @@
                 disableOnInteraction: false,
             },
         });
-    </script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
+
         // Initialize Leaflet map
-        const map = L.map('map').setView([41.1855, -71.5575], 13); // Centered on Block Island
+        const map = L.map('map').setView([41.1725, -71.5575], 13); // Centered on Block Island
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -780,8 +573,8 @@
             L.marker(project.location).addTo(map)
                 .bindPopup(`<b>${project.name}</b><br>${project.description}`);
         });
-    </script>
-    <script>
+
+        // Hide/Show Nav on Scroll
         let lastScroll = 0;
 
         window.addEventListener("scroll", () => {
@@ -803,77 +596,6 @@
         document.getElementById('nav-toggle').addEventListener('click', function() {
             document.getElementById('nav-links').classList.toggle('show');
         });
-
-
-        function drawLines() {
-    const points = {
-        north: document.querySelector('.point-north'),
-        south: document.querySelector('.point-south'),
-        east: document.querySelector('.point-east')
-    };
-
-    const callouts = {
-        north: document.querySelector('.callout-north'),
-        south: document.querySelector('.callout-south'),
-        east: document.querySelector('.callout-east')
-    };
-
-    function createLine(point, callout) {
-        const line = document.createElement('div');
-        line.className = 'connection-line';
-
-        // Get positions relative to the map container
-        const mapContainer = document.querySelector('.map-container');
-        const mapRect = mapContainer.getBoundingClientRect();
-        const pointRect = point.getBoundingClientRect();
-        const calloutRect = callout.getBoundingClientRect();
-
-        // Calculate positions relative to the map container
-        const x1 = pointRect.left - mapRect.left + pointRect.width / 2;
-        const y1 = pointRect.top - mapRect.top + pointRect.height / 2;
-        const x2 = calloutRect.left - mapRect.left + calloutRect.width / 2;
-        const y2 = calloutRect.top - mapRect.top + calloutRect.height / 2;
-
-        // Calculate length and angle
-        const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-        const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-        // Set line properties
-        line.style.width = `${length}px`;
-        line.style.left = `${x1}px`;
-        line.style.top = `${y1}px`;
-        line.style.transform = `rotate(${angle}deg)`;
-
-        mapContainer.appendChild(line);
-    }
-
-    // Clear existing lines
-    document.querySelectorAll('.connection-line').forEach(line => line.remove());
-
-    // Create lines for all points
-    createLine(points.north, callouts.north);
-    createLine(points.south, callouts.south);
-    createLine(points.east, callouts.east);
-}
-
-// Draw lines when page loads and when window resizes
-window.addEventListener('load', drawLines);
-window.addEventListener('resize', drawLines);
-
-const mapImage1 = document.getElementById('map-image-1');
-const mapImage2 = document.getElementById('map-image-2');
-const toggleButton = document.getElementById('toggle-map-button');
-
-// Ensure the second image matches the size of the first image
-mapImage1.onload = () => {
-    mapImage2.style.width = `${mapImage1.width}px`;
-    mapImage2.style.height = `${mapImage1.height}px`;
-};
-
-toggleButton.addEventListener('click', () => {
-    mapImage1.classList.toggle('hidden');
-    mapImage2.classList.toggle('hidden');
-});
     </script>
 </body>
 </html>

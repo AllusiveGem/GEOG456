@@ -36,6 +36,7 @@
     <div id="skinSelector">
         <button id="skin1">Snow Ape</button>
         <button id="skin2">Bald Fortnite skin</button>
+        <button id="skin3">McRib</button>
     </div>
 
     <script>
@@ -69,6 +70,10 @@
             2: {
                 up: new Image(),
                 down: new Image()
+            },
+            3: {
+                up: new Image(),
+                down: new Image()
             }
         };
         
@@ -79,6 +84,10 @@
         // Load skin 2
         bird.skins[2].up.src = 'https://i.ibb.co/8g7YjjBM/24141412434.jpg';
         bird.skins[2].down.src = 'https://i.ibb.co/Y7V6mcXh/IMG-1088.jpg';
+        
+        // Load skin 3 (McRib)
+        bird.skins[3].up.src = 'https://cdn.discordapp.com/attachments/1136369043771764888/1341951795454546011/Screenshot_2025-02-19_205603.png?ex=67b88640&is=67b734c0&hm=7ab2a26387e4be679f33da867a7670df04839f33afe0aa80f1ec40cf4f3b7972&';
+        bird.skins[3].down.src = 'https://cdn.discordapp.com/attachments/1136369043771764888/1341951795454546011/Screenshot_2025-02-19_205603.png?ex=67b88640&is=67b734c0&hm=7ab2a26387e4be679f33da867a7670df04839f33afe0aa80f1ec40cf4f3b7972&';
 
         // Obstacles array
         const obstacles = [];
@@ -248,6 +257,10 @@
 
         document.getElementById('skin2').addEventListener('click', () => {
             bird.currentSkin = 2;
+        });
+
+        document.getElementById('skin3').addEventListener('click', () => {
+            bird.currentSkin = 3;
         });
 
         // Start the game

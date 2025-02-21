@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callout Diagram</title>
+    <style>
+        .container {
+            position: relative;
+            display: inline-block;
+        }
+        .image {
+            width: 400px;
+        }
+        .callout {
+            position: absolute;
+            top: 50px;
+            left: 100px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid red;
+            border-radius: 50%;
+        }
+        .annotation {
+            position: absolute;
+            top: 20px;
+            left: 220px;
+            background: white;
+            padding: 5px;
+            border: 1px solid black;
+        }
+        .line {
+            position: absolute;
+            top: 80px;
+            left: 150px;
+            width: 100px;
+            height: 2px;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="your-image.jpg" class="image" alt="Example Image">
+    <div class="callout"></div>
+    <div class="line"></div>
+    <div class="annotation">Zoomed-in Detail</div>
+</div>
+
+</body>
+</html>
