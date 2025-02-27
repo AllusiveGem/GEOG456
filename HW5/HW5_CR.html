@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
     integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
     crossorigin=""></script>
-    <script src="train.js"></script>
+    <script src="train2.js"></script>
 </head>
 <style>
         h1 {
@@ -76,7 +76,7 @@ function myStyle(features) {
     }
 };
 
-var geojson = L.geoJSON(train, {style: myStyle}).addTo(map);
+var geojson = L.geoJSON(train2, {style: myStyle}).addTo(map);
 
 var myCurrentSelectionYear = 1830;
 
