@@ -1,0 +1,63 @@
+
+
+    
+    <script>
+
+
+        function updateTable(selectedYear) {
+            var table = document.getElementById("dataTable");
+            table.innerHTML = '<tr><th>State</th><th>Total Miles</th></tr>';
+            
+            var stateMiles = {};
+            train2.features.forEach(feature => {
+                var state = feature.properties.STATENAM;
+                var year = feature.properties.Decade;
+                var miles = feature.properties.SUM_Miles || 0;
+                
+                if (year <= selectedYear) {
+                    if (!stateMiles[state]) {
+                        stateMiles[state] = 0;
+                    }
+                    stateMiles[state] += miles;
+                }
+            });
+            
+            Object.entries(stateMiles)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([state, miles]) => {
+            var row = table.insertRow();
+             row.className = state;
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.innerHTML = state;
+             cell2.innerHTML = miles.toFixed(2);
+        });
+        }
+
+        function moveSlider(value) {
+    document.getElementById('CurrentYear').innerHTML = 'Year: ' + value;
+    myCurrentSelectionYear = value;
+
+geojsonTrains.eachLayer(function(layer) {
+    layer.setStyle(trainStyle(layer.feature));
+});
+
+
+    if (geojsonTrains) {
+        map.removeLayer(geojsonTrains);
+    }
+
+    geojsonTrains = L.geoJson(train2, {
+        style: trainStyle,
+        filter: function(feature) {
+            return feature.properties.Decade <= value; // Only include features from selected decade or earlier
+        },
+        onEachFeature: onEachFeature
+    }).addTo(map);
+
+    updateTable(value);
+}
+
+    </script>
+</body>
+</html>

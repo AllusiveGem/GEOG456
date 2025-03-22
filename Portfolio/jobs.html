@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .section { margin: 30px 0; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .job-bank { background-color: #f8f9fa; border: 1px solid #dee2e6; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .status-applied { background-color: #2196F3; }
+        .status-interview { background-color: #FF9800; }
+        .status-offer { background-color: #4CAF50; }
+        .status-rejected { background-color: #F44336; }
+        .status-saved { background-color: #6c757d; }
+        button { padding: 5px 10px; margin: 2px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Job Tracker</h1>
+
+    <!-- Job Bank Section -->
+    <div class="section job-bank">
+        <h2>Job Bank (Unapplied)</h2>
+        <form id="bankForm">
+            <div class="form-group">
+                <label for="bankCompany">Company:</label>
+                <input type="text" id="bankCompany" required>
+            </div>
+            <div class="form-group">
+                <label for="bankPosition">Position:</label>
+                <input type="text" id="bankPosition" required>
+            </div>
+            <div class="form-group">
+                <label for="jobUrl">Job URL:</label>
+                <input type="url" id="jobUrl">
+            </div>
+            <div class="form-group">
+                <label for="bankNotes">Notes:</label>
+                <textarea id="bankNotes" rows="2"></textarea>
+            </div>
+            <button type="submit">Save to Bank</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Position</th>
+                    <th>URL</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bankList"></tbody>
+        </table>
+    </div>
+
+    <!-- Applied Jobs Section -->
+    <div class="section">
+        <h2>Applied Jobs</h2>
+        <form id="jobForm">
+            <div class="form-group">
+                <label for="company">Company:</label>
+                <input type="text" id="company" required>
+            </div>
+            <div class="form-group">
+                <label for="position">Position:</label>
+                <input type="text" id="position" required>
+            </div>
+            <div class="form-group">
+                <label for="appliedDate">Applied Date:</label>
+                <input type="date" id="appliedDate" required>
+            </div>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status">
+                    <option value="applied">Applied</option>
+                    <option value="interview">Interview</option>
+                    <option value="offer">Offer</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" rows="3"></textarea>
+            </div>
+            <button type="submit">Add Application</button>
+            <button type="button" onclick="clearAll()">Clear All</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Position</th>
+                    <th>Date Applied</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="jobsList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Applied Jobs
+        let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+        let currentEditingId = null;
+
+        document.getElementById('jobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const job = {
+                id: Date.now(),
+                company: document.getElementById('company').value,
+                position: document.getElementById('position').value,
+                appliedDate: document.getElementById('appliedDate').value,
+                status: document.getElementById('status').value,
+                notes: document.getElementById('notes').value
+            };
+
+            if (currentEditingId) {
+                const index = jobs.findIndex(j => j.id === currentEditingId);
+                jobs[index] = {...jobs[index], ...job};
+                currentEditingId = null;
+            } else {
+                jobs.push(job);
+            }
+
+            localStorage.setItem('jobs', JSON.stringify(jobs));
+            renderJobs();
+            this.reset();
+        });
+
+        function renderJobs() {
+            const tbody = document.getElementById('jobsList');
+            tbody.innerHTML = '';
+            jobs.forEach(job => {
+                const row = document.createElement('tr');
+                row.className = `status-${job.status}`;
+                row.innerHTML = `
+                    <td>${job.company}</td>
+                    <td>${job.position}</td>
+                    <td>${job.appliedDate}</td>
+                    <td>${job.status.charAt(0).toUpperCase() + job.status.slice(1)}</td>
+                    <td>${job.notes}</td>
+                    <td>
+                        <button onclick="editJob(${job.id})">Edit</button>
+                        <button onclick="deleteJob(${job.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function deleteJob(id) {
+            jobs = jobs.filter(job => job.id !== id);
+            localStorage.setItem('jobs', JSON.stringify(jobs));
+            renderJobs();
+        }
+
+        function editJob(id) {
+            const job = jobs.find(j => j.id === id);
+            document.getElementById('company').value = job.company;
+            document.getElementById('position').value = job.position;
+            document.getElementById('appliedDate').value = job.appliedDate;
+            document.getElementById('status').value = job.status;
+            document.getElementById('notes').value = job.notes;
+            currentEditingId = id;
+        }
+
+        // Job Bank
+        let jobBank = JSON.parse(localStorage.getItem('jobBank')) || [];
+
+        document.getElementById('bankForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const job = {
+                id: Date.now(),
+                company: document.getElementById('bankCompany').value,
+                position: document.getElementById('bankPosition').value,
+                url: document.getElementById('jobUrl').value,
+                notes: document.getElementById('bankNotes').value,
+                savedDate: new Date().toISOString().split('T')[0]
+            };
+
+            jobBank.push(job);
+            localStorage.setItem('jobBank', JSON.stringify(jobBank));
+            renderBank();
+            this.reset();
+        });
+
+        function renderBank() {
+            const tbody = document.getElementById('bankList');
+            tbody.innerHTML = '';
+            jobBank.forEach(job => {
+                const row = document.createElement('tr');
+                row.className = 'status-saved';
+                row.innerHTML = `
+                    <td>${job.company}</td>
+                    <td>${job.position}</td>
+                    <td>${job.url ? `<a href="${job.url}" target="_blank">Link</a>` : ''}</td>
+                    <td>${job.notes}</td>
+                    <td>
+                        <button onclick="applyFromBank(${job.id})">Apply</button>
+                        <button onclick="deleteFromBank(${job.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function deleteFromBank(id) {
+            jobBank = jobBank.filter(job => job.id !== id);
+            localStorage.setItem('jobBank', JSON.stringify(jobBank));
+            renderBank();
+        }
+
+        function applyFromBank(id) {
+            const job = jobBank.find(j => j.id === id);
+            jobs.push({
+                id: Date.now(),
+                company: job.company,
+                position: job.position,
+                appliedDate: new Date().toISOString().split('T')[0],
+                status: 'applied',
+                notes: job.notes
+            });
+            jobBank = jobBank.filter(j => j.id !== id);
+            localStorage.setItem('jobs', JSON.stringify(jobs));
+            localStorage.setItem('jobBank', JSON.stringify(jobBank));
+            renderJobs();
+            renderBank();
+        }
+
+        function clearAll() {
+            if (confirm('Clear ALL data?')) {
+                localStorage.clear();
+                jobs = [];
+                jobBank = [];
+                renderJobs();
+                renderBank();
+            }
+        }
+
+        // Initial render
+        renderJobs();
+        renderBank();
+    </script>
+</body>
+</html>

@@ -468,6 +468,80 @@
         color: white;
     }
 
+/* 3D Printed Lighthouses Section */
+.lighthouses-section {
+    padding: 5rem 2rem;
+    background: white;
+    text-align: center;
+}
+
+.lighthouses-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.lighthouse-item {
+    width: 48%;
+    text-align: center;
+}
+
+.lighthouse-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.lighthouse-item p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+/* Drawings of Block Island Section */
+.drawings-section {
+    padding: 5rem 2rem;
+    background: var(--light-bg);
+    text-align: center;
+}
+
+.drawings-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.drawing-item {
+    margin-top: 2rem;
+}
+
+.drawing-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.drawing-item p {
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .lighthouses-content {
+        flex-direction: column;
+    }
+
+    .lighthouse-item {
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+}
+    
+
         /* Responsive design */
         @media (max-width: 768px) {
             .nav {
@@ -694,6 +768,37 @@
     </div>
 </section>
 
+<!-- 3D Printed Lighthouses Section -->
+<section class="lighthouses-section">
+    <div class="container">
+        <h2>3D Printed Lighthouses</h2>
+        <div class="lighthouses-content">
+            <div class="lighthouse-item">
+                <img src="assets/images/Northern.jpg" alt="3D Printed Lighthouse 1">
+                <p>North Lighthouse Model</p>
+            </div>
+            <div class="lighthouse-item">
+                <img src="assets/images/southern.jpg" alt="3D Printed Lighthouse 2">
+                <p>Southeast Lighthouse Model</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Drawings of Block Island Section -->
+<section class="drawings-section">
+    <div class="container">
+        <h2>Drawings of Block Island</h2>
+        <div class="drawings-content">
+            <p>Here are some hand-drawn and digital illustrations of Block Island, showcasing its unique geography and landmarks.</p>
+            <!-- Add images or other content here -->
+            <div class="drawing-item">
+                <img src="assets/images/block-image.jpg" alt="Block Island Drawing 1">
+                <p>Hand-drawn map of Block Island</p>
+    </div>
+</section>
+
+
     <!-- Interactive Map Section -->
     <section class="map-section">
         <div class="container">
@@ -754,27 +859,27 @@
 
         // Add markers for projects
         const projects = [
-            {
-                name: "Transportation Planning",
-                location: [41.1725, -71.5575],
-                description: "Sustainable transportation systems for Block Island."
-            },
-            {
-                name: "Coastal Resilience",
-                location: [41.1800, -71.5600],
-                description: "Protecting the coastline from erosion and rising sea levels."
-            },
-            {
-                name: "Renewable Energy",
-                location: [41.1650, -71.5500],
-                description: "Expanding wind and solar energy infrastructure."
-            },
-            {
-                name: "Community Development",
-                location: [41.1750, -71.5550],
-                description: "Revitalizing public spaces and community centers."
-            }
-        ];
+    {
+        name: "Southern Lighthouse",
+        location: [41.153140,-71.552212],
+        description: "The Block Island Southeast Lighthouse, built in 1875, is a National Historic Landmark. It was relocated inland in 1993 due to coastal erosion threatening its foundation."
+    },
+    {
+        name: "Northern Lighthouse",
+        location: [41.227565,-71.575826],
+        description: "The North Lighthouse, originally built in 1829 and rebuilt in 1867, has guided mariners around the island's treacherous shores for centuries. Today, it serves as a museum and wildlife refuge."
+    },
+    {
+        name: "Great Salt Pond",
+        location: [41.1850, -71.5670],
+        description: "Once a freshwater pond before being breached by a storm in 1870, Great Salt Pond became a vital harbor. It has played a key role in Block Island’s maritime history and ecological conservation."
+    },
+    {
+        name: "New Shoreham",
+        location: [41.1730, -71.5580],
+        description: "Founded in 1672, New Shoreham is the only town on Block Island and one of the smallest towns in the U.S. by land area. Its historic district preserves 19th-century architecture and maritime heritage."
+    }
+];
 
         projects.forEach(project => {
             L.marker(project.location).addTo(map)

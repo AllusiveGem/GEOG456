@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Resume</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A4E69;
+            --accent-color: #9A8C98;
+            --highlight: #22223B;
+            --light-bg: #F2E9E4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            line-height: 1.6;
+        }
+
+        .resume {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .name {
+            font-size: 2.5rem;
+            color: var(--highlight);
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .title {
+            color: var(--accent-color);
+            font-weight: 300;
+            font-size: 1.2rem;
+        }
+
+        /* Left Column Styles */
+        .left-column {
+            border-right: 3px solid var(--light-bg);
+            padding-right: 2rem;
+        }
+
+        .section-title {
+            color: var(--highlight);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            margin: 1.5rem 0 1rem;
+            letter-spacing: 1px;
+        }
+
+        .contact-list {
+            list-style: none;
+        }
+
+        .contact-list li {
+            margin-bottom: 0.8rem;
+        }
+
+        .contact-list i {
+            color: var(--accent-color);
+            width: 20px;
+            margin-right: 0.5rem;
+        }
+
+        /* Skills Graph */
+        .skills-graph {
+            height: 200px;
+            background: var(--light-bg);
+            border-radius: 8px;
+            margin: 1rem 0;
+            padding: 1rem;
+        }
+
+        /* Portfolio Button */
+        .portfolio-btn {
+            display: block;
+            text-align: center;
+            padding: 0.8rem;
+            background: var(--highlight);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+
+        .portfolio-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Experience Section */
+        .experience-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .company {
+            color: var(--highlight);
+            font-size: 1.1rem;
+        }
+
+        .date {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        .description {
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--light-bg);
+            margin: 1rem 0;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            
+            .resume {
+                box-shadow: none;
+                margin: 0;
+                padding: 1rem;
+            }
+            
+            .portfolio-btn {
+                background: none;
+                color: var(--highlight);
+                text-decoration: underline;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume">
+        <header class="header">
+            <h1 class="name">Your Name</h1>
+            <p class="title">Professional Title</p>
+        </header>
+
+        <div class="left-column">
+            <section class="contact">
+                <h2 class="section-title">Contact</h2>
+                <ul class="contact-list">
+                    <li><i class="fas fa-phone"></i>+123 456 7890</li>
+                    <li><i class="fas fa-envelope"></i>email@example.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i>City, Country</li>
+                    <li><i class="fab fa-linkedin"></i>linkedin.com/in/you</li>
+                    <li><i class="fab fa-github"></i>github.com/you</li>
+                </ul>
+            </section>
+
+            <section class="skills">
+                <h2 class="section-title">Skills</h2>
+                <div class="skills-graph">
+                    <!-- Add your SVG/Chart here -->
+                    <svg viewBox="0 0 100 100" style="width:100%;height:100%">
+                        <!-- Sample skill chart circles -->
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#eee" stroke-width="8"/>
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--highlight)" stroke-width="8" 
+                                stroke-dasharray="283" stroke-dashoffset="100"/>
+                    </svg>
+                </div>
+            </section>
+
+            <a href="#" class="portfolio-btn">View Portfolio</a>
+        </div>
+
+        <div class="right-column">
+            <section class="experience">
+                <h2 class="section-title">Experience</h2>
+                <div class="experience-item">
+                    <h3 class="company">Company Name</h3>
+                    <p class="date">2020 - Present</p>
+                    <p class="description">Brief description of your responsibilities and achievements in this role.</p>
+                </div>
+                <hr>
+                <div class="experience-item">
+                    <h3 class="company">Previous Company</h3>
+                    <p class="date">2018 - 2020</p>
+                    <p class="description">Key accomplishments and responsibilities in this position.</p>
+                </div>
+            </section>
+
+            <section class="education">
+                <h2 class="section-title">Education</h2>
+                <div class="experience-item">
+                    <h3 class="company">University Name</h3>
+                    <p class="date">2014 - 2018</p>
+                    <p class="description">Degree Name, Major<br>GPA: 3.8</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

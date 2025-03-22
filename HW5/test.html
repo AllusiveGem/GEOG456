@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoJSON Train Data</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="state.js"></script>
+    <script src="train2small.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background-color: #0D0D0D;
+            color: white;
+        }
+        #title-container {
+            display: inline-block;
+            padding: 10px;
+            border: 2px solid #00BFFF;
+            border-radius: 10px;
+            background-color: #001f3f;
+            color: #00BFFF;
+            margin-bottom: 10px;
+        }
+        #container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+        #map {
+            height: 350px;
+            width: 50%;
+            border: 2px solid #27251F;
+            border-radius: 10px;
+        }
+        #info {
+            border: 1px solid black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: auto;
+            max-height: 350px;
+            width: 50%;
+            background-color: #001f3f;
+            overflow-y: auto;
+            color: #00BFFF;
+        }
+        table {
+            font-family: Tahoma, sans-serif;
+            border-collapse: collapse;
+            width: 90%;
+            border-radius: 8px;
+            overflow: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background-color: #001f3f;
+            color: #00BFFF;
+        }
+        td, th {
+            border: 1px solid #00BFFF;
+            text-align: left;
+            padding: 3px;
+            font-size: 12px;
+        }
+        tr:nth-child(even) {
+            background-color: #002b5e;
+        }
+        tr.selected {
+            background-color: #004080;
+        }
+        #trainSlider {
+            width: 80%;
+            margin: 10px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="title-container">
+        <h1>Growth of the American Railroad Industry</h1>
+        <h2>Train Maps from 1830 to 1920</h2>
+    </div>
+    <h3 id="CurrentYear">Decade: 1830</h3>
+    <input id="trainSlider" type="range" min="1830" max="1920" step="10" oninput="moveSlider(this.value)" value="1830">
+    
+    <div id="container">
+        <div id="map"></div>
+        <div id="info">
+            <table id="dataTable">
+                <tr>
+                    <th>State</th>
+                    <th>Total Miles</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        var map = L.map('map', { attributionControl: false }).setView([39.8283, -98.5795], 4);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            opacity: 0.8,
+            attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap contributors'
+        }).addTo(map);
+
+        var myCurrentSelectionDecade = 1830;
+
+        function getColor(d) {
+            return d <= myCurrentSelectionDecade ? "#00BFFF" : "#0D0D0D";
+        }
+
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties.Decade),
+                weight: 1,
+                opacity: 1,
+                color: '#00BFFF',
+                fillOpacity: 0.5
+            };
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: addInformation
+            });
+        }
+
+        var geojson = L.geoJson(trainData, {
+            style: style,
+            onEachFeature: onEachFeature
+        }).addTo(map);
+
+        function addInformation(e) {
+            document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+            var state = e.target.feature.properties.STATENAM;
+            document.querySelectorAll('.' + state).forEach(el => el.classList.add('selected'));
+        }
+
+        function moveSlider(value) {
+            document.getElementById('CurrentYear').innerHTML = 'Decade: ' + value;
+            myCurrentSelectionDecade = value;
+            geojson.eachLayer(function(layer) {
+                layer.setStyle(style(layer.feature));
+            });
+            updateTable(value);
+        }
+
+        function updateTable(selectedDecade) {
+            var table = document.getElementById("dataTable");
+            table.innerHTML = '<tr><th>State</th><th>Total Miles</th></tr>';
+            
+            var stateMiles = {};
+            trainData.features.forEach(feature => {
+                var state = feature.properties.STATENAM;
+                var decade = feature.properties.Decade;
+                var miles = feature.properties.SUM_Miles || 0;
+                
+                if (decade <= selectedDecade) {
+                    if (!stateMiles[state]) {
+                        stateMiles[state] = 0;
+                    }
+                    stateMiles[state] += miles;
+                }
+            });
+            
+            Object.entries(stateMiles)
+    .sort((a, b) => b[1] - a[1]) // Sorts states by total miles (descending)
+    .forEach(([state, miles]) => {
+        var row = table.insertRow();
+        row.className = state;
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        cell1.innerHTML = state;
+        cell2.innerHTML = miles.toFixed(2);
+    });
+        }
+
+        window.onload = function () {
+            document.getElementById('trainSlider').value = 1830;
+            updateTable(1830);
+        };
+    </script>
+</body>
+</html>
