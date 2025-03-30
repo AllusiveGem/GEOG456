@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow&family=Julius+Sans+One&family=Open+Sans&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+  <style>
+    /* Base Styles */
+    body { 
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      background: #f0f0f0;
+    }
+
+    page {
+      display: block;
+      width: 21cm;
+      height: 29.7cm;
+      background: white;
+      margin: 0 auto;
+      padding: 0;
+      position: relative;
+    }
+
+    .container {
+      display: flex;
+      height: 100%;
+    }
+
+    .leftPanel {
+      width: 27%;
+      background: #2A3F5F;
+      padding: 0.7cm;
+      color: white;
+    }
+
+    .rightPanel {
+      width: 73%;
+      padding: 0.7cm;
+    }
+
+    /* Portfolio Map on First Page */
+    .portfolio-map {
+      margin: 1cm 0;
+    }
+
+    .map-container {
+      height: 250px;
+      border: 2px solid #E8B04D;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    /* Skills Grid */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5cm;
+    }
+
+    /* Compact Course Tables */
+    .compact-table {
+      width: 100%;
+      font-size: 0.35cm;
+      border-collapse: collapse;
+    }
+    .compact-table td, .compact-table th {
+      padding: 0.3cm;
+      border: 1px solid #ddd;
+    }
+    .compact-table th {
+      background: #2A3F5F;
+      color: white;
+    }
+
+    /* Page Breaks */
+    .page-break {
+      page-break-before: always;
+    }
+
+    /* Sidebar Content */
+    .sidebar-section {
+      margin-bottom: 1cm;
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE 1: MAIN CONTENT -->
+<page size="A4">
+  <div class="container">
+    <div class="leftPanel">
+      <img src="https://i.ibb.co/FkFc8WQc/1706119100075.jpg" style="width:4cm;height:4cm;border-radius:50%;border:2px solid white;margin-bottom:1cm;">
+      <div class="sidebar-section">
+        <h2 style="color:#E8B04D;font-family:'Archivo Narrow'">CONTACT</h2>
+        <p><i class="fa fa-phone"></i> (609) 467-9491</p>
+        <p><i class="fa fa-envelope"></i> reichertcorey08@gmail.com</p>
+        <p><i class="fa fa-map-marker"></i> Open to Relocation</p>
+        <p><i class="fa fa-linkedin"></i> linkedin.com/in/corey-reichert</p>
+      </div>
+
+      <div class="sidebar-section">
+        <h2 style="color:#E8B04D;font-family:'Archivo Narrow'">SKILLS</h2>
+        <div class="skills-grid">
+          <div>ArcGIS/QGIS <span style="float:right">2y</span></div>
+          <div>R Programming <span style="float:right">2y</span></div>
+          <div>Data Analysis <span style="float:right">3y</span></div>
+          <div>Policy Research <span style="float:right">2y</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rightPanel">
+      <h1 style="font-family:'Julius Sans One';color:#2A3F5F;margin:0">COREY REICHERT</h1>
+      <h3 style="margin-top:0.2cm">GIS Analyst | Policy Researcher | 2025 Graduate</h3>
+
+      <!-- Portfolio Map -->
+      <div class="portfolio-map">
+        <h2><a href="#" style="color:#2A3F5F;text-decoration:none">Geospatial Portfolio <i class="fa fa-external-link"></i></a></h2>
+        <div class="map-container">
+          <iframe src="https://allusivegem.github.io/GEOG456/HW5/HW6.html" style="width:100%;height:100%"></iframe>
+        </div>
+      </div>
+
+      <!-- Work Experience -->
+      <h2 style="font-family:'Archivo Narrow'">Professional Experience</h2>
+      <div>
+        <h4>Old Navy | Sales Associate | 2023-Present</h4>
+        <ul>
+          <li>Maintained 100% customer satisfaction rating</li>
+          <li>Implemented inventory tracking system</li>
+        </ul>
+
+        <h4>Hardees | Crew Member | 2021-2022</h4>
+        <ul>
+          <li>Trained 8+ new employees</li>
+          <li>Reduced food waste by 20%</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</page>
+
+<!-- PAGE 2: EDUCATION & TRANSFER CREDITS -->
+<page size="A4" class="page-break">
+  <div class="container">
+    <div class="leftPanel">
+      <div class="sidebar-section">
+        <h2 style="color:#E8B04D;font-family:'Archivo Narrow'">EDUCATION</h2>
+        <p><strong>2019-2023</strong><br>
+        Early College HS<br>
+        High School Diploma</p>
+
+        <p><strong>2019-2023</strong><br>
+        Rowan-Cabarrus CC<br>
+        AS History</p>
+
+        <p><strong>2023-2025</strong><br>
+        UNC Chapel Hill<br>
+        BA Political Science</p>
+      </div>
+
+      <div class="sidebar-section">
+        <h2 style="color:#E8B04D;font-family:'Archivo Narrow'">AWARDS</h2>
+        <ul style="padding-left:0">
+          <li>Summa Cum Laude</li>
+          <li>3x Dean's List</li>
+          <li>Perfect Attendance</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rightPanel">
+      <h2 style="font-family:'Archivo Narrow'">Transfer Credits - Rowan Cabarrus CC</h2>
+      <table class="compact-table">
+        <tr><th>Course</th><th>Title</th><th>Credits</th><th>Grade</th></tr>
+        <tr><td>BIOL 101</td><td>Principles of Biology</td><td>3</td><td>TR</td></tr>
+        <tr><td>COMM 113</td><td>Public Speaking</td><td>3</td><td>TR</td></tr>
+        <tr><td>MATH 231</td><td>Calculus I</td><td>4</td><td>TR</td></tr>
+        <!-- ALL TRANSFER COURSES HERE -->
+      </table>
+    </div>
+  </div>
+</page>
+
+<!-- PAGE 3: UNIVERSITY DETAILS -->
+<page size="A4" class="page-break">
+  <div class="container">
+    <div class="leftPanel">
+      <div class="sidebar-section">
+        <h2 style="color:#E8B04D;font-family:'Archivo Narrow'">PUBLICATIONS</h2>
+        <p>"African Policy Analysis"<br>
+        <a href="#" style="color:#E8B04D">agenda2063journal.com</a></p>
+      </div>
+
+      <div class="sidebar-section">
+        <h2 style="color:#E8B04D;font-family:'Archivo Narrow'">RECOMMENDATIONS</h2>
+        <p>"Exceptional analytical skills..."<br>- Prof. Smith</p>
+      </div>
+    </div>
+
+    <div class="rightPanel">
+      <h2 style="font-family:'Archivo Narrow'">University Coursework</h2>
+      <table class="compact-table">
+        <tr><th>Course</th><th>Title</th><th>Project</th><th>Grade</th></tr>
+        <tr><td>GEOG 370</td><td>GIS Fundamentals</td><td><a href="#" style="color:#E8B04D">View</a></td><td>A</td></tr>
+        <tr><td>POLI 281</td><td>Data in Politics</td><td><a href="#" style="color:#E8B04D">View</a></td><td>A</td></tr>
+      </table>
+
+      <h3 style="margin-top:1cm">Activities</h3>
+      <ul>
+        <li>Model United Nations</li>
+        <li>GIS Student Association</li>
+      </ul>
+    </div>
+  </div>
+</page>
+
+</body>
+</html>
