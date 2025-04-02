@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zyxxal, the Twister of Wishes</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            color: #ff66cc;
+            border-bottom: 2px solid #660066;
+            padding-bottom: 5px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+        
+        .stat-block {
+            background-color: #2a2a2a;
+            border: 3px solid #660066;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px #ff00ff;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .stat {
+            background-color: #330033;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            border: 1px solid #660066;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #330033;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+        
+        .note-box {
+            background-color: #330033;
+            border-left: 5px solid #ff66cc;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        
+        .highlight {
+            color: #ff66cc;
+            font-weight: bold;
+        }
+        
+        .lair-description {
+            font-style: italic;
+            padding: 15px;
+            background-color: #330033;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .attraction-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .attraction-item {
+            background-color: #2a2a2a;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #ff66cc;
+        }
+        
+        .attraction-name {
+            font-weight: bold;
+            color: #ff66cc;
+        }
+        
+        .action-table {
+            width: 100%;
+            margin: 15px 0;
+        }
+        
+        .action-table th {
+            background-color: #330033;
+            text-align: left;
+        }
+        
+        .action-table td {
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <h1>Zyxxal, the Twister of Wishes</h1>
+    
+    <div class="stat-block">
+        <p><em>Medium Celestial (God), Chaotic Neutral</em></p>
+        <p><strong>Armor Class</strong> 18 (divine grace + Dex)</p>
+        <p><strong>Hit Points</strong> 170 (20d8 + 80)</p>
+        <p><strong>Speed</strong> 40 ft., fly 90 ft. (hover)</p>
+        
+        <div class="stats-grid">
+            <div class="stat">
+                <strong>STR</strong><br>
+                2 (-4)
+            </div>
+            <div class="stat">
+                <strong>DEX</strong><br>
+                22 (+6)
+            </div>
+            <div class="stat">
+                <strong>CON</strong><br>
+                18 (+4)
+            </div>
+            <div class="stat">
+                <strong>INT</strong><br>
+                18 (+4)
+            </div>
+            <div class="stat">
+                <strong>WIS</strong><br>
+                16 (+3)
+            </div>
+            <div class="stat">
+                <strong>CHA</strong><br>
+                22 (+6)
+            </div>
+        </div>
+        
+        <p><strong>Saving Throws</strong> Dex +10, Con +8, Cha +10</p>
+        <p><strong>Skills</strong> Deception +14, Insight +11, Persuasion +14, Stealth +10</p>
+        <p><strong>Damage Resistances</strong> All nonmagical damage</p>
+        <p><strong>Damage Immunities</strong> Psychic, radiant</p>
+        <p><strong>Condition Immunities</strong> Charmed, frightened, stunned</p>
+        <p><strong>Senses</strong> Truesight 120 ft., passive Perception 13</p>
+        <p><strong>Languages</strong> All, telepathy 1 mile</p>
+        <p><strong>Challenge</strong> 12 (8,400 XP)</p>
+    </div>
+    
+    <h2>Divine Traits</h2>
+    <div class="stat-block">
+        <p><strong>Innate Spellcasting (Cha, DC 18).</strong> At will: <em>disguise self, minor illusion, silent image, mirror image, major image, misty step, invisibility, mislead, seeming</em> | 3/day: <em>confusion, dominate person, modify memory, polymorph, blink</em> | 1/day: <em>wish</em> (always twisted).</p>
+        
+        <p><strong>Twisted Wish (3/Day).</strong> Intercepts wishes within 60 ft., corrupting them with a hidden curse (DM rolls d6 for severity).</p>
+        
+        <p><strong>Master of Deceit.</strong> Advantage on Deception; cannot be forced to tell the truth.</p>
+        
+        <p><strong>Divine Dodge (Reaction).</strong> Impose disadvantage on an attack; half damage if it hits.</p>
+        
+        <p><strong>Legendary Resistance (3/Day).</strong> Succeed on a failed save.</p>
+        
+        <p><strong>Escape Artist.</strong> Bonus action Disengage or Hide.</p>
+        
+        <p><strong>Trickster's Reflexes.</strong> Immune to surprise; advantage vs. traps/illusions.</p>
+    </div>
+    
+    <h2>Weaknesses</h2>
+    <div class="stat-block">
+        <p><strong>Pathetic Strength (STR 2).</strong> Can't lift anything heavier than a teacup (carry capacity: 30 lbs).</p>
+        <p><strong>Prideful.</strong> If outsmarted, he becomes reckless (loses Legendary Resistance for 1 round).</p>
+    </div>
+    
+    <h2>Actions</h2>
+    <div class="stat-block">
+        <p><strong>Multiattack.</strong> Zyxxal makes two Deceitful Bolt attacks or uses Mocking Mirage once.</p>
+        
+        <p><strong>Deceitful Bolt.</strong> <em>Ranged Spell Attack:</em> +10 to hit, range 120 ft.<br>
+        <em>Hit:</em> 22 (4d8 + 6) psychic damage, and the target must make a DC 18 Wisdom save or be charmed for 1 minute (repeat save at end of turns).</p>
+        
+        <p><strong>Mocking Mirage (Recharge 5-6).</strong> Zyxxal creates three illusory duplicates within 30 feet. Attacks against him have disadvantage unless the attacker first succeeds on a DC 18 Investigation check.</p>
+        
+        <p><strong>Warp Reality (Costs 2 Actions).</strong> Zyxxal warps space in a 30-foot cube. Each creature inside must make a DC 18 Dexterity save or be teleported 30 feet in a random direction (possibly into hazards).</p>
+    </div>
+    
+    <h2>Bonus Actions</h2>
+    <div class="stat-block">
+        <p><strong>Vanishing Act.</strong> Turn invisible until next turn.</p>
+        <p><strong>Misdirection.</strong> Swap places with an illusion/ally (60 ft.).</p>
+        <p><strong>Fleeting Trick (3/Day).</strong> <em>Misty step</em> without a spell slot.</p>
+    </div>
+    
+    <h2>Legendary Actions</h2>
+    <div class="stat-block">
+        <p>Zyxxal can take 3 legendary actions, choosing from the options below. Only one legendary action option can be used at a time and only at the end of another creature's turn. Zyxxal regains spent legendary actions at the start of his turn.</p>
+        
+        <table class="action-table">
+            <tr>
+                <th>Action</th>
+                <th>Cost</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><strong>Trickster's Taunt</strong></td>
+                <td>1</td>
+                <td>A creature within 60 feet must make a DC 18 Wisdom save or attack its nearest ally on its next turn.</td>
+            </tr>
+            <tr>
+                <td><strong>Fleeting Mirage</strong></td>
+                <td>1</td>
+                <td>Move up to his speed without provoking opportunity attacks.</td>
+            </tr>
+            <tr>
+                <td><strong>Cursed Boon</strong></td>
+                <td>2</td>
+                <td>Grant a creature a "gift" with a hidden curse (e.g., +5 temporary HP but vulnerability to fire).</td>
+            </tr>
+            <tr>
+                <td><strong>Phantom Strike</strong></td>
+                <td>2</td>
+                <td>Make a Deceitful Bolt attack against a creature that can't see him.</td>
+            </tr>
+        </table>
+    </div>
+    
+    <h2>Special Abilities</h2>
+    <div class="stat-block">
+        <h3>Critical Backstab (3/Day)</h3>
+        <p>When invisible/hidden, conjures a phantom dagger:</p>
+        <ul>
+            <li><strong>+10 to hit, 1d4 + 6 piercing + 7d6 psychic</strong> (avg. 29 dmg).</li>
+            <li><strong>Automatic crit if target is unaware</strong> (2d4 + 6 + 14d6, avg. 58 dmg).</li>
+            <li><strong>DC 18 Wis save or suffer:</strong>
+                <ul>
+                    <li><em>Paranoia (frightened 1 min)</em>,</li>
+                    <li><em>Misfortune (disadvantage on next roll)</em>, or</li>
+                    <li><em>Twisted Fate (next nat 20 → nat 1)</em>.</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <h3>Phantom Jaunt (Recharge 5-6).</h3>
+        <p>Bonus action teleport 60 ft., leaving a duplicate behind.</p>
+        
+        <h3>Laughing Mirage (3/Day).</h3>
+        <p>Reaction to swap places with an illusion when attacked.</p>
+        
+        <h3>Chaotic Veil (1/Day).</h3>
+        <p>Aura of illusions (10 ft.): attacks vs. Zyxxal have disadvantage, and creatures must save (DC 18 Wis) or be frightened.</p>
+    </div>
+    
+    <h2>Zyxxal's Lair: The Carnival of Shattered Minds</h2>
+    <div class="lair-description">
+        A writhing, neon-lit funhouse where the air smells of burning sugar and the distant calliope plays backwards. Guests (victims) stagger through attractions that warp their senses, never sure what's real.
+    </div>
+    
+    <h3>Lair Actions (On Initiative 20)</h3>
+    <div class="stat-block">
+        <div class="attraction-item">
+            <p class="attraction-name">The Tunnel of "Love"</p>
+            <p>A 30-foot-long tunnel of strobing, fleshy mirrors erupts from the ground. Creatures inside must make a DC 18 CON save or be poisoned (vomiting rainbow sludge) and see all allies as Zyxxal's grinning duplicates for 1 round.</p>
+        </div>
+        
+        <div class="attraction-item">
+            <p class="attraction-name">Carousel of Flesh</p>
+            <p>The carnival's carousel spins violently, hurling razor-edged wooden horses in a 20-foot radius. Creatures take 4d6 slashing damage (DC 18 DEX save for half). Those who fail are grappled by a horse's jagged teeth (escape DC 18).</p>
+        </div>
+        
+        <div class="attraction-item">
+            <p class="attraction-name">The Big Top's Curtain Call</p>
+            <p>The circus tent's flaps lurch to life, attempting to swallow a creature (60 ft. range). DC 18 STR save or be restrained inside the tent's "throat," taking 3d10 acid damage (digested by the carnival itself) per round.</p>
+        </div>
+        
+        <div class="attraction-item">
+            <p class="attraction-name">Cotton Candy Cocaine</p>
+            <p>Pink, floating strands of "cotton candy" burst near a creature's face. They must make a DC 18 WIS save or be addicted:</p>
+            <p><strong>Addiction:</strong> Must spend each move action eating more or take 2d12 psychic withdrawal damage. Lasts until lesser restoration or Zyxxal dies.</p>
+        </div>
+    </div>
+    
+    <h3>Regional Effects (1 Mile Radius)</h3>
+    <div class="stat-block">
+        <ul>
+            <li><strong>Clowns in the Corners of Your Vision.</strong> NPCs see pale-faced jesters (that vanish when stared at) whispering terrible ideas.</li>
+            <li><strong>The Ground Breathes.</strong> Roads and paths undulate like a living thing, slowing travel speed by half.</li>
+            <li><strong>Food is Alive.</strong> Every meal has a 50% chance to scream, bite, or beg for mercy when eaten.</li>
+            <li><strong>Time is a Suggestion.</strong> Clocks run backwards, and NPCs remember events that haven't happened yet.</li>
+        </ul>
+    </div>
+    
+    <h3>Carnival Attractions (Environmental Hazards)</h3>
+    <div class="stat-block">
+        <div class="attraction-item">
+            <p class="attraction-name">The Hall of a Thousand Grins</p>
+            <p>Mirrors show visitors their deaths. DC 15 WIS save or gain a short-term madness effect.</p>
+        </div>
+        
+        <div class="attraction-item">
+            <p class="attraction-name">The Ferris Wheel to Nowhere</p>
+            <p>Riders disappear at the top, reappearing 1d4 hours later with no memory or extra limbs.</p>
+        </div>
+        
+        <div class="attraction-item">
+            <p class="attraction-name">The Hammer Test of Fate</p>
+            <p>A "Test Your Strength" game that actually steals STR (1d4 STR damage on a failed DC 18 CON save).</p>
+        </div>
+    </div>
+    
+    <h3>Roleplaying Zyxxal in the Carnival</h3>
+    <div class="stat-block">
+        <p><strong>Voice:</strong> A mix of Hunter S. Thompson and the Joker. <em>"You bought the ticket, now take the RIDE, baby! HaHA!"</em></p>
+        
+        <p><strong>Tactics:</strong></p>
+        <ul>
+            <li>Rides the carousel horses like a cavalry charge.</li>
+            <li>Forces PCs to play rigged carnival games to progress (e.g., "Shoot the cleric's hat off to win!").</li>
+            <li>Offers "prizes" (cursed items) for "winning."</li>
+        </ul>
+        
+        <p><strong>Weakness:</strong> The carnival's chaos is tied to his focus—if PCs destroy the central calliope (AC 15, 50 HP), lair actions stop.</p>
+        
+        <div class="note-box">
+            <p><strong>Example Twisted Wish in the Carnival</strong></p>
+            <p><strong>Wish:</strong> <em>"I want to win this game!"</em></p>
+            <p><strong>Curse:</strong> The rigged game awards a "prize"—the PC's own severed hand, which now crawls after them, mocking them in Zyxxal's voice.</p>
+        </div>
+    </div>
+    
+    <h2>NPC: The Mirage Dealer</h2>
+    <div class="stat-block">
+        <p><em>"Doc Phantasm"</em> – A shimmering, skeletal figure in a stained lab coat, selling <strong>"Fey Dust"</strong> from a floating cart.</p>
+        
+        <p><strong>AC</strong> 12 | <strong>HP</strong> 1 (illusion) | <strong>Speed</strong> 0 ft. (hovers)</p>
+        
+        <h3>Abilities:</h3>
+        <p><strong>Psychedelic Pitch:</strong> As an action, offers a PC "Fey Dust" (DC 18 CHA save or compelled to take it).</p>
+        
+        <p><strong>Fey Dust Effects (1d4):</strong></p>
+        <ol>
+            <li><strong>Euphoria:</strong> Gain <strong>advantage on CHA checks</strong> for 1 hour, then <strong>disadvantage on WIS saves</strong> for 1d4 days.</li>
+            <li><strong>Bad Trip:</strong> Hallucinate <strong>swarms of spiders</strong> (treat as <em>confusion</em> spell for 1 min).</li>
+            <li><strong>Reality Slip:</strong> Teleport 1d6 × 10 ft. randomly each round for 1 min.</li>
+            <li><strong>Zyxxal's Gaze:</strong> User sees Zyxxal's face in every reflection (no mechanical effect... yet).</li>
+        </ol>
+        
+        <p><strong>Tactics:</strong> Only Zyxxal can kill Doc Phantasm (it's his hallucination). Destroying the cart just makes it reappear.</p>
+    </div>
+    
+    <h2>Combat Flow</h2>
+    <div class="stat-block">
+        <ol>
+            <li><strong>Round 1:</strong> Zyxxal uses <em>Tunnel of "Love"</em> to split the party.</li>
+            <li><strong>Round 2:</strong> Doc Phantasm offers <em>Fey Dust</em> to the wizard.</li>
+            <li><strong>Round 3:</strong> <em>Carousel of Flesh</em> grinds down the fighter.</li>
+            <li><strong>Round 4:</strong> Zyxxal <em>Critical Backstabs</em> the addicted rogue.</li>
+        </ol>
+    </div>
+    
+    <h2>Final Notes</h2>
+    <div class="stat-block">
+        <ul>
+            <li><strong>For Players:</strong> A battle of <strong>wits, perception checks, and resisting temptation</strong>.</li>
+            <li><strong>For DMs:</strong> Play Zyxxal as <strong>unpredictable</strong>—he might spare a PC who amuses him, or curse the one who bores him.</li>
+            <li><strong>Treasure:</strong> The carnival's "prizes" are all cursed (e.g., a <strong>teddy bear that whispers secrets</strong>, a <strong>ring that swaps genders daily</strong>).</li>
+        </ul>
+        
+        <div class="note-box">
+            <p><em>Need even more chaos? Add a hallucinogenic fog that randomizes spell effects, or a "second boss" that's just Zyxxal's illusion.</em></p>
+        </div>
+    </div>
+</body>
+</html>
