@@ -275,7 +275,7 @@
 
 .map-container {
     display: grid; /* Use CSS Grid */
-    max-width: 70%;
+    max-width: 1000px;
     margin: 10px auto;
     text-align: center;
     position: relative;
@@ -285,6 +285,8 @@
     grid-area: 1 / 1; /* Place both images in the same grid cell */
     width: 100%;
     height: auto;
+    max-height: 500px; /* Added max-height */
+    object-fit: contain;
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
@@ -302,7 +304,7 @@
     padding: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     margin-bottom: 10px;
-    z-index: 2;
+    z-index: 3;
 }
 
 .callout img {
@@ -325,12 +327,12 @@
 
 /* Connection points (dots) */
 .connection-point {
-    position: absolute;
+    position: relative;
     width: 10px;
     height: 10px;
     background-color: var(--primary-color);
     border-radius: 50%;
-    z-index: 2;
+    z-index: 4;
 }
 
 /* Connection lines */
@@ -339,38 +341,41 @@
     height: 2px;
     background-color: var(--primary-color);
     transform-origin: 0 0;
-    z-index: 5;
+    z-index: 2;
 }
 
 /* Specific positions for points and callouts */
 .point-north {
-    top: 11%; /* Adjust based on your map */
-    left: 56%;
+    top: 25px; /* Adjust based on your map */
+    left: 51.25%;
+    position: absolute;
 }
 
 .point-south {
-    top: 81%; /* Adjust based on your map */
-    left: 83%;
+    top: 450px; /* Adjust based on your map */
+    left: 62%;
+    position: absolute;
 }
 
 .point-east {
-    top: 48%; /* Adjust based on your map */
-    left: 62%;
+    top: 257px; /* Adjust based on your map */
+    left: 54%;
+    position: absolute;
 }
 
 .callout-north {
-    top: 15%; /* Adjust based on your map */
-    left: -5%;
+    top: -21%; /* Adjust based on your map */
+    left: 2.5%;
 }
 
 .callout-south {
-    top: 60%; /* Adjust based on your map */
-    left: -5%;
+    top: 34%; /* Adjust based on your map */
+    left: 2.5%;
 }
 
 .callout-east {
-    top: 35%; /* Adjust based on your map */
-    left: 95%;
+    top: 10%; /* Adjust based on your map */
+    left: 78%;
 }
 
         /* Add responsive design for mobile */
@@ -666,7 +671,7 @@
                     <li><a href="block-island-map.html">Block Island</a></li>
                     <li><a href="savannah-map.html">Savannah Georgia</a></li>
                     <li><a href="3D-Prints.html">3D Prints</a></li>
-                    <li><a href="Photography.html">Photography</a></li>
+                    <li><a href="Photography.html">Art Gallery</a></li>
                     <li><a href="QGIS.html">QGIS Maps + Graphs</a></li>
                     <li><a href="publications.html">Publications</a></li>
                 </ul>
@@ -736,10 +741,10 @@
 
         <div class="map-container">
             <!-- First map image (visible by default) -->
-            <img src="https://cmsphoto.ww-cdn.com/superstatic/1476990/art/grande/25596809-26798032.jpg" alt="Map of Block Island" class="map-image" id="map-image-1">
+            <img src="assets/images/bi14.png" alt="Map of Block Island" class="map-image" id="map-image-1">
             
             <!-- Second map image (hidden by default) -->
-            <img src="https://i.ibb.co/C3Sb1mHw/blockisland-Map3-fotor-20250220181151.png" alt="Alternate Map of Block Island" class="map-image hidden" id="map-image-2">
+            <img src="assets/images/bi13.png" alt="Alternate Map of Block Island" class="map-image hidden" id="map-image-2">
             
             <!-- Connection points -->
             <div class="connection-point point-north"></div>
