@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GeoJSON Layer Toggler</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        #layer-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .layer-item {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="layer-control">
+        <h3>Layers</h3>
+        <div id="layer-list"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <!-- Your GeoJSON files -->
+    <script src="1820.js"></script>
+    <script src="1830.js"></script>
+    <script src="1840.js"></script>
+    <script src="1850.js"></script>
+    <script src="1860.js"></script>
+    <script src="1870.js"></script>
+    <script src="1890.js"></script>
+    <script src="1900.js"></script>
+    <script src="1910.js"></script>
+    <script src="1920.js"></script>
+    <script src="trail.js"></script>
+    <script src="river.js"></script>
+    <script src="train2.js"></script>
+    <script src="state.js"></script>
+    
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([39.8283, -98.5795], 4); // Center of US
+        
+        // Add base tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Object to store our layers
+        const layers = {};
+        
+        // List of all your GeoJSON variable names
+        const layerNames = [
+            'state', 'train2', 'river', 'trail',
+            'y1820', 'y1830', 'y1840', 'y1850', 
+            'y1860', 'y1870', 'y1890', 'y1900',
+            'y1910', 'y1920'
+        ];
+        
+        // Create layer groups for each GeoJSON
+        layerNames.forEach(name => {
+            // Check if the variable exists in global scope
+            if (window[name]) {
+                layers[name] = L.geoJSON(window[name], {
+                    style: function(feature) {
+                        // Default style
+                        return {
+                            color: getRandomColor(),
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.5
+                        };
+                    }
+                });
+            } else {
+                console.warn(`Variable ${name} not found in global scope`);
+            }
+        });
+        
+        // Function to generate random colors
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        // Create layer control UI
+        const layerList = document.getElementById('layer-list');
+        
+        layerNames.forEach(name => {
+            if (layers[name]) {
+                const div = document.createElement('div');
+                div.className = 'layer-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = name;
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        layers[name].addTo(map);
+                    } else {
+                        map.removeLayer(layers[name]);
+                    }
+                });
+                
+                const label = document.createElement('label');
+                label.htmlFor = name;
+                label.textContent = name;
+                
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                layerList.appendChild(div);
+            }
+        });
+    </script>
+</body>
+</html>

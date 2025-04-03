@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Touch of Civilization: 19th Century Transportation and Population Growth</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .map-container {
+            flex: 2;
+            min-width: 600px;
+        }
+        
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .transport-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .transport-btn {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .transport-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .transport-btn.active {
+            background-color: #2c3e50;
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        #yearSlider {
+            width: 100%;
+        }
+        
+        #currentYear {
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .info-panel {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .historical-event {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #2c3e50;
+        }
+        
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Touch of Civilization</h1>
+        <p>Visualizing 19th Century Transportation and Population Growth in the United States</p>
+    </header>
+    
+    <div class="container">
+        <div class="map-container">
+            <h2>Transportation Infrastructure and Population Change (1820-1910)</h2>
+            <div id="map"></div>
+            
+            <div class="transport-buttons">
+                <button class="transport-btn active" id="railBtn">Railroads</button>
+                <button class="transport-btn" id="riverBtn">Steamboat Routes</button>
+                <button class="transport-btn" id="canalBtn">Canals</button>
+                <button class="transport-btn" id="wagonBtn">Wagon Trails</button>
+            </div>
+            
+            <div class="slider-container">
+                <input type="range" id="yearSlider" min="1820" max="1910" step="10" value="1820">
+                <div id="currentYear">Year: 1820</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <h3>Population Data</h3>
+            <div id="populationGraph">
+                <!-- Graph will be inserted here -->
+                <p>Click on a county to view population trends</p>
+            </div>
+            
+            <div class="info-panel">
+                <h3>Transportation Statistics</h3>
+                <table id="statsTable">
+                    <tr>
+                        <th>Type</th>
+                        <th>Miles</th>
+                        <th>Count</th>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="historical-event" id="eventInfo">
+                <h4>Historical Context</h4>
+                <p>Select a year to view significant historical events</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Corey Reichert | GEOG 456: Geovisualizing Change | Professor Arce-Nazario</p>
+    </footer>
+    
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([39.8283, -98.5795], 4);
+        
+        // Add base map layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Current year variable
+        var currentYear = 1820;
+        
+        // Transportation layer variables (would be replaced with actual GeoJSON data)
+        var railLayer, riverLayer, canalLayer, wagonLayer;
+        var activeTransportLayer = null;
+        
+        // Update year display
+        function updateYearDisplay(year) {
+            document.getElementById('currentYear').textContent = 'Year: ' + year;
+            currentYear = year;
+            
+            // Update layers based on year
+            updateTransportLayers();
+            
+            // Update historical event info
+            updateHistoricalEvents(year);
+        }
+        
+        // Update transport layers based on current year
+        function updateTransportLayers() {
+            // In a real implementation, this would filter the GeoJSON layers
+            // to only show features that existed by the current year
+            console.log("Updating layers for year: " + currentYear);
+        }
+        
+        // Update historical events display
+        function updateHistoricalEvents(year) {
+            var eventInfo = document.getElementById('eventInfo');
+            var eventText = "";
+            
+            // Sample historical events (would be expanded in real implementation)
+            if (year >= 1861 && year <= 1865) {
+                eventText = "<strong>Civil War (1861-1865):</strong> Significant population shifts in Southern states due to war impacts.";
+            } else if (year >= 1849) {
+                eventText = "<strong>California Gold Rush (1848-1855):</strong> Massive westward migration to California.";
+            } else if (year >= 1830) {
+                eventText = "<strong>Indian Removal Act (1830):</strong> Forced relocation of Native American tribes westward.";
+            } else {
+                eventText = "No major historical events recorded for this year.";
+            }
+            
+            eventInfo.innerHTML = '<h4>Historical Context (' + year + ')</h4><p>' + eventText + '</p>';
+        }
+        
+        // Toggle transportation layers
+        function setupTransportButtons() {
+            document.getElementById('railBtn').addEventListener('click', function() {
+                toggleTransportLayer('rail');
+            });
+            
+            document.getElementById('riverBtn').addEventListener('click', function() {
+                toggleTransportLayer('river');
+            });
+            
+            document.getElementById('canalBtn').addEventListener('click', function() {
+                toggleTransportLayer('canal');
+            });
+            
+            document.getElementById('wagonBtn').addEventListener('click', function() {
+                toggleTransportLayer('wagon');
+            });
+        }
+        
+        function toggleTransportLayer(type) {
+            // Reset all buttons
+            document.querySelectorAll('.transport-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Activate clicked button
+            document.getElementById(type + 'Btn').classList.add('active');
+            
+            // In a real implementation, this would show/hide the appropriate layers
+            console.log("Showing layer: " + type);
+        }
+        
+        // Initialize slider
+        document.getElementById('yearSlider').addEventListener('input', function() {
+            updateYearDisplay(this.value);
+        });
+        
+        // Set up click handler for counties (population data)
+        function onCountyClick(e) {
+            // In a real implementation, this would show population data for the clicked county
+            var countyName = e.target.feature.properties.NAME;
+            document.getElementById('populationGraph').innerHTML = 
+                '<h4>' + countyName + ' Population</h4>' +
+                '<p>Population data for ' + countyName + ' would be displayed here as a graph.</p>';
+        }
+        
+        // Initialize the application
+        window.onload = function() {
+            setupTransportButtons();
+            updateYearDisplay(1820);
+            
+            // In a real implementation, you would:
+            // 1. Load GeoJSON data for railroads, rivers, canals, wagon trails
+            // 2. Load county population data
+            // 3. Set up event handlers for map interactions
+            // 4. Create the visualization layers
+            
+            // Sample code for what would be in the real implementation:
+            /*
+            railLayer = L.geoJson(railData, {
+                style: {color: '#ff0000', weight: 2},
+                onEachFeature: function(feature, layer) {
+                    layer.bindPopup("Railroad: " + feature.properties.name);
+                }
+            });
+            
+            // Similarly for other layers...
+            */
+        };
+    </script>
+</body>
+</html>
