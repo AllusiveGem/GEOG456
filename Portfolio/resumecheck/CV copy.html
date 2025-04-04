@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow&family=Julius+Sans+One&family=Open+Sans&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+  <style>
+    h1 { 
+      font-family: 'Julius Sans One', sans-serif;
+    }
+    
+    h2 { /* Contact, Skills, Education, About me, Work Experience */
+      font-family: 'Archivo Narrow', sans-serif;
+    }
+    
+    h3 { /* Accountant */
+      font-family: 'Open Sans', sans-serif;
+    }
+    
+    .jobPosition span, 
+    .projectName span {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+    
+    .upperCase {
+      text-transform: uppercase; 
+    }
+    
+    .smallText, 
+    .smallText span, 
+    .smallText p, 
+    .smallText a {
+      font-family: 'Source Sans Pro', sans-serif;
+      text-align: justify;
+    }
+    
+    /* Colors */
+    h1 { 
+      color: #2A3F5F;  /* Deep navy blue */
+    }
+    
+    .leftPanel, 
+    .leftPanel a {
+      color: #E0E0E0;  /* Light gray */
+      text-decoration: none;
+    }
+    
+    .leftPanel h2 {
+      color: #E8B04D;  /* Gold accent color */
+    }
+    
+    /* Sizes */
+    h1 { 
+      font-weight: 300; 
+      font-size: 1.2cm;
+      transform:scale(1,1.15); 
+      margin-bottom: 0.2cm;
+      margin-top: 0.2cm;
+      text-transform: uppercase; 
+    }
+    
+    h2 {
+      margin-top: 0.1cm;
+      margin-bottom: 0.1cm;
+    }
+    
+    .leftPanel, 
+    .leftPanel a {
+      font-size: 0.38cm;
+    }
+    
+    .projectName span, 
+    .jobPosition span {
+      font-size: 0.35cm;
+    }
+    
+    .smallText, 
+    .smallText span, 
+    .smallText p, 
+    .smallText a {
+      font-size: 0.35cm;
+    }
+    
+    .leftPanel .smallText, 
+    .leftPanel .smallText, 
+    .leftPanel .smallText span, 
+    .leftPanel .smallText p, 
+    .smallText a {
+      font-size: 0.45cm;
+    }
+    
+    .contactIcon {
+      width: 0.5cm;
+      text-align: center;
+    }
+    
+    p {
+      margin-top: 0.05cm;
+      margin-bottom: 0.05cm;
+    }
+    
+    .bolded {
+      font-weight: bold;
+    }
+    
+    .white {
+      color: white;
+    }
+    
+    /* Layout */
+    body {
+      background: rgb(204,204,204); 
+      width: 21cm;
+      height: 29.7cm;
+      margin: 0 auto;
+    }
+    
+    /* Printing */
+    page {
+      background: white;
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 0.5cm;
+    }
+    
+    page[size="A4"] {  
+      width: 21cm;
+      height: 29.7cm; 
+    }
+    
+    @page {
+       size: 21cm 29.7cm;
+       padding: 0;
+       margin: 0mm;
+       border: none;
+       border-collapse: collapse;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .leftPanel {
+      width: 27%;
+      background-color: #2A3F5F;
+      padding: 0.5cm;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .rightPanel {
+      width: 73%;
+      padding: 0.7cm;
+    }
+    
+    .leftPanel img {
+      width: 3.5cm;
+      height: 3.5cm;
+      margin-bottom: 0.5cm;
+      border-radius: 50%;
+      border: 0.15cm solid white;
+      object-fit: cover;
+      object-position: 50% 50%;
+    }
+    
+    .leftPanel .details {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .skill {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin-bottom: 0.2cm;
+    }
+    
+    .bottomLineSeparator {
+      border-bottom: 0.05cm solid #E8B04D;
+      padding-bottom: 0.5cm;
+    }
+    
+    .yearsOfExperience {
+      width: 1.6cm;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+    
+    .alignleft {
+      text-align: left !important;
+      width: 1cm;
+    }
+    
+    .alignright {
+      text-align: right !important;
+      width: 0.6cm;
+      margin-right: 0.1cm
+    }
+    
+    .workExperience>ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    
+    .workExperience>ul>li {
+      position: relative;
+      margin: 0;
+      padding-bottom: 0.5cm;
+      padding-left: 0.5cm;
+    }
+    
+    .workExperience>ul>li:before {
+      background-color: #E8B04D;
+      width: 0.05cm;
+      content: '';
+      position: absolute;
+      top: 0.1cm;
+      bottom: -0.2cm;
+      left: 0.05cm;
+    }
+    
+    .workExperience>ul>li::after {
+      content: '';
+      position: absolute;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' aria-hidden='true' viewBox='0 0 32 32' focusable='false'%3E%3Ccircle stroke='none' fill='%23E8B04D' cx='16' cy='16' r='10'%3E%3C/circle%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: contain;
+      left: -0.09cm;
+      top: 0;
+      width: 0.35cm;
+      height: 0.35cm;
+    }
+    
+    .jobPosition {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    
+    .item {
+      padding-bottom: 0.5cm;
+      padding-top: 0.5cm;
+    }
+    
+    .item h2{
+      margin-top: 0;
+    }
+    
+    .lastParagrafNoMarginBottom {
+      margin-bottom: 0;
+    }
+    
+    .workExperience>ul>li ul {
+      padding-left: 0.5cm;
+      list-style-type: disc;
+    }
+
+    .portfolio-map {
+      margin-top: 1cm;
+    }
+    
+    .portfolio-map h2 a {
+      color: #2A3F5F;
+      text-decoration: none;
+    }
+    
+    .portfolio-map h2 a:hover {
+      text-decoration: underline;
+    }
+    
+    .map-container {
+      margin-top: 0.5cm;
+      height: 200px;
+      border: 2px solid #E8B04D;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    
+    .map-container iframe {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .fa-external-link {
+      font-size: 0.6em;
+      margin-left: 5px;
+    }
+
+    /* Multi-page styles */
+    .page-break {
+      page-break-after: always;
+      height: 0;
+    }
+
+    .course-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.2cm 0;
+      font-size: 0.32cm;
+    }
+
+    .course-table th, .course-table td {
+      padding: 0.15cm;
+      border: 1px solid #ddd;
+    }
+
+    .course-table th {
+      background-color: #f2f2f2;
+      text-align: left;
+    }
+
+    .term-header {
+      background-color: #2A3F5F;
+      color: white;
+      padding: 0.2cm;
+      margin-top: 0.5cm;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .term-info {
+      font-weight: normal;
+    }
+
+    .club-item {
+      margin-bottom: 0.3cm;
+    }
+
+    .club-name {
+      font-weight: bold;
+    }
+
+    .club-dates {
+      font-style: italic;
+      font-size: 0.35cm;
+    }
+
+    .recommendation {
+      margin-bottom: 0.5cm;
+      padding-bottom: 0.5cm;
+      border-bottom: 1px solid #E8B04D;
+    }
+
+    .recommendation:last-child {
+      border-bottom: none;
+    }
+
+    .recommender {
+      font-weight: bold;
+      color: #E8B04D;
+    }
+
+    .recommender-title {
+      font-style: italic;
+    }
+
+    .publication-item {
+      margin-bottom: 0.3cm;
+    }
+
+    .publication-title {
+      font-weight: bold;
+      color: #E8B04D;
+    }
+
+    .publication-journal {
+      font-style: italic;
+    }
+
+    .left-panel-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .course-work {
+      margin-bottom: 0.3cm;
+    }
+
+    .course-work-title {
+      font-weight: bold;
+      margin-bottom: 0.1cm;
+    }
+
+    .course-work-link {
+      font-size: 0.3cm;
+      color: #E8B04D;
+      margin-left: 0.2cm;
+    }
+
+    .award-item {
+      margin-bottom: 0.3cm;
+    }
+
+    .award-title {
+      font-weight: bold;
+      color: #E8B04D;
+    }
+
+    .award-detail {
+      font-size: 0.35cm;
+      margin-top: 0.05cm;
+    }
+
+    .sidebar-section {
+      margin-bottom: 0.5cm;
+    }
+
+    .sidebar-title {
+      color: #E8B04D;
+      margin-bottom: 0.2cm;
+      font-size: 0.45cm;
+    }
+
+    .sidebar-content {
+      font-size: 0.35cm;
+    }
+
+    .compact-table {
+      font-size: 0.3cm;
+    }
+
+    .compact-table td {
+      padding: 0.1cm;
+    }
+
+    .cumulative-gpa {
+      font-weight: bold;
+      color: #2A3F5F;
+      margin-top: 0.2cm;
+    }
+
+    /* Page numbers */
+    .page-number {
+      position: absolute;
+      top: 0.5cm;
+      right: 1cm;
+      font-family: 'Source Sans Pro', sans-serif;
+      font-size: 0.35cm;
+      color: #2A3F5F;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page 1: Professional Resume -->
+  <page size="A4">
+    <div class="page-number" style="top: 0.5cm; right: 1.5cm;"></div>
+    <div class="container">
+      <div class="leftPanel">
+        <img src="https://i.ibb.co/FkFc8WQc/1706119100075.jpg"/>
+        <div class="details">
+          <div class="item bottomLineSeparator">
+            <h2>
+              CONTACT
+            </h2>
+            <div class="smallText">
+              <p>
+                <i class="fa fa-phone contactIcon" aria-hidden="true"></i>
+                (609) - 467 - 9491
+              </p>
+              <p>
+                <i class="fa fa-envelope contactIcon" aria-hidden="true"></i>
+                <a href="mailto:reichertcorey08@gmail.com">
+                  Email
+                </a>
+              </p>
+              <p>
+                <i class="fa fa-linkedin-square contactIcon" aria-hidden="true"></i>
+                <a href="https://www.linkedin.com/in/corey-reichert-47837a2aa" target="_blank">
+                  LinkedIn
+                </a>
+              </p>
+              <p class="lastParagrafNoMarginBottom">
+                <i class="" aria-hidden="true"></i>
+                <a href="https://allusivegem.github.io/GEOG456/Portfolio/resumecheck/resume.html">
+                  HTML Link to Resume
+                </a>
+              </p>
+            </div>
+          </div>
+          <div class="item bottomLineSeparator">
+            <h2>
+              SKILLS
+            </h2>
+            <div class="smallText">
+              <div class="skill">
+                <div>
+                  <span>ArcGIS / QGIS</span>
+                </div>
+                <div class="yearsOfExperience">
+                  <span class="alignright">2</span>
+                  <span class="alignleft">years</span>
+                </div>
+              </div>
+
+              <div class="skill">
+                <div>
+                  <span>MS Products</span>
+                </div>
+                <div class="yearsOfExperience">
+                  <span class="alignright">5</span>
+                  <span class="alignleft">years</span>
+                </div>
+              </div>
+
+              <div class="skill">
+                <div>
+                  <span>R Coding</span>
+                </div>
+                <div class="yearsOfExperience">
+                  <span class="alignright">2</span>
+                  <span class="alignleft">years</span>
+                </div>
+              </div>
+
+              <div class="skill">
+                <div>
+                  <span>Research</span>
+                </div>
+                <div class="yearsOfExperience">
+                  <span class="alignright">6</span>
+                  <span class="alignleft">years</span>
+                </div>
+              </div>
+
+              <div class="skill">
+                <div>
+                  <span>Report Writing</span>
+                </div>
+                <div class="yearsOfExperience">
+                  <span class="alignright">6</span>
+                  <span class="alignleft">years</span>
+                </div>
+              </div>
+
+              <div class="skill">
+                <div>
+                  <span>Data Processing</span>
+                </div>
+                <div class="yearsOfExperience">
+                  <span class="alignright">2</span>
+                  <span class="alignleft">years</span>
+                </div>
+              </div>
+
+              <div class="skill">
+                <div>
+                  <span>HTML / CSS</span>
+                </div>
+                <div class="yearsOfExperience">
+                  <span class="alignright">1</span>
+                  <span class="alignleft">years</span>
+                </div>
+              </div>
+
+              <div class="skill">
+                <div>
+                  <span>Policy Analysis</span>
+                </div>
+                <div class="yearsOfExperience">
+                    <span class="alignright">2</span>
+                    <span class="alignleft">years</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="item">
+            <h2>
+              EDUCATION
+            </h2>
+            <div class="smallText">
+              <p class="bolded white">
+                B.A. Political Science, Peace War and Defense, GIS
+              </p>
+              <p>
+                The University of North Carolina At Chapel Hill
+              </p>
+              <p>
+                2023 - 2025
+              </p>
+            </div>
+            <div class="smallText">
+                <p class="bolded white">
+                  A.S. History / High School Diploma (Graduated with Honors)
+                </p>
+                <p>
+                  Early College at Rowan Cabarrus Community College
+                </p>
+                <p>
+                  2019 - 2023 | GPA: 3.871
+                </p>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="rightPanel">
+        <div>
+          <h1>
+            Corey Reichert
+          </h1>
+          <div class="smallText">
+            <h3>
+              GIS Professional | Data Analyst | Researcher | 2025 Graduate
+            </h3>
+          </div>
+        </div>
+        <div>
+          <h2>
+            About me
+          </h2>
+          <div class="smallText">
+            <p>
+              Aspiring Urban Planning Graduate with a unique blend of political science expertise and GIS experience. Interested in using data to understand cities both as lived spaces and as dynamic environments for policy analysis. Particularly interested in zoning, transportation, and the overall planning and design of urban spaces—with a focus on how data-driven insights can create more equitable, sustainable, and resilient communities.            </p>
+            <p>
+              My background in political science informs my approach to participatory planning, while my technical skills in spatial analysis allow me to assess urban systems critically. I aim to bridge policy and practice by applying geospatial tools to real-world challenges in housing, mobility, and land use. I'm personally motivated by the creative challenge of designing complex urban systems and transforming them into models that balance technical precision with human-centered design. Seeking to further develop these skills in a graduate program that values both analytical rigor and community-centered solutions, where I can expand my ability to craft innovative, data-informed visions for equitable and inspiring urban spaces.            </p>
+          </div>
+        </div>
+        <div class="workExperience">
+          <h2>
+            Work experience
+          </h2>
+          <ul>
+            <li>
+              <div class="jobPosition">
+                <span class="bolded">
+                  Sales Associate
+                </span>
+                <span>
+                  March 2023 - July 2024
+                </span>
+              </div>
+              <div class="projectName bolded">
+                <span>
+                  Old Navy | Concord, NC
+                </span>
+              </div>
+              <div class="smallText">
+                <p>
+                    Acquired a deep understanding of consumer behavior and preferences while assisting over 50 customers per hour, providing insights into public trends and attitudes.
+                </p>
+                <ul>
+                  <li>
+                    Collaborated with team members to achieve departmental goals and contribute to the success of the store, showcasing adaptability and teamwork. Achieved recognition as "Magic Maker of the Month" and retained a 100% card conversion rate at Old Navy, highlighting consistent dedication, exceptional customer service, and a strong work ethic.
+                  </li>
+                </ul>
+                <p>
+                  <span class="bolded">Skills: </span>Customer Service, Communication, Teamwork
+                </p>
+              </div>
+            </li>
+
+            <li>
+              <div class="jobPosition">
+                <span class="bolded">
+                  Host
+                </span>
+                <span>
+                  April 2023 - Present
+                </span>
+              </div>
+              <div class="projectName bolded">
+                <span>
+                 Carrabba's Italian Grill
+                </span>
+              </div>
+              <div class="smallText">
+                <p>
+                    Demonstrated multitasking skills by seamlessly handling various roles, including serving and dishwashing Proven ability to thrive in a fast-paced environment, maintaining efficiency and composure during peak hours.
+                </p>
+  
+                <ul>
+                  <li>
+                    <p>
+                        Effective communication skills honed through daily interactions with a diverse clientele. Resolved issues between staff and customers in flawless execution while developing human resources skills.
+                    </p>
+                  </li>
+                </ul>
+                <p>
+                  <span class="bolded">Skills: </span>Organization, Time Management, Problem-Solving, Adaptability
+                </p>
+              </div>
+            </li>
+            <li>
+              <div class="jobPosition">
+                <span class="bolded">
+                  Team Member
+                </span>
+                <span>
+                  Summer 2022
+                </span>
+              </div>
+              <div class="projectName bolded">
+                <span>
+                 Hardee's | Concord, NC
+                </span>
+              </div>
+              <div class="smallText">
+                <p>
+                    Developed strong customer service skills in a fast-paced food service environment, handling cash transactions and food preparation.
+                </p>
+  
+                <ul>
+                  <li>
+                    <p>
+                        Worked efficiently during peak hours to ensure timely service and customer satisfaction.
+                    </p>
+                  </li>
+                </ul>
+                <p>
+                  <span class="bolded">Skills: </span>Customer Service, Food Handling, Cash Handling, Teamwork
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="portfolio-map">
+          <h2>
+            <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html" target="_blank">
+              Geospatial Portfolio
+              <i class="fa fa-external-link" aria-hidden="true"></i>
+            </a>
+          </h2>
+        </div>
+      </div>
+    </div>  
+  </page>
+
+<!-- Page 2: Rowan-Cabarrus Academic Credentials -->
+<page size="A4" class="page-break">
+  <div class="page-number" style="top: 0.7cm; right: 1.3cm;"></div>
+  <div class="container">
+    <div class="leftPanel">
+      <div class="left-panel-content">
+        <div class="sidebar-section">
+          <div class="sidebar-title">VOLUNTEER EXPERIENCE</div>
+          <div class="sidebar-content">
+            <div class="club-item">
+              <div class="club-name">Smithsonian Digital Volunteers</div>
+              <div class="club-dates">Transcription Center</div>
+              <p style="font-size: 0.32cm; margin-top: 0.1cm;">
+                Transcribed historical documents, contributing to the preservation and accessibility of valuable cultural and scientific resources. Showcased adaptability by transcribing various document types, spanning handwritten manuscripts and typewritten documents.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-title">CLUBS & ACTIVITIES</div>
+          <div class="sidebar-content">
+            <div class="club-item">
+              <div class="club-name">National Honor Society</div>
+              <div class="club-dates">2019-2023</div>
+            </div>
+            <div class="club-item">
+              <div class="club-name">Model United Nations</div>
+              <div class="club-dates">2019-2023</div>
+            </div>
+            <div class="club-item">
+              <div class="club-name">Art Club</div>
+              <div class="club-dates">2021-2023</div>
+            </div>
+            <div class="club-item">
+              <div class="club-name">National Society of Leadership and Success</div>
+              <div class="club-dates">2022-Present</div>
+            </div>
+            <div class="club-item">
+              <div class="club-name">Anime Club</div>
+              <div class="club-dates">2022-2023</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-title">SKILLS DEVELOPED</div>
+          <div class="sidebar-content">
+            <div class="skill">
+              <div>
+                <span>Academic Writing</span>
+              </div>
+            </div>
+            <div class="skill">
+              <div>
+                <span>Public Speaking</span>
+              </div>
+            </div>
+            <div class="skill">
+              <div>
+                <span>Research Methods</span>
+              </div>
+            </div>
+            <div class="skill">
+              <div>
+                <span>Team Leadership</span>
+              </div>
+            </div>
+            <div class="skill">
+              <div>
+                <span>Problem-Solving / Critical Thinking</span>
+              </div>
+            </div>
+            <div class="skill">
+              <div>
+                <span>Data Literacy / Mathematics</span>
+              </div>
+              
+            </div>
+
+            <div class="skill">
+              <div>
+                <span>Elementary Spanish</span>
+              </div>
+            </div>
+            <div class="skill">
+              <div>
+                <span>Basic Computer Proficiency (MS Products)</span>
+              </div>
+            </div>
+            <div class="skill">
+              <div>
+                <span>Editing (DaVinci Resolve)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-title">AWARDS</div>
+          <div class="sidebar-content">
+            <div class="award-item">
+              <div class="award-title">Summa Cum Laude</div>
+              <div class="award-detail">2023</div>
+            </div>
+            <div class="award-item">
+              <div class="award-title">A/AB Honor Roll</div>
+              <div class="award-detail">2019-2023</div>
+            </div>
+            <div class="award-item">
+              <div class="award-title">Fredrick Jackson Turner Head Historian Award</div>
+              <div class="award-detail">2021</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rightPanel" style="padding: 0.5cm; font-size: 0.32cm;">
+      <div>
+        <h1>
+          Academic Credentials
+        </h1>
+        <div class="smallText">
+          <h3>
+            Rowan-Cabarrus Community College & Early College
+          </h3>
+          <p>2019 - 2023 | A.S. History / High School Diploma | Graduated with Honors | GPA: 3.871</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <h2>
+          RELEVANT COURSES 
+        </h2>
+        
+        <div class="course-work">
+          <div class="course-title bolded">POL-120 / POL-100: American Government (A)</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Studied the structure and function of U.S. government institutions, policy-making processes, and the relationship between different levels of government.</p>
+            <p><span class="bolded">Key Skills:</span> Policy analysis, understanding government structures, civic engagement</p>
+          </div>
+        </div>
+
+        <div class="course-work">
+          <div class="course-title bolded">ENG 111/112: Writing and Inquiry / Writing Research in Disciplines (A)</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Developed advanced writing and research skills through academic papers and projects. Learned to synthesize complex information and present findings clearly.</p>
+            <p><span class="bolded">Key Skills:</span> Technical writing, research methods, communication</p>
+          </div>
+        </div>
+
+        <div class="course-work">
+          <div class="course-title bolded">COM-231: Public Speaking (A)</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Developed skills in organizing and delivering effective presentations, Practiced persuasive communication techniques and audience engagement strategies.</p>
+            <p><span class="bolded">Key Skills:</span> Public presentation, persuasive communication, audience engagement</p>
+          </div>
+        </div>
+
+        <div class="course-work">
+          <div class="course-title bolded">MAT-171 / MAT-172: Precalculus Algebra and Trigonometry (B+)</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Strengthened understanding of algebraic functions, polynomial and rational expressions, exponential and logarithmic functions, and trigonometric identities. Applied these concepts to problem-solving scenarios involving spatial calculations, geometric transformations, and predictive modeling—foundational skills for urban planning and data analysis.
+
+            </p>
+            <p><span class="bolded">Key Skills:</span> Algebraic Manipulation, Trigonometric Functions, Exponential & Logarithmic Functions, Spatial Calculations, Quantitative Analysis</p>
+          </div>
+        </div>
+
+      <div class="course-work">
+        <div class="course-title bolded">MAT-271: Calculus I (A)</div>
+        <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+          <p>Built a strong foundation in differential and integral calculus, including limits, derivatives, and integrals of algebraic and transcendental functions. Developed skills in analyzing rates of change, optimizing functions, and calculating areas under curves—key concepts used in spatial analysis, modeling growth trends, and interpreting quantitative data relevant to urban planning.
+
+          </p>
+          <p><span class="bolded">Key Skills:</span> Limits & Continuity, Derivatives, Integrals, Optimization, Problem-Solving</p>
+        </div>
+      </div>
+
+      <div class="course-work">
+        <div class="course-title bolded">CIS-110: Introduction to Computers (A)</div>
+        <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+          <p>Acquired foundational knowledge of computer systems, software applications, and digital literacy. Gained hands-on experience with Microsoft Office Suite, including data analysis in Excel, document formatting and processing in Word, and professional presentation design in PowerPoint.</p>
+          <p><span class="bolded">Key Skills:</span> Microsoft Excel, Microsoft Word, Microsoft PowerPoint, File Management.</p>
+        </div>
+      </div>
+
+
+      <div class="item" style="padding-top: 0.2cm; padding-bottom: 0.2cm;">
+        <h2 style="margin-bottom: 0.1cm;">
+          POLICY BRIEFS
+        </h2>
+        <div class="smallText">
+          <div class="course-work" style="margin-bottom: 0.2cm;">
+            <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html" class="course-work-title">GEOG 370: Intro to Geographic Information</a>
+            <p style="margin-top: 0.05cm;">Researched Myanmar's civil war dynamics, evaluating failed peace agreements and international involvement. Recommended U.S.-backed diplomatic strategies emphasizing third-party mediation and accountability measures.</p>
+          </div>
+          <div class="course-work" style="margin-bottom: 0.2cm;">
+            <a href="https://allusivegem.github.io/GEOG456/HW5/HW6.html" class="course-work-title">GEOG 456: Geovisualizing Change</a>
+            <p style="margin-top: 0.05cm;">Co-authored a DOJ policy brief analyzing Kremlin-backed disinformation campaigns targeting U.S. elections. Proposed regulatory reforms and a coordinated task force to counter foreign influence operations.
+
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</page>
+
+<!-- Page 3: UNC-CH Academic Credentials -->
+<page size="A4" class="page-break">
+  <div class="page-number" style="top: 0.6cm; right: 1.7cm;"></div>
+  <div class="container">
+    <div class="leftPanel">
+      <div class="left-panel-content">
+        <div class="sidebar-section">
+          <div class="sidebar-title">RECOMMENDATIONS</div>
+          <div class="sidebar-content">
+            <div class="recommendation">
+              <div class="recommender">Dr. Jane Smith</div>
+              <div class="recommender-title">Professor of Political Science</div>
+            </div>
+            <div class="recommendation">
+              <div class="recommender">Prof. John Doe</div>
+              <div class="recommender-title">Director of PWAD Program</div>
+            </div>
+            <div class="recommendation">
+              <div class="recommender">Prof. John Doe</div>
+              <div class="recommender-title">Director of PWAD Program</div>
+            </div>
+            <div class="recommendation">
+              <div class="recommender">Prof. John Doe</div>
+              <div class="recommender-title">Director of PWAD Program</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-title">PUBLICATIONS</div>
+          <div class="sidebar-content">
+            <div class="publication-item">
+              <div class="publication-title">Agenda 2063: The Enforcement of Soft Law</div>
+              <div class="publication-journal">
+                <a href="https://static1.squarespace.com/static/5f190f40621c166b045a6630/t/66611687e56f1c445c5ca9b4/1717638821879/spring2024journal" target="_blank">
+                  Journal of Foreign Affairs at UNC
+                  <i class="fa fa-external-link" aria-hidden="true" style="font-size: 0.3em; margin-left: 3px;"></i>
+                </a>
+              </div>
+              <div>Spring 2024</div>
+            </div>
+            <div class="publication-item">
+              <div class="publication-title">Agenda 2063: The Enforcement of Soft Law</div>
+              <div class="publication-journal">
+                <a href="https://uncjourney.unc.edu/wp-content/uploads/sites/13377/2024/08/Sp24_journey_v2_compressed_3-compressed_final.pdf" target="_blank">
+                  Journey at UNC-CH
+                  <i class="fa fa-external-link" aria-hidden="true" style="font-size: 0.3em; margin-left: 3px;"></i>
+                </a>
+              </div>
+              <div>Spring 2024</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-title">CLUBS & ACTIVITIES</div>
+          <div class="sidebar-content">
+            <div class="club-item">
+              <div class="club-name">Model United Nations at UNC-CH</div>
+              <div class="club-dates">2023-Present</div>
+            </div>
+            <div class="club-item">
+              <div class="club-name">Carolina Forum for Education and Diplomacy</div>
+              <div class="club-dates">2023-Present</div>
+            </div>
+            <div class="club-item">
+              <div class="club-name">UNC-Chapel Hill Gaming Club</div>
+              <div class="club-dates">2023-Present</div>
+            </div>
+            <div class="club-item">
+              <div class="club-name">Carolina Review</div>
+              <div class="club-dates">2023-Present</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar-section">
+          <div class="sidebar-title">AWARDS & CERTIFICATIONS</div>
+          <div class="sidebar-content">
+            <div class="award-item">
+              <div class="award-title">3X Dean's List</div>
+              <div class="award-detail">2023-2025</div>
+            </div>
+            <div class="award-item">
+              <div class="award-title">Diplomacy Initiative - Policy Analysis For International Affairs Semi-finalist</div>
+              <div class="award-detail">Global Affairs 2024</div>
+            </div>
+            <div class="award-item">
+              <div class="award-title">Introduction to Transit Service Policy</div>
+              <div class="award-detail">Planetizen 2024</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rightPanel" style="padding: 0.5cm; font-size: 0.32cm;">
+      <div>
+        <div class="smallText">
+          <h3 style="font-size: 0.4cm; margin-bottom: 0.2cm;">
+            The University of North Carolina at Chapel Hill
+          </h3>
+          <p style="margin-bottom: 0.3cm;">2023 - 2025 | B.A. Political Science, Peace War and Defense, GIS - Cumulative GPA: 3.927</p>
+        </div>
+      </div>
+
+      <div class="item" style="padding-bottom: 0.2cm;">
+        <h2>
+          RELEVANT COURSES
+        </h2>
+        
+        <div class="course-work">
+          <div class="course-title bolded">ENEC 201: Environment and Society</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Examined the complex relationships between human societies and their environments, with focus on sustainability challenges, resource management, and policy responses. Explored case studies of urban environmental issues and solutions.</p>
+            <p><span class="bolded">Key Skills:</span> Environmental policy analysis, sustainability assessment, systems thinking</p>
+          </div>
+        </div>
+
+        <div class="course-work">
+          <div class="course-title bolded">GEOG 591: Applied Issues in GIS</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Developed expertise in urban and economic geography through hands-on GIS applications, analyzing spatial patterns of human settlement, economic activity, and infrastructure systems. Applied spatial analysis techniques—including network analysis, geocoding, and statistical modeling—to evaluate urban expansion and regional development.</p>
+            <p><span class="bolded">Key Skills:</span> Urban modeling (central place theory, gravity model, Markov chains)</p>
+          </div>
+        </div>
+
+        <div class="course-work">
+          <div class="course-title bolded">GEOG 215: Intro Spatial Data Science</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Learned fundamental concepts of spatial data analysis and visualization using GIS software. Applied spatial statistics to analyze patterns in urban environments, including population distribution and land use changes.</p>
+            <p><span class="bolded">Key Skills:</span> Spatial analysis, data visualization, GIS fundamentals</p>
+          </div>
+        </div>
+
+        <div class="course-work">
+          <div class="course-title bolded">GEOG 370: Intro Geographic Information</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Developed proficiency in GIS software for urban applications including land use mapping, transportation analysis, and demographic studies. Created maps and conducted spatial analyses relevant to urban planning practice.</p>
+            <p><span class="bolded">Key Skills:</span> GIS mapping, spatial analysis, cartographic design</p>
+          </div>
+        </div>
+
+        <div class="course-work">
+          <div class="course-title bolded">POLI 405: Local Politics in US</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Examined the political dynamics of local governments, including zoning decisions, municipal budgeting, and community engagement processes. Analyzed case studies of urban policy conflicts and resolutions.</p>
+            <p><span class="bolded">Key Skills:</span> Municipal governance, policy analysis, community engagement</p>
+          </div>
+        </div>
+
+        
+        <div class="course-work">
+          <div class="course-title bolded">GEOG 456: Geovisualizing Change</div>
+          <div class="course-description smallText" style="margin-left: 0.5cm; margin-top: 0.2cm;">
+            <p>Learned advanced techniques for visualizing urban change over time, including demographic shifts, land use transitions, and transportation network evolution. Created interactive web maps to communicate planning concepts.</p>
+            <p><span class="bolded">Key Skills:</span> Temporal analysis, web mapping, data storytelling</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="item" style="padding-top: 0.2cm; padding-bottom: 0.2cm;">
+        <h2 style="margin-bottom: 0.1cm;">
+          RELEVANT COURSE WORK
+        </h2>
+        <div class="smallText">
+          <div class="course-work" style="margin-bottom: 0.2cm;">
+            <a href="https://allusivegem.github.io/GEOG456/Portfolio/assets/GEOG370%20Project.pdf" class="course-work-title">GEOG 370: Intro to Geographic Information</a>
+            <p style="margin-top: 0.05cm;">Led a geospatial research project analyzing the impact of Charlotte's public transit system (CATS) on property values and tax revenues, employing QGIS for spatial analysis and R for regression modeling, with findings showing higher value growth in transit-adjacent areas.</p>
+          </div>
+          <div class="course-work" style="margin-bottom: 0.2cm;">
+            <a href="https://allusivegem.github.io/GEOG456/Portfolio/assets/Charlotte_Movement.pdf" class="course-work-title">POLI 405: Local Politics in the US</a>
+            <p style="margin-top: 0.05cm;">Conducted research analyzing NIMBY movement messaging strategies in Charlotte, NC, utilizing public meeting transcripts to identify key opposition themes like traffic, density, and neighborhood character, and assessing their impact on housing development debates.</p>
+          </div>
+          <div class="course-work" style="margin-bottom: 0.2cm;">
+            <a href="https://allusivegem.github.io/GEOG456/Portfolio/assets/An%20Analysis%20of%20the%20Inflation%20Reduction%20Act%20_Case%20Study_%20.pdf" class="course-work-title">ENEC 201: Environment and Society</a>
+            <p style="margin-top: 0.05cm;">Analyzed the $370 billion Inflation Reduction Act's economic, environmental, and healthcare impacts, including job creation, emissions targets, and cost-saving measures.</p>
+          </div>
+          <div class="course-work" style="margin-bottom: 0.2cm;">
+            <a href="https://allusivegem.github.io/GEOG456/HW5/HW6.html" class="course-work-title">GEOG 591: Applied Issues in GIS</a>
+            <p style="margin-top: 0.05cm;">Bike Map (CURRENT SEMESTER).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</page>
+</body>
+</html>

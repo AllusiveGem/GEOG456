@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GeoJSON Layer Toggler</title>
+    <title>GeoJSON Layer Toggler with Console</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -12,6 +12,7 @@
         body {
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
         }
         #map {
             width: 100%;
@@ -26,18 +27,96 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .layer-item {
             margin: 5px 0;
         }
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #loading-bar {
+            width: 300px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        #loading-progress {
+            height: 100%;
+            width: 0%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+        #loading-text {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        .color-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            vertical-align: middle;
+        }
+        #console-output {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 500px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            display: none;
+        }
+        .debug-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
+    <div id="loading-container">
+        <h2>Loading Map Data</h2>
+        <div id="loading-bar">
+            <div id="loading-progress"></div>
+        </div>
+        <div id="loading-text">Initializing...</div>
+    </div>
+    
     <div id="map"></div>
     <div id="layer-control">
         <h3>Layers</h3>
         <div id="layer-list"></div>
+        
+        <div class="debug-section">
+            <button id="toggle-console">Show Console</button>
+            <button id="clear-console">Clear Console</button>
+            <button id="analyze-layers">Analyze Layers</button>
+        </div>
     </div>
+    
+    <div id="console-output"></div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -67,6 +146,55 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
         
+        // Console output manager
+        const consoleOutput = {
+            element: document.getElementById('console-output'),
+            visible: false,
+            
+            log: function(message) {
+                const entry = document.createElement('div');
+                entry.textContent = `> ${message}`;
+                this.element.appendChild(entry);
+                this.element.scrollTop = this.element.scrollHeight;
+                console.log(message);
+            },
+            
+            clear: function() {
+                this.element.innerHTML = '';
+            },
+            
+            toggle: function() {
+                this.visible = !this.visible;
+                this.element.style.display = this.visible ? 'block' : 'none';
+                document.getElementById('toggle-console').textContent = 
+                    this.visible ? 'Hide Console' : 'Show Console';
+            }
+        };
+        
+        // Performance metrics
+        const perfMetrics = {
+            renderTimes: [],
+            startTime: null,
+            
+            startTimer: function() {
+                this.startTime = performance.now();
+            },
+            
+            endTimer: function(label) {
+                if (!this.startTime) return;
+                const duration = performance.now() - this.startTime;
+                this.renderTimes.push(duration);
+                consoleOutput.log(`${label}: ${duration.toFixed(2)}ms`);
+                this.startTime = null;
+            },
+            
+            getAverageRenderTime: function() {
+                if (this.renderTimes.length === 0) return 0;
+                const sum = this.renderTimes.reduce((a, b) => a + b, 0);
+                return sum / this.renderTimes.length;
+            }
+        };
+        
         // Object to store our layers
         const layers = {};
         
@@ -78,25 +206,43 @@
             'y1910', 'y1920'
         ];
         
-        // Create layer groups for each GeoJSON
-        layerNames.forEach(name => {
-            // Check if the variable exists in global scope
-            if (window[name]) {
-                layers[name] = L.geoJSON(window[name], {
-                    style: function(feature) {
-                        // Default style
-                        return {
-                            color: getRandomColor(),
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.5
-                        };
-                    }
-                });
-            } else {
-                console.warn(`Variable ${name} not found in global scope`);
+        // Predefined colors for certain layers
+        const layerColors = {
+            'state': '#0066CC',
+            'river': '#00AAFF',
+            'trail': '#AA7700',
+            'train2': '#CC3300'
+        };
+        
+        // Loading progress tracking
+        const loadingProgress = {
+            total: layerNames.length,
+            loaded: 0,
+            updateProgress: function() {
+                const percent = Math.round((this.loaded / this.total) * 100);
+                document.getElementById('loading-progress').style.width = percent + '%';
+                document.getElementById('loading-text').textContent = 
+                    `Loading layers (${this.loaded}/${this.total})...`;
+                
+                if (this.loaded === this.total) {
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                        // Add default layers
+                        if (layers.state) {
+                            layers.state.addTo(map);
+                            document.getElementById('state').checked = true;
+                            consoleOutput.log("Added default layer: state");
+                        }
+                        if (layers.river) {
+                            layers.river.addTo(map);
+                            document.getElementById('river').checked = true;
+                            consoleOutput.log("Added default layer: river");
+                        }
+                        consoleOutput.log("Map initialization complete");
+                    }, 500);
+                }
             }
-        });
+        };
         
         // Function to generate random colors
         function getRandomColor() {
@@ -108,34 +254,221 @@
             return color;
         }
         
-        // Create layer control UI
-        const layerList = document.getElementById('layer-list');
-        
+        // Create layer groups for each GeoJSON
         layerNames.forEach(name => {
-            if (layers[name]) {
-                const div = document.createElement('div');
-                div.className = 'layer-item';
+            // Update loading text to show current layer being processed
+            document.getElementById('loading-text').textContent = `Processing ${name}...`;
+            
+            // Process in small chunks to keep UI responsive
+            setTimeout(() => {
+                // Check if the variable exists in global scope
+                if (window[name]) {
+                    perfMetrics.startTimer();
+                    
+                    try {
+                        const layerColor = layerColors[name] || getRandomColor();
+                        
+                        layers[name] = L.geoJSON(window[name], {
+                            style: function(feature) {
+                                // Default style
+                                return {
+                                    color: layerColor,
+                                    weight: 2,
+                                    opacity: 1,
+                                    fillOpacity: 0.5,
+                                    fillColor: layerColor
+                                };
+                            }
+                        });
+                        
+                        // Store feature count
+                        layers[name].featureCount = window[name].features ? window[name].features.length : 0;
+                        
+                        // Add popup functionality
+                        layers[name].on('click', function(e) {
+                            const props = e.layer.feature.properties;
+                            let popupContent = `<b>${name}</b><br>`;
+                            
+                            for (const key in props) {
+                                popupContent += `${key}: ${props[key]}<br>`;
+                            }
+                            
+                            L.popup()
+                                .setContent(popupContent)
+                                .setLatLng(e.latlng)
+                                .openOn(map);
+                                
+                            consoleOutput.log(`Clicked on ${name} at ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`);
+                        });
+                        
+                        // Create layer control UI element
+                        const div = document.createElement('div');
+                        div.className = 'layer-item';
+                        
+                        const colorIndicator = document.createElement('span');
+                        colorIndicator.className = 'color-indicator';
+                        colorIndicator.style.backgroundColor = layerColor;
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = name;
+                        checkbox.addEventListener('change', function() {
+                            perfMetrics.startTimer();
+                            if (this.checked) {
+                                layers[name].addTo(map);
+                                consoleOutput.log(`Added layer: ${name}`);
+                            } else {
+                                map.removeLayer(layers[name]);
+                                consoleOutput.log(`Removed layer: ${name}`);
+                            }
+                            perfMetrics.endTimer(`Toggle layer "${name}"`);
+                        });
+                        
+                        const label = document.createElement('label');
+                        label.htmlFor = name;
+                        label.textContent = name;
+                        
+                        div.appendChild(colorIndicator);
+                        div.appendChild(checkbox);
+                        div.appendChild(label);
+                        document.getElementById('layer-list').appendChild(div);
+                        
+                        perfMetrics.endTimer(`Created layer "${name}"`);
+                        
+                    } catch (e) {
+                        console.error(`Error processing layer ${name}:`, e);
+                        consoleOutput.log(`ERROR: Failed to process layer "${name}": ${e.message}`);
+                    }
+                } else {
+                    console.warn(`Variable ${name} not found in global scope`);
+                    consoleOutput.log(`WARNING: Variable "${name}" not found`);
+                }
                 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = name;
-                checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        layers[name].addTo(map);
-                    } else {
-                        map.removeLayer(layers[name]);
+                // Update progress
+                loadingProgress.loaded++;
+                loadingProgress.updateProgress();
+                
+            }, 0); // Small timeout to allow UI updates between layers
+        });
+        
+        // Debug buttons functionality
+        document.getElementById('toggle-console').addEventListener('click', function() {
+            consoleOutput.toggle();
+        });
+        
+        document.getElementById('clear-console').addEventListener('click', function() {
+            consoleOutput.clear();
+            consoleOutput.log("Console cleared");
+        });
+        
+        document.getElementById('analyze-layers').addEventListener('click', function() {
+            consoleOutput.log("--- Layer Analysis ---");
+            
+            // Count active layers
+            const activeLayers = Object.keys(layers).filter(name => map.hasLayer(layers[name]));
+            consoleOutput.log(`Active layers: ${activeLayers.length}/${Object.keys(layers).length}`);
+            
+            // Report feature counts
+            let totalFeatures = 0;
+            Object.keys(layers).forEach(name => {
+                if (layers[name] && layers[name].featureCount) {
+                    const isActive = map.hasLayer(layers[name]) ? "(active)" : "(inactive)";
+                    consoleOutput.log(`${name}: ${layers[name].featureCount} features ${isActive}`);
+                    if (map.hasLayer(layers[name])) {
+                        totalFeatures += layers[name].featureCount;
+                    }
+                }
+            });
+            
+            consoleOutput.log(`Total active features: ${totalFeatures}`);
+            consoleOutput.log(`Current zoom level: ${map.getZoom()}`);
+            consoleOutput.log(`Average render time: ${perfMetrics.getAverageRenderTime().toFixed(2)}ms`);
+            consoleOutput.log("----------------------");
+        });
+        
+        // Map event logging
+        map.on('zoomend moveend', function() {
+            const zoom = map.getZoom();
+            const center = map.getCenter();
+            consoleOutput.log(`Map updated: Zoom ${zoom}, Center [${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}]`);
+        });
+        
+        // Expose utility functions to window for console access
+        window.mapUtils = {
+            getLayerInfo: function() {
+                return Object.keys(layers).map(name => ({
+                    name,
+                    active: map.hasLayer(layers[name]),
+                    featureCount: layers[name] ? (layers[name].featureCount || 0) : 0
+                }));
+            },
+            
+            toggleAllLayers: function(value) {
+                Object.keys(layers).forEach(name => {
+                    const checkbox = document.getElementById(name);
+                    if (checkbox) {
+                        checkbox.checked = value;
+                        if (value) {
+                            if (!map.hasLayer(layers[name])) {
+                                layers[name].addTo(map);
+                            }
+                        } else {
+                            if (map.hasLayer(layers[name])) {
+                                map.removeLayer(layers[name]);
+                            }
+                        }
+                    }
+                });
+                consoleOutput.log(`${value ? 'Enabled' : 'Disabled'} all layers`);
+                return `${value ? 'Enabled' : 'Disabled'} all layers`;
+            },
+            
+            showLayerByYear: function(year) {
+                // First disable all year layers
+                ['y1820', 'y1830', 'y1840', 'y1850', 'y1860', 'y1870', 'y1890', 'y1900', 'y1910', 'y1920'].forEach(name => {
+                    const checkbox = document.getElementById(name);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        if (map.hasLayer(layers[name])) {
+                            map.removeLayer(layers[name]);
+                        }
                     }
                 });
                 
-                const label = document.createElement('label');
-                label.htmlFor = name;
-                label.textContent = name;
-                
-                div.appendChild(checkbox);
-                div.appendChild(label);
-                layerList.appendChild(div);
+                // Enable the requested year
+                const layerName = `y${year}`;
+                if (layers[layerName]) {
+                    const checkbox = document.getElementById(layerName);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                    layers[layerName].addTo(map);
+                    consoleOutput.log(`Showing year ${year} data`);
+                    return `Showing year ${year} data`;
+                } else {
+                    consoleOutput.log(`Year ${year} data not available`);
+                    return `Year ${year} data not available`;
+                }
+            },
+            
+            fitToLayer: function(name) {
+                if (layers[name] && layers[name].getBounds) {
+                    map.fitBounds(layers[name].getBounds());
+                    consoleOutput.log(`Fit map to layer "${name}"`);
+                    return `Fit map to layer "${name}"`;
+                } else {
+                    consoleOutput.log(`Cannot fit to layer "${name}" - no bounds available`);
+                    return `Cannot fit to layer "${name}" - no bounds available`;
+                }
             }
-        });
+        };
+        
+        // Initial console message
+        setTimeout(() => {
+            consoleOutput.toggle();
+            consoleOutput.log("Map initialized and ready");
+            consoleOutput.log("Use mapUtils in console to access utility functions");
+        }, 1000);
     </script>
 </body>
 </html>

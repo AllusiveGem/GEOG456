@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GeoJSON Vector Tile Layer Toggler</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        #layer-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(20, 20, 30, 0.85);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #fff;
+            border: 1px solid #00f0ff;
+        }
+        .layer-item {
+            margin: 5px 0;
+        }
+        .layer-section {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #00f0ff;
+            padding-bottom: 10px;
+        }
+        h3, h4 {
+            margin: 5px 0;
+            color: #00f0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 20, 0.9);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #00f0ff;
+        }
+        #loading-bar {
+            width: 300px;
+            height: 20px;
+            border: 1px solid #00f0ff;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        #loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00f0ff, #0066ff);
+            transition: width 0.3s;
+        }
+        #loading-text {
+            margin-top: 10px;
+            font-size: 18px;
+            text-shadow: 0 0 5px #00f0ff;
+        }
+        .color-indicator {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            border: 1px solid #00f0ff;
+            vertical-align: middle;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+        #console-output {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(10, 10, 20, 0.8);
+            color: #00f0ff;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 500px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        button {
+            background: #002130;
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 11px;
+            transition: all 0.3s;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+        button:hover {
+            background: #003545;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        input[type="checkbox"], input[type="radio"] {
+            accent-color: #00f0ff;
+        }
+        label {
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .info.legend {
+            background-color: rgba(20, 20, 30, 0.85);
+            padding: 10px;
+            border-radius: 5px;
+            color: #fff;
+            border: 1px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .info.legend h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .classification-selector {
+            margin-top: 10px;
+        }
+        .classification-selector button {
+            margin: 2px;
+            padding: 3px 6px;
+            font-size: 10px;
+        }
+    </style>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loading-container">
+        <h2>Loading Map Data</h2>
+        <div id="loading-bar">
+            <div id="loading-progress"></div>
+        </div>
+        <div id="loading-text">Initializing...</div>
+    </div>
+    
+    <div id="map"></div>
+    <div id="layer-control">
+        <h3>Layers</h3>
+        
+        <div class="layer-section">
+            <h4>Basemap</h4>
+            <div id="basemap-list"></div>
+        </div>
+        
+        <div class="layer-section">
+            <h4>GeoJSON Layers</h4>
+            <div id="layer-list"></div>
+        </div>
+        
+        <div class="layer-section">
+            <h4>Debug Tools</h4>
+            <button id="analyze-layers">Analyze Layers</button>
+            <button id="toggle-console">Toggle Console Output</button>
+            <button id="clear-console">Clear Console</button>
+        </div>
+    </div>
+    
+    <div id="console-output" style="display: none;"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Leaflet.VectorGrid plugin -->
+    <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
+    
+    <!-- Your GeoJSON files -->
+    <script src="1820.js"></script>
+    <script src="1830.js"></script>
+    <script src="1840.js"></script>
+    <script src="1850.js"></script>
+    <script src="1860.js"></script>
+    <script src="1870.js"></script>
+    <script src="1890.js"></script>
+    <script src="1900.js"></script>
+    <script src="1910.js"></script>
+    <script src="1920.js"></script>
+    <script src="trail.js"></script>
+    <script src="river.js"></script>
+    <script src="train2.js"></script>
+    <script src="state.js"></script>
+    
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([39.8283, -98.5795], 4);
+        
+        // Console output manager
+        const consoleOutput = {
+            element: document.getElementById('console-output'),
+            visible: false,
+            
+            log: function(message) {
+                const entry = document.createElement('div');
+                entry.textContent = `> ${message}`;
+                this.element.appendChild(entry);
+                this.element.scrollTop = this.element.scrollHeight;
+                console.log(message);
+            },
+            
+            clear: function() {
+                this.element.innerHTML = '';
+            },
+            
+            toggle: function() {
+                this.visible = !this.visible;
+                this.element.style.display = this.visible ? 'block' : 'none';
+            }
+        };
+        
+        // Global performance metrics
+        const perfMetrics = {
+            renderTimes: [],
+            startTime: null,
+            
+            startTimer: function() {
+                this.startTime = performance.now();
+            },
+            
+            endTimer: function(label) {
+                if (!this.startTime) return;
+                const duration = performance.now() - this.startTime;
+                this.renderTimes.push(duration);
+                consoleOutput.log(`${label}: ${duration.toFixed(2)}ms`);
+                this.startTime = null;
+            },
+            
+            getAverageRenderTime: function() {
+                if (this.renderTimes.length === 0) return 0;
+                const sum = this.renderTimes.reduce((a, b) => a + b, 0);
+                return sum / this.renderTimes.length;
+            },
+            
+            reset: function() {
+                this.renderTimes = [];
+                this.startTime = null;
+            }
+        };
+        
+        // Base tile layers
+        const baseLayers = {
+            'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }),
+            'Carto Light': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution">CARTO</a>'
+            }),
+            'Carto Dark': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
+            })
+        };
+        
+        // Add Carto Dark as default base layer
+        baseLayers['Carto Dark'].addTo(map);
+        
+        // Create base layer control UI
+        const baseMapList = document.getElementById('basemap-list');
+        
+        Object.keys(baseLayers).forEach(name => {
+            const div = document.createElement('div');
+            div.className = 'layer-item';
+            
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'basemap';
+            radio.id = 'base-' + name;
+            radio.checked = name === 'Carto Dark';
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    Object.keys(baseLayers).forEach(n => {
+                        if (n === name) {
+                            map.addLayer(baseLayers[n]);
+                            consoleOutput.log(`Switched basemap to "${name}"`);
+                        } else {
+                            map.removeLayer(baseLayers[n]);
+                        }
+                    });
+                }
+            });
+            
+            const label = document.createElement('label');
+            label.htmlFor = 'base-' + name;
+            label.textContent = name;
+            
+            div.appendChild(radio);
+            div.appendChild(label);
+            baseMapList.appendChild(div);
+        });
+        
+        // Default fixed vectorization settings
+        const vectorSettings = {
+            tileSize: 256,
+            maxZoom: 14,
+            bufferSize: 128
+        };
+        
+        // Object to store our layers
+        const layers = {};
+        
+        // List of all your GeoJSON variable names
+        const layerNames = [
+            'state', 'train2', 'river', 'trail',
+            'y1820', 'y1830', 'y1840', 'y1850', 
+            'y1860', 'y1870', 'y1890', 'y1900',
+            'y1910', 'y1920'
+        ];
+        
+        // JDM Electric style colors for layers
+        const layerColors = {
+            'state': '#00BBFF',
+            'river': '#00F0FF', // Electric blue for rivers
+            'trail': '#FF9900', // Bright orange
+            'train2': '#FF00CC', // Neon pink
+            'y1820': '#FF3300',  // Bright red
+            'y1830': '#FF6600',  // Orange
+            'y1840': '#FFCC00',  // Yellow
+            'y1850': '#99FF00',  // Lime green
+            'y1860': '#00FF66',  // Mint green
+            'y1870': '#00FFCC',  // Turquoise
+            'y1890': '#0099FF',  // Blue
+            'y1900': '#6600FF',  // Purple
+            'y1910': '#CC00FF',  // Magenta
+            'y1920': '#FF00FF'   // Hot pink
+        };
+        
+        // Loading progress tracking
+        const loadingProgress = {
+            total: layerNames.length,
+            loaded: 0,
+            updateProgress: function() {
+                const percent = Math.round((this.loaded / this.total) * 100);
+                document.getElementById('loading-progress').style.width = percent + '%';
+                document.getElementById('loading-text').textContent = 
+                    `Loading layers (${this.loaded}/${this.total})...`;
+                
+                if (this.loaded === this.total) {
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                        // Add default layers
+                        if (layers.state) {
+                            layers.state.addTo(map);
+                            document.getElementById('state').checked = true;
+                            consoleOutput.log("Added default layer: state");
+                        }
+                        if (layers.river) {
+                            layers.river.addTo(map);
+                            document.getElementById('river').checked = true;
+                            consoleOutput.log("Added default layer: river");
+                        }
+                        
+                        // Log initialization complete
+                        consoleOutput.log("Map initialization complete");
+                        consoleOutput.log(`Ready with ${layerNames.length} vector layers`);
+                    }, 500);
+                }
+            }
+        };
+        
+        // Current classification method
+        let currentClassification = 'quantile';
+        
+        // Function to generate random neon colors
+        function getRandomColor() {
+            const neonColors = [
+                '#FF00FF', '#00FFFF', '#FF0000', '#00FF00', '#0000FF', 
+                '#FFFF00', '#00FFCC', '#FF00CC', '#CCFF00', '#CC00FF'
+            ];
+            return neonColors[Math.floor(Math.random() * neonColors.length)];
+        }
+        
+        // Jenks natural breaks algorithm implementation
+        function getJenksBreaks(data, numClass) {
+            data = data.filter(d => d > 0).sort((a, b) => a - b);
+            
+            let mat1 = [];
+            let mat2 = [];
+            let st = Array(numClass + 1).fill(0);
+            
+            for (let i = 1; i <= numClass; i++) {
+                mat1[i] = [];
+                mat2[i] = [];
+                for (let j = 0; j <= data.length; j++) {
+                    mat1[i][j] = 0;
+                    mat2[i][j] = 0;
+                }
+            }
+            
+            for (let i = 1; i <= numClass; i++) {
+                mat1[i][1] = 1;
+                mat2[i][1] = 0;
+                for (let j = 2; j <= data.length; j++) {
+                    mat2[i][j] = Infinity;
+                }
+            }
+            
+            let v = 0;
+            for (let l = 2; l <= data.length; l++) {
+                let s1 = 0;
+                let s2 = 0;
+                let w = 0;
+                for (let m = 1; m <= l; m++) {
+                    let i3 = l - m + 1;
+                    let val = data[i3 - 1];
+                    s2 += val * val;
+                    s1 += val;
+                    w++;
+                    v = s2 - (s1 * s1) / w;
+                    let i4 = i3 - 1;
+                    if (i4 !== 0) {
+                        for (let j = 2; j <= numClass; j++) {
+                            if (mat2[j - 1][i4] + v < mat2[j][l]) {
+                                mat2[j][l] = mat2[j - 1][i4] + v;
+                                mat1[j][l] = i3;
+                            }
+                        }
+                    }
+                }
+                mat1[1][l] = 1;
+                mat2[1][l] = v;
+            }
+            
+            let k = data.length;
+            const kclass = Array(numClass + 1).fill(0);
+            kclass[numClass] = data[data.length - 1];
+            
+            for (let j = numClass; j >= 2; j--) {
+                let id = mat1[j][k] - 1;
+                kclass[j - 1] = data[id];
+                k = id;
+            }
+            
+            return kclass;
+        }
+        
+        // Function to create a graduated color scale for population data
+        function getGraduatedColor(value, min, max, values, classification = currentClassification) {
+            if (value === null || value === undefined || value === 0) {
+                return 'rgba(50, 50, 50, 0.3)'; // Default color for null/zero values
+            }
+            
+            // Filter out null/undefined/zero values and sort
+            const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
+            
+            // Define our color scale (5 classes)
+            const colors = [
+            'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+    'rgba(20, 220, 110, 0.8)',    // Bright jade
+    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+    'rgba(0, 140, 70, 0.8)',      // Darker tech green
+    'rgba(0, 100, 50, 0.8)'       // Deep emerald
+];
+
+            
+            if (classification === 'linear') {
+                // Linear classification
+                const ratio = (value - min) / (max - min);
+                if (ratio <= 0.2) return colors[0];
+                if (ratio <= 0.4) return colors[1];
+                if (ratio <= 0.6) return colors[2];
+                if (ratio <= 0.8) return colors[3];
+                return colors[4];
+            }
+            else if (classification === 'logarithmic') {
+                // Logarithmic classification
+                const logMin = Math.log10(min || 1);
+                const logMax = Math.log10(max);
+                const logValue = Math.log10(value);
+                const ratio = (logValue - logMin) / (logMax - logMin);
+                
+                if (ratio <= 0.2) return colors[0];
+                if (ratio <= 0.4) return colors[1];
+                if (ratio <= 0.6) return colors[2];
+                if (ratio <= 0.8) return colors[3];
+                return colors[4];
+            }
+            else if (classification === 'quantile') {
+                // Quantile classification
+                const breaks = [
+                    sortedValues[Math.floor(sortedValues.length * 0.2)],
+                    sortedValues[Math.floor(sortedValues.length * 0.4)],
+                    sortedValues[Math.floor(sortedValues.length * 0.6)],
+                    sortedValues[Math.floor(sortedValues.length * 0.8)]
+                ];
+                
+                if (value <= breaks[0]) return colors[0];
+                if (value <= breaks[1]) return colors[1];
+                if (value <= breaks[2]) return colors[2];
+                if (value <= breaks[3]) return colors[3];
+                return colors[4];
+            }
+            else if (classification === 'jenks') {
+                // Jenks natural breaks classification
+                const jenksBreaks = getJenksBreaks(values, 5);
+                
+                if (value <= jenksBreaks[1]) return colors[0];
+                if (value <= jenksBreaks[2]) return colors[1];
+                if (value <= jenksBreaks[3]) return colors[2];
+                if (value <= jenksBreaks[4]) return colors[3];
+                return colors[4];
+            }
+            
+            // Default to quantile if no valid classification
+            const breaks = [
+                sortedValues[Math.floor(sortedValues.length * 0.2)],
+                sortedValues[Math.floor(sortedValues.length * 0.4)],
+                sortedValues[Math.floor(sortedValues.length * 0.6)],
+                sortedValues[Math.floor(sortedValues.length * 0.8)]
+            ];
+            
+            if (value <= breaks[0]) return colors[0];
+            if (value <= breaks[1]) return colors[1];
+            if (value <= breaks[2]) return colors[2];
+            if (value <= breaks[3]) return colors[3];
+            return colors[4];
+        }
+        
+        // Function to create a vector tile layer with graduated colors
+        function createGraduatedVectorLayer(name, geoJsonData, populationField) {
+            // Extract population values for scaling
+            const populationValues = geoJsonData.features
+                .map(f => f.properties[populationField])
+                .filter(val => val !== null && val !== undefined);
+            
+            const minValue = Math.min(...populationValues.filter(v => v > 0));
+            const maxValue = Math.max(...populationValues);
+            
+            consoleOutput.log(`Layer ${name} - Population range: ${minValue} to ${maxValue} (${populationField})`);
+            
+            // Create the vector grid layer with graduated colors
+            const layer = L.vectorGrid.slicer(geoJsonData, {
+                rendererFactory: L.svg.tile,
+                vectorTileLayerStyles: {
+                    sliced: function(properties) {
+                        const value = properties[populationField];
+                        return {
+                            weight: 1.5,
+                            color: '#00f0ff',
+                            opacity: 0.8,
+                            fillColor: getGraduatedColor(value, minValue, maxValue, populationValues),
+                            fillOpacity: 0.85,
+                            fill: true
+                        };
+                    }
+                },
+                maxZoom: vectorSettings.maxZoom,
+                tileSize: vectorSettings.tileSize,
+                buffer: vectorSettings.bufferSize,
+                interactive: true,
+                getFeatureId: function(f) {
+                    return f.properties.id || L.stamp(f);
+                }
+            });
+            
+            // Store metadata in layer for legend
+            layer.metadata = {
+                field: populationField,
+                min: minValue,
+                max: maxValue,
+                name: name,
+                values: populationValues,
+                classification: currentClassification
+            };
+            
+            // Add popup with detailed information
+            layer.on('click', function(e) {
+                const props = e.layer.properties;
+                const population = props[populationField];
+                let popupContent = `<div style="color:#000;">
+                    <b>${props.NHGISNAM || props.COUNTY_1 || 'Area'}</b><br>
+                    <b>Year:</b> ${populationField.slice(5)}<br>
+                    <b>Population:</b> ${population ? population.toLocaleString() : 'No data'}<br>
+                    <b>State:</b> ${props.STATENAM || props.STATE_1 || ''}<br>
+                </div>`;
+                
+                L.popup()
+                    .setContent(popupContent)
+                    .setLatLng(e.latlng)
+                    .openOn(map);
+            });
+            
+            // Store feature count in layer metadata
+            if (geoJsonData && geoJsonData.features) {
+                layer.featureCount = geoJsonData.features.length;
+            } else {
+                layer.featureCount = 0;
+            }
+            
+            return layer;
+        }
+        
+        // Function to create a vector tile layer
+        function createVectorTileLayer(name, geoJsonData) {
+            const layerColor = layerColors[name] || getRandomColor();
+            
+            perfMetrics.startTimer();
+            
+            const layer = L.vectorGrid.slicer(geoJsonData, {
+                rendererFactory: L.svg.tile,
+                vectorTileLayerStyles: {
+                    sliced: {
+                        color: layerColor,
+                        weight: 2,
+                        opacity: 0.8,
+                        fillOpacity: 0.5,
+                        fillColor: layerColor
+                    }
+                },
+                maxZoom: vectorSettings.maxZoom,
+                tileSize: vectorSettings.tileSize,
+                buffer: vectorSettings.bufferSize,
+                interactive: true,
+                getFeatureId: function(f) {
+                    return f.properties.id || L.stamp(f);
+                }
+            });
+            
+            perfMetrics.endTimer(`Created layer "${name}"`);
+            
+            // Store feature count in layer metadata
+            if (geoJsonData && geoJsonData.features) {
+                layer.featureCount = geoJsonData.features.length;
+            } else {
+                layer.featureCount = 0;
+            }
+            
+            return layer;
+        }
+        
+        // Function to create a legend for the graduated map
+        function createLegend() {
+            const legend = L.control({ position: 'bottomright' });
+            
+            legend.onAdd = function(map) {
+                const div = L.DomUtil.create('div', 'info legend');
+                div.style.backgroundColor = 'rgba(20, 20, 30, 0.85)';
+                div.style.padding = '10px';
+                div.style.borderRadius = '5px';
+                div.style.color = '#fff';
+                div.style.border = '1px solid #00f0ff';
+                div.style.boxShadow = '0 0 15px rgba(0, 255, 255, 0.5)';
+                
+                // Get the active layer to display its legend
+                const activeLayers = Object.keys(layers).filter(name => {
+                    return map.hasLayer(layers[name]) && 
+                          name.startsWith('y') && 
+                          layers[name].metadata;
+                });
+                
+                if (activeLayers.length === 0) {
+                    div.innerHTML = '<h4>No Population Data Active</h4>';
+                    return div;
+                }
+                
+                // Use the first active population layer
+                const activeLayer = layers[activeLayers[0]];
+                const metadata = activeLayer.metadata;
+                const values = metadata.values.filter(v => v > 0).sort((a, b) => a - b);
+                
+                // Calculate breaks based on current classification
+                let breaks = [];
+                if (currentClassification === 'linear') {
+                    const range = metadata.max - metadata.min;
+                    breaks = [
+                        metadata.min + range * 0.2,
+                        metadata.min + range * 0.4,
+                        metadata.min + range * 0.6,
+                        metadata.min + range * 0.8
+                    ];
+                } else if (currentClassification === 'logarithmic') {
+                    const logMin = Math.log10(metadata.min || 1);
+                    const logMax = Math.log10(metadata.max);
+                    const logRange = logMax - logMin;
+                    breaks = [
+                        Math.pow(10, logMin + logRange * 0.2),
+                        Math.pow(10, logMin + logRange * 0.4),
+                        Math.pow(10, logMin + logRange * 0.6),
+                        Math.pow(10, logMin + logRange * 0.8)
+                    ];
+                } else if (currentClassification === 'quantile') {
+                    breaks = [
+                        values[Math.floor(values.length * 0.2)],
+                        values[Math.floor(values.length * 0.4)],
+                        values[Math.floor(values.length * 0.6)],
+                        values[Math.floor(values.length * 0.8)]
+                    ];
+                } else if (currentClassification === 'jenks') {
+                    breaks = getJenksBreaks(metadata.values, 5).slice(1, -1);
+                }
+                
+                // Define our color scale (5 classes)
+                const colors = [
+                'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+    'rgba(20, 220, 110, 0.8)',    // Bright jade
+    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+    'rgba(0, 140, 70, 0.8)',      // Darker tech green
+    'rgba(0, 100, 50, 0.8)'       // Deep emerald
+];
+                
+                // Create legend content
+                let legendContent = `
+                    <h4>Population ${metadata.field.slice(5)}</h4>
+                    <div style="margin: 5px 0;">
+                        <div style="display: flex; margin-bottom: 3px;">
+                            <div style="width: 15px; height: 15px; background-color: ${colors[0]}; margin-right: 5px;"></div>
+                            <span style="font-size: 10px;">&lt; ${Math.round(breaks[0]).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; margin-bottom: 3px;">
+                            <div style="width: 15px; height: 15px; background-color: ${colors[1]}; margin-right: 5px;"></div>
+                            <span style="font-size: 10px;">${Math.round(breaks[0]).toLocaleString()} - ${Math.round(breaks[1]).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; margin-bottom: 3px;">
+                            <div style="width: 15px; height: 15px; background-color: ${colors[2]}; margin-right: 5px;"></div>
+                            <span style="font-size: 10px;">${Math.round(breaks[1]).toLocaleString()} - ${Math.round(breaks[2]).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex; margin-bottom: 3px;">
+                            <div style="width: 15px; height: 15px; background-color: ${colors[3]}; margin-right: 5px;"></div>
+                            <span style="font-size: 10px;">${Math.round(breaks[2]).toLocaleString()} - ${Math.round(breaks[3]).toLocaleString()}</span>
+                        </div>
+                        <div style="display: flex;">
+                            <div style="width: 15px; height: 15px; background-color: ${colors[4]}; margin-right: 5px;"></div>
+                            <span style="font-size: 10px;">&gt; ${Math.round(breaks[3]).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="classification-selector">
+                        <div style="font-size: 10px; margin-bottom: 5px;">Classification:</div>
+                        <button class="classification-btn ${currentClassification === 'linear' ? 'active' : ''}" data-method="linear">Linear</button>
+                        <button class="classification-btn ${currentClassification === 'logarithmic' ? 'active' : ''}" data-method="logarithmic">Log</button>
+                        <button class="classification-btn ${currentClassification === 'quantile' ? 'active' : ''}" data-method="quantile">Quantile</button>
+                        <button class="classification-btn ${currentClassification === 'jenks' ? 'active' : ''}" data-method="jenks">Jenks</button>
+                    </div>
+                `;
+                
+                div.innerHTML = legendContent;
+                
+                // Add event listeners to classification buttons
+                div.querySelectorAll('.classification-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        currentClassification = this.dataset.method;
+                        consoleOutput.log(`Changed classification method to ${currentClassification}`);
+                        
+                        // Update all population layers
+                        Object.keys(layers).forEach(name => {
+                            if (name.startsWith('y') && layers[name].metadata) {
+                                layers[name].metadata.classification = currentClassification;
+                                if (map.hasLayer(layers[name])) {
+                                    map.removeLayer(layers[name]);
+                                    layers[name].addTo(map);
+                                }
+                            }
+                        });
+                        
+                        // Update the legend
+                        legend.addTo(map);
+                    });
+                });
+                
+                // Add no data indicator
+                const noDataDiv = document.createElement('div');
+                noDataDiv.innerHTML = `
+                    <div style="display: inline-block; width: 15px; height: 15px; background-color: rgba(50, 50, 50, 0.3); margin-right: 5px; border: 1px solid #000;"></div>
+                    <span>No data</span>
+                `;
+                div.appendChild(noDataDiv);
+                
+                return div;
+            };
+            
+            return legend;
+        }
+        
+        // Initialize a legend instance
+        const populationLegend = createLegend();
+        
+        // Function to create layer control UI element
+        function createLayerControlUI(name, color) {
+            const div = document.createElement('div');
+            div.className = 'layer-item';
+            
+            const colorIndicator = document.createElement('span');
+            colorIndicator.className = 'color-indicator';
+            colorIndicator.style.backgroundColor = color;
+            colorIndicator.style.boxShadow = `0 0 5px ${color}`;
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = name;
+            checkbox.addEventListener('change', function() {
+                perfMetrics.startTimer();
+                if (this.checked) {
+                    layers[name].addTo(map);
+                    consoleOutput.log(`Added layer: ${name}`);
+                } else {
+                    map.removeLayer(layers[name]);
+                    consoleOutput.log(`Removed layer: ${name}`);
+                }
+                perfMetrics.endTimer(`Toggle layer "${name}"`);
+            });
+            
+            const label = document.createElement('label');
+            label.htmlFor = name;
+            label.textContent = name;
+            
+            div.appendChild(colorIndicator);
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            document.getElementById('layer-list').appendChild(div);
+        }
+        
+        // Add a function to show only one year at a time
+        function showYearLayer(year) {
+            // Remove all year layers first
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y')) {
+                    map.removeLayer(layers[name]);
+                    const checkbox = document.getElementById(name);
+                    if (checkbox) checkbox.checked = false;
+                }
+            });
+            
+            // Add the selected year layer
+            const layerName = `y${year}`;
+            if (layers[layerName]) {
+                layers[layerName].addTo(map);
+                const checkbox = document.getElementById(layerName);
+                if (checkbox) checkbox.checked = true;
+                
+                // Add the legend
+                populationLegend.addTo(map);
+                
+                consoleOutput.log(`Showing population data for ${year}`);
+                return true;
+            } else {
+                consoleOutput.log(`Year ${year} data not available`);
+                return false;
+            }
+        }
+        
+        // Modify the layer-control UI to add a year selector section
+        function addYearSelector() {
+            // Create a new section for year selection
+            const layerControl = document.getElementById('layer-control');
+            
+            const yearSection = document.createElement('div');
+            yearSection.className = 'layer-section';
+            yearSection.innerHTML = '<h4>Population Years</h4>';
+            
+            // Add before the first section
+            layerControl.insertBefore(yearSection, layerControl.firstElementChild.nextSibling);
+            
+            // Create year buttons
+            const years = ['1820', '1830', '1840', '1850', '1860', '1870', '1890', '1900', '1910', '1920'];
+            const yearButtonsDiv = document.createElement('div');
+            yearButtonsDiv.style.display = 'flex';
+            yearButtonsDiv.style.flexWrap = 'wrap';
+            
+            years.forEach(year => {
+                const button = document.createElement('button');
+                button.textContent = year;
+                button.style.margin = '2px';
+                button.addEventListener('click', function() {
+                    showYearLayer(year);
+                });
+                yearButtonsDiv.appendChild(button);
+            });
+            
+            yearSection.appendChild(yearButtonsDiv);
+        }
+        
+        // Function to initialize all layers
+        function initializeLayers() {
+            // Clear existing layers
+            layerNames.forEach(name => {
+                if (layers[name]) {
+                    map.removeLayer(layers[name]);
+                    layers[name] = null;
+                }
+            });
+            
+            // Clear layer list UI
+            document.getElementById('layer-list').innerHTML = '';
+            
+            // Reset progress
+            loadingProgress.loaded = 0;
+            loadingProgress.updateProgress();
+            document.getElementById('loading-container').style.display = 'flex';
+            
+            // Reset performance metrics
+            perfMetrics.reset();
+            
+            consoleOutput.log("Initializing layers...");
+            
+            // Create layers with current settings
+            layerNames.forEach(name => {
+                // Update loading text to show current layer being processed
+                document.getElementById('loading-text').textContent = `Processing ${name}...`;
+                
+                // Process in small chunks to keep UI responsive
+                setTimeout(() => {
+                    // Check if the variable exists in global scope
+                    if (window[name]) {
+                        try {
+                            // Handle population data layers differently
+                            if (name.startsWith('y')) {
+                                const year = name.substring(1); // e.g., '1820'
+                                const populationField = `A00AA${year}`;
+                                
+                                layers[name] = createGraduatedVectorLayer(name, window[name], populationField);
+                            } else {
+                                // For non-population layers (like state, river, etc.), use the original method
+                                const layerColor = layerColors[name] || getRandomColor();
+                                layers[name] = createVectorTileLayer(name, window[name]);
+                                
+                                // Add popup functionality
+                                layers[name].on('click', function(e) {
+                                    const props = e.layer.properties;
+                                    let popupContent = `<div style="color:#000;"><b>${name}</b><br>`;
+                                    
+                                    for (const key in props) {
+                                        popupContent += `${key}: ${props[key]}<br>`;
+                                    }
+                                    popupContent += '</div>';
+                                    
+                                    L.popup()
+                                        .setContent(popupContent)
+                                        .setLatLng(e.latlng)
+                                        .openOn(map);
+                                });
+                            }
+                            
+                            // Create layer control UI element
+                            createLayerControlUI(name, name.startsWith('y') ? '#00AAFF' : (layerColors[name] || getRandomColor()));
+                            
+                        } catch (e) {
+                            console.error(`Error processing layer ${name}:`, e);
+                            consoleOutput.log(`ERROR: Failed to process layer "${name}": ${e.message}`);
+                        }
+                    } else {
+                        console.warn(`Variable ${name} not found in global scope`);
+                        consoleOutput.log(`WARNING: Variable "${name}" not found`);
+                    }
+                    
+                    // Update progress
+                    loadingProgress.loaded++;
+                    loadingProgress.updateProgress();
+                    
+                }, 0); // Small timeout to allow UI updates between layers
+            });
+        }
+        
+        // Listen for layer changes to update the legend
+        map.on('layeradd layerremove', function(e) {
+            // Check if any graduated layer is currently visible
+            const hasGraduatedLayer = Object.keys(layers).some(name => {
+                return map.hasLayer(layers[name]) && name.startsWith('y');
+            });
+            
+            // Add or remove legend as needed
+            if (hasGraduatedLayer) {
+                if (!map.hasLayer(populationLegend)) {
+                    populationLegend.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(populationLegend)) {
+                    map.removeControl(populationLegend);
+                }
+            }
+        });
+        
+        // Initialize layers on load
+        initializeLayers();
+        
+        // Performance information display
+        map.on('zoomend moveend', function() {
+            const zoom = map.getZoom();
+            const bounds = map.getBounds();
+            const center = map.getCenter();
+            
+            console.log(`Map view updated - Zoom: ${zoom}, Center: ${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}`);
+            consoleOutput.log(`Map updated: Zoom ${zoom}, Center [${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}]`);
+        });
+        
+        // Debug buttons
+        document.getElementById('toggle-console').addEventListener('click', function() {
+            consoleOutput.toggle();
+            this.textContent = consoleOutput.visible ? 'Hide Console' : 'Show Console';
+        });
+        
+        document.getElementById('clear-console').addEventListener('click', function() {
+            consoleOutput.clear();
+            consoleOutput.log("Console cleared");
+        });
+        
+        document.getElementById('analyze-layers').addEventListener('click', function() {
+            consoleOutput.log("--- Layer Analysis ---");
+            
+            // Count active layers
+            const activeLayers = Object.keys(layers).filter(name => map.hasLayer(layers[name]));
+            consoleOutput.log(`Active layers: ${activeLayers.length}/${Object.keys(layers).length}`);
+            
+            // Report feature counts
+            let totalFeatures = 0;
+            Object.keys(layers).forEach(name => {
+                if (layers[name] && layers[name].featureCount) {
+                    const isActive = map.hasLayer(layers[name]) ? "(active)" : "(inactive)";
+                    consoleOutput.log(`${name}: ${layers[name].featureCount} features ${isActive}`);
+                    if (map.hasLayer(layers[name])) {
+                        totalFeatures += layers[name].featureCount;
+                    }
+                }
+            });
+            
+            consoleOutput.log(`Total active features: ${totalFeatures}`);
+            consoleOutput.log(`Current zoom level: ${map.getZoom()}`);
+            consoleOutput.log(`Average render time: ${perfMetrics.getAverageRenderTime().toFixed(2)}ms`);
+            consoleOutput.log(`Current classification: ${currentClassification}`);
+            consoleOutput.log("----------------------");
+        });
+        
+        // Expose utility functions to window for console access
+        window.mapUtils = {
+            getLayerInfo: function() {
+                return Object.keys(layers).map(name => ({
+                    name,
+                    active: map.hasLayer(layers[name]),
+                    featureCount: layers[name] ? (layers[name].featureCount || 0) : 0
+                }));
+            },
+            
+            toggleAllLayers: function(value) {
+                Object.keys(layers).forEach(name => {
+                    const checkbox = document.getElementById(name);
+                    if (checkbox) {
+                        checkbox.checked = value;
+                        if (value) {
+                            if (!map.hasLayer(layers[name])) {
+                                layers[name].addTo(map);
+                            }
+                        } else {
+                            if (map.hasLayer(layers[name])) {
+                                map.removeLayer(layers[name]);
+                            }
+                        }
+                    }
+                });
+                consoleOutput.log(`${value ? 'Enabled' : 'Disabled'} all layers`);
+                return `${value ? 'Enabled' : 'Disabled'} all layers`;
+            },
+            
+            showLayerByYear: function(year) {
+                // First disable all year layers
+                ['y1820', 'y1830', 'y1840', 'y1850', 'y1860', 'y1870', 'y1890', 'y1900', 'y1910', 'y1920'].forEach(name => {
+                    const checkbox = document.getElementById(name);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        if (map.hasLayer(layers[name])) {
+                            map.removeLayer(layers[name]);
+                        }
+                    }
+                });
+                
+                // Enable the requested year
+                const layerName = `y${year}`;
+                if (layers[layerName]) {
+                    const checkbox = document.getElementById(layerName);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                    layers[layerName].addTo(map);
+                    consoleOutput.log(`Showing year ${year} data`);
+                    return `Showing year ${year} data`;
+                } else {
+                    consoleOutput.log(`Year ${year} data not available`);
+                    return `Year ${year} data not available`;
+                }
+            },
+            
+            fitToLayer: function(name) {
+                if (layers[name] && layers[name].getBounds) {
+                    map.fitBounds(layers[name].getBounds());
+                    consoleOutput.log(`Fit map to layer "${name}"`);
+                    return `Fit map to layer "${name}"`;
+                } else {
+                    consoleOutput.log(`Cannot fit to layer "${name}" - no bounds available`);
+                    return `Cannot fit to layer "${name}" - no bounds available`;
+                }
+            },
+            
+            performanceReport: function() {
+                const report = {
+                    averageRenderTime: perfMetrics.getAverageRenderTime(),
+                    renderCount: perfMetrics.renderTimes.length,
+                    minRenderTime: Math.min(...perfMetrics.renderTimes) || 0,
+                    maxRenderTime: Math.max(...perfMetrics.renderTimes) || 0,
+                    activeLayerCount: Object.keys(layers).filter(name => map.hasLayer(layers[name])).length,
+                    zoom: map.getZoom(),
+                    tileSize: vectorSettings.tileSize,
+                    maxZoom: vectorSettings.maxZoom,
+                    bufferSize: vectorSettings.bufferSize,
+                    classificationMethod: currentClassification
+                };
+                
+                consoleOutput.log(JSON.stringify(report, null, 2));
+                return report;
+            },
+            
+            setClassification: function(method) {
+                if (['linear', 'logarithmic', 'quantile', 'jenks'].includes(method)) {
+                    currentClassification = method;
+                    consoleOutput.log(`Changed classification method to ${method}`);
+                    
+                    // Update all population layers
+                    Object.keys(layers).forEach(name => {
+                        if (name.startsWith('y') && layers[name].metadata) {
+                            layers[name].metadata.classification = method;
+                            if (map.hasLayer(layers[name])) {
+                                map.removeLayer(layers[name]);
+                                layers[name].addTo(map);
+                            }
+                        }
+                    });
+                    
+                    // Update the legend
+                    if (Object.keys(layers).some(name => map.hasLayer(layers[name]) && name.startsWith('y'))) {
+                        populationLegend.addTo(map);
+                    }
+                    
+                    return `Classification method set to ${method}`;
+                } else {
+                    consoleOutput.log(`Invalid classification method: ${method}`);
+                    return `Invalid classification method. Use one of: linear, logarithmic, quantile, jenks`;
+                }
+            }
+        };
+        
+        // Add year selector after initial load
+        setTimeout(() => {
+            addYearSelector();
+            
+            // Show default year (1820)
+            setTimeout(() => {
+                showYearLayer('1820');
+            }, 1000);
+        }, 2000);
+        
+        // Log that we're ready
+        setTimeout(() => {
+            consoleOutput.toggle();
+            consoleOutput.log("Map initialized and ready");
+            consoleOutput.log("Use mapUtils in console to access utility functions");
+            consoleOutput.log("Available classification methods: linear, logarithmic, quantile, jenks");
+            consoleOutput.log("Example: mapUtils.setClassification('jenks')");
+        }, 1000);
+    </script>
+</body>
+</html>

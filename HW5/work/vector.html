@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GeoJSON Vector Tile Layer Toggler</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        #layer-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .layer-item {
+            margin: 5px 0;
+        }
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #loading-bar {
+            width: 300px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        #loading-progress {
+            height: 100%;
+            width: 0%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+        #loading-text {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-container">
+        <h2>Loading Map Data</h2>
+        <div id="loading-bar">
+            <div id="loading-progress"></div>
+        </div>
+        <div id="loading-text">Initializing...</div>
+    </div>
+    
+    <div id="map"></div>
+    <div id="layer-control">
+        <h3>Layers</h3>
+        <div id="layer-list"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Leaflet.VectorGrid plugin -->
+    <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
+    
+    <!-- Your GeoJSON files -->
+    <script src="1820.js"></script>
+    <script src="1830.js"></script>
+    <script src="1840.js"></script>
+    <script src="1850.js"></script>
+    <script src="1860.js"></script>
+    <script src="1870.js"></script>
+    <script src="1890.js"></script>
+    <script src="1900.js"></script>
+    <script src="1910.js"></script>
+    <script src="1920.js"></script>
+    <script src="trail.js"></script>
+    <script src="river.js"></script>
+    <script src="train2.js"></script>
+    <script src="state.js"></script>
+    
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([39.8283, -98.5795], 4);
+        
+        // Add base tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Object to store our layers
+        const layers = {};
+        
+        // List of all your GeoJSON variable names
+        const layerNames = [
+            'state', 'train2', 'river', 'trail',
+            'y1820', 'y1830', 'y1840', 'y1850', 
+            'y1860', 'y1870', 'y1890', 'y1900',
+            'y1910', 'y1920'
+        ];
+        
+        // Loading progress tracking
+        const loadingProgress = {
+            total: layerNames.length,
+            loaded: 0,
+            updateProgress: function() {
+                const percent = Math.round((this.loaded / this.total) * 100);
+                document.getElementById('loading-progress').style.width = percent + '%';
+                document.getElementById('loading-text').textContent = 
+                    `Loading layers (${this.loaded}/${this.total})...`;
+                
+                if (this.loaded === this.total) {
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                        // Add default layers
+                        if (layers.state) {
+                            layers.state.addTo(map);
+                            document.getElementById('state').checked = true;
+                        }
+                        if (layers.river) {
+                            layers.river.addTo(map);
+                            document.getElementById('river').checked = true;
+                        }
+                    }, 500);
+                }
+            }
+        };
+        
+        // Function to generate random colors
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        
+        // Create vector tile layers for each GeoJSON
+        layerNames.forEach(name => {
+            // Update loading text to show current layer being processed
+            document.getElementById('loading-text').textContent = `Processing ${name}...`;
+            
+            // Process in small chunks to keep UI responsive
+            setTimeout(() => {
+                // Check if the variable exists in global scope
+                if (window[name]) {
+                    try {
+                        const layerColor = getRandomColor();
+                        
+                        layers[name] = L.vectorGrid.slicer(window[name], {
+                            rendererFactory: L.svg.tile,
+                            vectorTileLayerStyles: {
+                                sliced: {
+                                    color: layerColor,
+                                    weight: 2,
+                                    opacity: 1,
+                                    fillOpacity: 0.5,
+                                    fillColor: layerColor
+                                }
+                            },
+                            maxZoom: 18,
+                            interactive: true,
+                            getFeatureId: function(f) {
+                                return f.properties.id || L.stamp(f);
+                            }
+                        });
+                        
+                        // Add popup functionality
+                        layers[name].on('click', function(e) {
+                            const props = e.layer.properties;
+                            let popupContent = `<b>${name}</b><br>`;
+                            
+                            for (const key in props) {
+                                popupContent += `${key}: ${props[key]}<br>`;
+                            }
+                            
+                            e.layer.bindPopup(popupContent).openPopup();
+                        });
+                        
+                        // Create layer control UI element
+                        const div = document.createElement('div');
+                        div.className = 'layer-item';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = name;
+                        checkbox.addEventListener('change', function() {
+                            if (this.checked) {
+                                layers[name].addTo(map);
+                            } else {
+                                map.removeLayer(layers[name]);
+                            }
+                        });
+                        
+                        const label = document.createElement('label');
+                        label.htmlFor = name;
+                        label.textContent = name;
+                        
+                        div.appendChild(checkbox);
+                        div.appendChild(label);
+                        document.getElementById('layer-list').appendChild(div);
+                        
+                    } catch (e) {
+                        console.error(`Error processing layer ${name}:`, e);
+                    }
+                } else {
+                    console.warn(`Variable ${name} not found in global scope`);
+                }
+                
+                // Update progress
+                loadingProgress.loaded++;
+                loadingProgress.updateProgress();
+                
+            }, 0); // Small timeout to allow UI updates between layers
+        });
+    </script>
+</body>
+</html>
