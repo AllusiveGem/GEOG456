@@ -152,6 +152,52 @@
             padding: 3px 6px;
             font-size: 10px;
         }
+        .slider-container {
+            padding: 10px 0;
+        }
+        #year-display {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+            margin: 10px 0;
+        }
+        #time-slider {
+            width: 100%;
+            height: 20px;
+            appearance: none;
+            background: linear-gradient(to right, #FF3300, #FF6600, #FFCC00, #99FF00, #00FF66, #00FFCC, #0099FF, #6600FF, #CC00FF, #FF00FF);
+            border-radius: 10px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        #time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #002130;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+        }
+        #time-slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #002130;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+        }
+        #time-slider:hover {
+            opacity: 1;
+        }
     </style>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -266,14 +312,8 @@
             }
         };
         
-        // Base tile layers
+        // Base tile layers - Only Carto Dark remains
         const baseLayers = {
-            'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }),
-            'Carto Light': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution">CARTO</a>'
-            }),
             'Carto Dark': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 attribution: '© OpenStreetMap contributors © CARTO',
                 subdomains: 'abcd',
@@ -284,7 +324,7 @@
         // Add Carto Dark as default base layer
         baseLayers['Carto Dark'].addTo(map);
         
-        // Create base layer control UI
+        // Create base layer control UI with only Carto Dark
         const baseMapList = document.getElementById('basemap-list');
         
         Object.keys(baseLayers).forEach(name => {
@@ -295,7 +335,7 @@
             radio.type = 'radio';
             radio.name = 'basemap';
             radio.id = 'base-' + name;
-            radio.checked = name === 'Carto Dark';
+            radio.checked = true; // Only one option, always checked
             radio.addEventListener('change', function() {
                 if (this.checked) {
                     Object.keys(baseLayers).forEach(n => {
@@ -339,7 +379,7 @@
         // JDM Electric style colors for layers
         const layerColors = {
             'state': '#00BBFF',
-            'river': '#00F0FF', // Electric blue for rivers
+            'river': '#1A00B6', // Changed to brighter cyan for better visibility
             'trail': '#FF9900', // Bright orange
             'train2': '#FF00CC', // Neon pink
             'y1820': '#FF3300',  // Bright red
@@ -474,13 +514,12 @@
             
             // Define our color scale (5 classes)
             const colors = [
-            'rgba(0, 255, 157, 0.8)',    // Vivid electric green
-    'rgba(20, 220, 110, 0.8)',    // Bright jade
-    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
-    'rgba(0, 140, 70, 0.8)',      // Darker tech green
-    'rgba(0, 100, 50, 0.8)'       // Deep emerald
-];
-
+                'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+                'rgba(20, 220, 110, 0.8)',    // Bright jade
+                'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+                'rgba(0, 140, 70, 0.8)',      // Darker tech green
+                'rgba(0, 100, 50, 0.8)'       // Deep emerald
+            ];
             
             if (classification === 'linear') {
                 // Linear classification
@@ -720,12 +759,12 @@
                 
                 // Define our color scale (5 classes)
                 const colors = [
-                'rgba(0, 255, 157, 0.8)',    // Vivid electric green
-    'rgba(20, 220, 110, 0.8)',    // Bright jade
-    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
-    'rgba(0, 140, 70, 0.8)',      // Darker tech green
-    'rgba(0, 100, 50, 0.8)'       // Deep emerald
-];
+                    'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+                    'rgba(20, 220, 110, 0.8)',    // Bright jade
+                    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+                    'rgba(0, 140, 70, 0.8)',      // Darker tech green
+                    'rgba(0, 100, 50, 0.8)'       // Deep emerald
+                ];
                 
                 // Create legend content
                 let legendContent = `
@@ -804,6 +843,11 @@
         
         // Function to create layer control UI element
         function createLayerControlUI(name, color) {
+            // Skip year layers (y1820-y1920) from being added to the GeoJSON Layers section
+            if (name.startsWith('y')) {
+                return;
+            }
+            
             const div = document.createElement('div');
             div.className = 'layer-item';
             
@@ -958,8 +1002,10 @@
                                 });
                             }
                             
-                            // Create layer control UI element
-                            createLayerControlUI(name, name.startsWith('y') ? '#00AAFF' : (layerColors[name] || getRandomColor()));
+                            // Create layer control UI element (skips year layers)
+                            if (!name.startsWith('y')) {
+                                createLayerControlUI(name, name.startsWith('y') ? '#00AAFF' : (layerColors[name] || getRandomColor()));
+                            }
                             
                         } catch (e) {
                             console.error(`Error processing layer ${name}:`, e);
@@ -1046,6 +1092,320 @@
             consoleOutput.log(`Current classification: ${currentClassification}`);
             consoleOutput.log("----------------------");
         });
+        
+        // Define the slider UI elements
+        function addTimeSlider() {
+    const layerControl = document.getElementById('layer-control');
+    
+    const sliderSection = document.createElement('div');
+    sliderSection.className = 'layer-section';
+    
+    layerControl.insertBefore(sliderSection, layerControl.firstElementChild);
+    
+    const sliderContainer = document.createElement('div');
+    sliderContainer.className = 'slider-container';
+    sliderContainer.style.padding = '10px 0';
+    
+    const sliderTitle = document.createElement('h4');
+    sliderTitle.textContent = 'Time Slider';
+    sliderContainer.appendChild(sliderTitle);
+    
+    const yearDisplay = document.createElement('div');
+    yearDisplay.id = 'year-display';
+    yearDisplay.style.textAlign = 'center';
+    yearDisplay.style.fontSize = '24px';
+    yearDisplay.style.fontWeight = 'bold';
+    yearDisplay.style.color = '#00f0ff';
+    yearDisplay.style.textShadow = '0 0 10px rgba(0, 255, 255, 0.7)';
+    yearDisplay.style.margin = '10px 0';
+    yearDisplay.textContent = '1820';
+    sliderContainer.appendChild(yearDisplay);
+    
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = 0;
+    slider.max = 9;
+    slider.value = 0;
+    slider.id = 'time-slider';
+    slider.style.width = '100%';
+    sliderContainer.appendChild(slider);
+    
+    // Add decade markers
+    const decadeMarkers = document.createElement('div');
+    decadeMarkers.style.display = 'flex';
+    decadeMarkers.style.justifyContent = 'space-between';
+    decadeMarkers.style.marginTop = '5px';
+    decadeMarkers.style.padding = '0 2px';
+    decadeMarkers.style.fontSize = '10px';
+    
+    const years = ['1820', '1830', '1840', '1850', '1860', '1870', '1890', '1900', '1910', '1920'];
+    years.forEach(year => {
+        const marker = document.createElement('span');
+        marker.textContent = year;
+        marker.style.fontSize = '9px';
+        decadeMarkers.appendChild(marker);
+    });
+    
+    sliderContainer.appendChild(decadeMarkers);
+    
+    // Add information display
+    const infoDisplay = document.createElement('div');
+    infoDisplay.id = 'decade-info';
+    infoDisplay.style.marginTop = '10px';
+    infoDisplay.style.fontSize = '12px';
+    infoDisplay.style.borderTop = '1px solid #00f0ff';
+    infoDisplay.style.paddingTop = '10px';
+    infoDisplay.innerHTML = `
+        <div id="info-population" style="margin-bottom: 5px;">Population: Loading...</div>
+        <div id="info-rivers" style="margin-bottom: 5px;">Active Canals: 0</div>
+        <div id="info-railroads" style="margin-bottom: 5px;">Active Railroads: 0</div>
+    `;
+    sliderContainer.appendChild(infoDisplay);
+    
+    sliderSection.appendChild(sliderContainer);
+    
+    // Event listener for slider changes
+    slider.addEventListener('input', function() {
+        updateMapForDecade(this.value);
+    });
+    
+    // Initialize with the first decade
+    updateMapForDecade(0);
+    
+    consoleOutput.log("Time slider initialized");
+}
+        
+        // Function to filter rivers based on the decade
+        function filterRiversForDecade(decade) {
+    const yearMap = {
+        0: 1820, 1: 1830, 2: 1840, 3: 1850, 4: 1860,
+        5: 1870, 6: 1890, 7: 1900, 8: 1910, 9: 1920
+    };
+    const year = yearMap[decade];
+    
+    if (window.river && layers.river) {
+        if (map.hasLayer(layers.river)) {
+            map.removeLayer(layers.river);
+        }
+        
+        const filteredRivers = {
+            type: "FeatureCollection",
+            features: []
+        };
+        
+        // Include rivers with null values or those matching the year filter
+        river.features.forEach(feature => {
+            const opened = feature.properties.OPENED;
+            const closed = feature.properties.CLOSED || 9999;
+            
+            if (opened === null || closed === null || // Always include null values
+                (opened && closed && opened <= year && closed >= year)) {
+                filteredRivers.features.push(feature);
+            }
+        });
+
+        // Create new filtered layer
+        const filteredRiverLayer = L.vectorGrid.slicer(filteredRivers, {
+            rendererFactory: L.svg.tile,
+            vectorTileLayerStyles: {
+                sliced: {
+                    color: layerColors.river || '#00F0FF',
+                    weight: 2,
+                    opacity: 0.8,
+                    fillOpacity: 0.5,
+                    fillColor: layerColors.river || '#00F0FF'
+                }
+            },
+            maxZoom: vectorSettings.maxZoom,
+            tileSize: vectorSettings.tileSize,
+            buffer: vectorSettings.bufferSize,
+            interactive: true,
+            getFeatureId: function(f) {
+                return f.properties.id || L.stamp(f);
+            }
+        });
+
+        // Add popup functionality
+        filteredRiverLayer.on('click', function(e) {
+            const props = e.layer.properties;
+            let popupContent = `<div style="color:#000;"><b>${props.NAME || 'Canal'}</b><br>`;
+            popupContent += `Opened: ${props.OPENED || 'Unknown'}<br>`;
+            popupContent += `Closed: ${props.CLOSED || 'Still active'}<br>`;
+            if (props.LENGHT) popupContent += `Length: ${props.LENGHT} miles<br>`;
+            if (props.REFERENCE) popupContent += `Reference: ${props.REFERENCE}<br>`;
+            popupContent += '</div>';
+            
+            L.popup()
+                .setContent(popupContent)
+                .setLatLng(e.latlng)
+                .openOn(map);
+        });
+
+        // Store feature count
+        filteredRiverLayer.featureCount = filteredRivers.features.length;
+
+        // Replace the original river layer in our layers object
+        layers.river = filteredRiverLayer;
+
+        // Add the filtered layer if checkbox is checked
+        const riverCheckbox = document.getElementById('river');
+        if (riverCheckbox && riverCheckbox.checked) {
+            layers.river.addTo(map);
+        }
+
+        // Update info display
+        document.getElementById('info-rivers').textContent = 
+            `Active Canals: ${filteredRivers.features.length}`;
+        
+        consoleOutput.log(`Filtered rivers for ${year}: ${filteredRivers.features.length} active canals`);
+    }
+}
+        
+        // Function to filter trains based on the decade
+        function filterTrainsForDecade(decade) {
+            const yearMap = {
+                0: 1820, 1: 1830, 2: 1840, 3: 1850, 4: 1860,
+                5: 1870, 6: 1890, 7: 1900, 8: 1910, 9: 1920
+            };
+            const year = yearMap[decade];
+            
+            // If train layer exists and is loaded
+            if (window.train2 && layers.train2) {
+                // Remove existing train layer
+                if (map.hasLayer(layers.train2)) {
+                    map.removeLayer(layers.train2);
+                }
+                
+                // Clone the original GeoJSON
+                const filteredTrains = {
+                    type: "FeatureCollection",
+                    features: []
+                };
+                
+                // Filter features that were built by the selected year
+                train2.features.forEach(feature => {
+                    const trainDecade = feature.properties.Decade;
+                    
+                    if (trainDecade && trainDecade <= year) {
+                        filteredTrains.features.push(feature);
+                    }
+                });
+                
+                // Create new filtered layer
+                const filteredTrainLayer = L.vectorGrid.slicer(filteredTrains, {
+                    rendererFactory: L.svg.tile,
+                    vectorTileLayerStyles: {
+                        sliced: {
+                            color: layerColors.train2 || '#FF00CC',
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.5,
+                            fillColor: layerColors.train2 || '#FF00CC'
+                        }
+                    },
+                    maxZoom: vectorSettings.maxZoom,
+                    tileSize: vectorSettings.tileSize,
+                    buffer: vectorSettings.bufferSize,
+                    interactive: true,
+                    getFeatureId: function(f) {
+                        return f.properties.id || L.stamp(f);
+                    }
+                });
+                
+                // Add popup functionality
+                filteredTrainLayer.on('click', function(e) {
+                    const props = e.layer.properties;
+                    let popupContent = `<div style="color:#000;"><b>Railroad</b><br>`;
+                    popupContent += `Built: ${props.Decade}<br>`;
+                    popupContent += `State: ${props.STATENAM || 'N/A'}<br>`;
+                    if (props.SUM_Miles) popupContent += `Length: ${props.SUM_Miles.toFixed(2)} miles<br>`;
+                    popupContent += '</div>';
+                    
+                    L.popup()
+                        .setContent(popupContent)
+                        .setLatLng(e.latlng)
+                        .openOn(map);
+                });
+                
+                // Store feature count
+                filteredTrainLayer.featureCount = filteredTrains.features.length;
+                
+                // Replace the original train layer in our layers object
+                layers.train2 = filteredTrainLayer;
+                
+                // Add the filtered layer if checkbox is checked
+                const trainCheckbox = document.getElementById('train2');
+                if (trainCheckbox && trainCheckbox.checked) {
+                    layers.train2.addTo(map);
+                }
+                
+                // Update info display
+                document.getElementById('info-railroads').textContent = 
+                    `Active Railroads: ${getUniqueTrainSegments(filteredTrains.features)}`;
+                
+                consoleOutput.log(`Filtered trains for ${year}: ${getUniqueTrainSegments(filteredTrains.features)} railroad segments`);
+            }
+        }
+        
+        // Function to get the total unique railroad segments/lines (not just features)
+        function getUniqueTrainSegments(features) {
+            // This is a simplification - in reality we might want to identify unique rail lines
+            // rather than just count features, but this gives a reasonable approximation
+            return features.length;
+        }
+        
+        // Get total population for a specific year layer
+        function getTotalPopulation(yearLayer) {
+            if (!window[yearLayer] || !window[yearLayer].features) {
+                return "Unknown";
+            }
+            
+            const yearMatch = yearLayer.match(/\d{4}/);
+            if (!yearMatch) return "Unknown";
+            
+            const year = yearMatch[0];
+            const populationField = `A00AA${year}`;
+            
+            // Sum all population values
+            let totalPop = 0;
+            window[yearLayer].features.forEach(feature => {
+                if (feature.properties && feature.properties[populationField]) {
+                    totalPop += feature.properties[populationField];
+                }
+            });
+            
+            // Format with commas
+            return totalPop.toLocaleString();
+        }
+        
+        // Function to update all layers for the selected decade
+        function updateMapForDecade(decadeIndex) {
+            const yearMap = {
+                0: '1820', 1: '1830', 2: '1840', 3: '1850', 4: '1860',
+                5: '1870', 6: '1890', 7: '1900', 8: '1910', 9: '1920'
+            };
+            const year = yearMap[decadeIndex];
+            
+            // Update the year display
+            document.getElementById('year-display').textContent = year;
+            
+            // Show the population layer for this decade
+            showYearLayer(year);
+            
+            // Filter rivers based on their OPENED/CLOSED properties
+            filterRiversForDecade(decadeIndex);
+            
+            // Filter trains based on their Decade property
+            filterTrainsForDecade(decadeIndex);
+            
+            // Update the population info
+            const yearLayer = `y${year}`;
+            const totalPop = getTotalPopulation(yearLayer);
+            document.getElementById('info-population').textContent = `Population: ${totalPop}`;
+            
+            // Log the update
+            consoleOutput.log(`Updated map to show ${year} data`);
+        }
         
         // Expose utility functions to window for console access
         window.mapUtils = {
@@ -1173,6 +1533,11 @@
             }, 1000);
         }, 2000);
         
+        // Add time slider after initial load
+        setTimeout(() => {
+            addTimeSlider();
+        }, 3000);
+        
         // Log that we're ready
         setTimeout(() => {
             consoleOutput.toggle();
@@ -1181,9 +1546,6 @@
             consoleOutput.log("Available classification methods: linear, logarithmic, quantile, jenks");
             consoleOutput.log("Example: mapUtils.setClassification('jenks')");
         }, 1000);
-
-
-        
     </script>
 </body>
 </html>

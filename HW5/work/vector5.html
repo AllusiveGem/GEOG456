@@ -152,6 +152,52 @@
             padding: 3px 6px;
             font-size: 10px;
         }
+        .slider-container {
+            padding: 10px 0;
+        }
+        #year-display {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+            margin: 10px 0;
+        }
+        #time-slider {
+            width: 100%;
+            height: 20px;
+            appearance: none;
+            background: linear-gradient(to right, #FF3300, #FF6600, #FFCC00, #99FF00, #00FF66, #00FFCC, #0099FF, #6600FF, #CC00FF, #FF00FF);
+            border-radius: 10px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        #time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #002130;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+        }
+        #time-slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #002130;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+        }
+        #time-slider:hover {
+            opacity: 1;
+        }
     </style>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -474,13 +520,12 @@
             
             // Define our color scale (5 classes)
             const colors = [
-            'rgba(0, 255, 157, 0.8)',    // Vivid electric green
-    'rgba(20, 220, 110, 0.8)',    // Bright jade
-    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
-    'rgba(0, 140, 70, 0.8)',      // Darker tech green
-    'rgba(0, 100, 50, 0.8)'       // Deep emerald
-];
-
+                'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+                'rgba(20, 220, 110, 0.8)',    // Bright jade
+                'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+                'rgba(0, 140, 70, 0.8)',      // Darker tech green
+                'rgba(0, 100, 50, 0.8)'       // Deep emerald
+            ];
             
             if (classification === 'linear') {
                 // Linear classification
@@ -720,12 +765,12 @@
                 
                 // Define our color scale (5 classes)
                 const colors = [
-                'rgba(0, 255, 157, 0.8)',    // Vivid electric green
-    'rgba(20, 220, 110, 0.8)',    // Bright jade
-    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
-    'rgba(0, 140, 70, 0.8)',      // Darker tech green
-    'rgba(0, 100, 50, 0.8)'       // Deep emerald
-];
+                    'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+                    'rgba(20, 220, 110, 0.8)',    // Bright jade
+                    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+                    'rgba(0, 140, 70, 0.8)',      // Darker tech green
+                    'rgba(0, 100, 50, 0.8)'       // Deep emerald
+                ];
                 
                 // Create legend content
                 let legendContent = `
@@ -1047,6 +1092,418 @@
             consoleOutput.log("----------------------");
         });
         
+        // Define the slider UI elements
+        function addTimeSlider() {
+            // Create a new section for the time slider
+            const layerControl = document.getElementById('layer-control');
+            
+            const sliderSection = document.createElement('div');
+            sliderSection.className = 'layer-section';
+            
+            // Add the slider section at the top
+            layerControl.insertBefore(sliderSection, layerControl.firstElementChild);
+            
+            // Create slider container
+            const sliderContainer = document.createElement('div');
+            sliderContainer.className = 'slider-container';
+            sliderContainer.style.padding = '10px 0';
+            
+            // Add title
+            const sliderTitle = document.createElement('h4');
+            sliderTitle.textContent = 'Time Machine';
+            sliderContainer.appendChild(sliderTitle);
+            
+            // Create year display
+            const yearDisplay = document.createElement('div');
+            yearDisplay.id = 'year-display';
+            yearDisplay.style.textAlign = 'center';
+            yearDisplay.style.fontSize = '24px';
+            yearDisplay.style.fontWeight = 'bold';
+            yearDisplay.style.color = '#00f0ff';
+            yearDisplay.style.textShadow = '0 0 10px rgba(0, 255, 255, 0.7)';
+            yearDisplay.style.margin = '10px 0';
+            yearDisplay.textContent = '1820';
+            sliderContainer.appendChild(yearDisplay);
+            
+            // Create the slider input
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = 0;
+            slider.max = 9;
+            slider.value = 0;
+            slider.id = 'time-slider';
+            slider.style.width = '100%';
+            slider.style.height = '20px';
+            slider.style.appearance = 'none';
+            slider.style.background = 'linear-gradient(to right, #FF3300, #FF6600, #FFCC00, #99FF00, #00FF66, #00FFCC, #0099FF, #6600FF, #CC00FF, #FF00FF)';
+            slider.style.borderRadius = '10px';
+            slider.style.outline = 'none';
+            slider.style.opacity = '0.9';
+            slider.style.transition = 'opacity .2s';
+            slider.style.cursor = 'pointer';
+            slider.style.margin = '20px 0';
+            
+            // Chrome styling
+            slider.style.setProperty('-webkit-appearance', 'none');
+            
+            // Add the slider
+            sliderContainer.appendChild(slider);
+            
+            // Add the play/pause button
+            const playButton = document.createElement('button');
+            playButton.id = 'play-button';
+            playButton.textContent = '▶ Play';
+            playButton.style.width = '100%';
+            playButton.style.marginTop = '10px';
+            sliderContainer.appendChild(playButton);
+            
+            // Add the speed control
+            const speedContainer = document.createElement('div');
+            speedContainer.style.display = 'flex';
+            speedContainer.style.alignItems = 'center';
+            speedContainer.style.marginTop = '10px';
+            
+            const speedLabel = document.createElement('span');
+            speedLabel.textContent = 'Speed:';
+            speedLabel.style.marginRight = '10px';
+            speedContainer.appendChild(speedLabel);
+            
+            const speedSelect = document.createElement('select');
+            speedSelect.id = 'speed-select';
+            speedSelect.style.flex = '1';
+            speedSelect.style.backgroundColor = '#002130';
+            speedSelect.style.color = '#00f0ff';
+            speedSelect.style.border = '1px solid #00f0ff';
+            speedSelect.style.padding = '5px';
+            speedSelect.style.borderRadius = '3px';
+            
+            const speeds = [
+                { label: 'Slow', value: 2000 },
+                { label: 'Normal', value: 1000 },
+                { label: 'Fast', value: 500 }
+            ];
+            
+            speeds.forEach(speed => {
+                const option = document.createElement('option');
+                option.value = speed.value;
+                option.textContent = speed.label;
+                if (speed.label === 'Normal') {
+                    option.selected = true;
+                }
+                speedSelect.appendChild(option);
+            });
+            
+            speedContainer.appendChild(speedSelect);
+            sliderContainer.appendChild(speedContainer);
+            
+            // Add decade markers
+            const decadeMarkers = document.createElement('div');
+            decadeMarkers.style.display = 'flex';
+            decadeMarkers.style.justifyContent = 'space-between';
+            decadeMarkers.style.marginTop = '5px';
+            decadeMarkers.style.padding = '0 2px';
+            decadeMarkers.style.fontSize = '10px';
+            
+            const years = ['1820', '1830', '1840', '1850', '1860', '1870', '1890', '1900', '1910', '1920'];
+            years.forEach(year => {
+                const marker = document.createElement('span');
+                marker.textContent = year;
+                marker.style.fontSize = '9px';
+                decadeMarkers.appendChild(marker);
+            });
+            
+            sliderContainer.appendChild(decadeMarkers);
+            
+            // Add the slider container to the section
+            sliderSection.appendChild(sliderContainer);
+            
+            // Add information display
+            const infoDisplay = document.createElement('div');
+            infoDisplay.id = 'decade-info';
+            infoDisplay.style.marginTop = '10px';
+            infoDisplay.style.fontSize = '12px';
+            infoDisplay.style.borderTop = '1px solid #00f0ff';
+            infoDisplay.style.paddingTop = '10px';
+            infoDisplay.innerHTML = `
+                <div id="info-population" style="margin-bottom: 5px;">Population: Loading...</div>
+                <div id="info-rivers" style="margin-bottom: 5px;">Active Canals: 0</div>
+                <div id="info-railroads" style="margin-bottom: 5px;">Active Railroads: 0</div>
+            `;
+            sliderContainer.appendChild(infoDisplay);
+            
+            // Track animation state
+            let isPlaying = false;
+            let animationInterval;
+            
+            // Event listener for slider changes
+            slider.addEventListener('input', function() {
+                updateMapForDecade(this.value);
+            });
+            
+            // Event listener for play/pause button
+            playButton.addEventListener('click', function() {
+                if (isPlaying) {
+                    // Stop the animation
+                    clearInterval(animationInterval);
+                    playButton.textContent = '▶ Play';
+                    isPlaying = false;
+                } else {
+                    // Start the animation
+                    playButton.textContent = '⏸ Pause';
+                    isPlaying = true;
+                    
+                    // Get the speed value
+                    const speed = parseInt(document.getElementById('speed-select').value);
+                    
+                    animationInterval = setInterval(function() {
+                        let currentValue = parseInt(slider.value);
+                        currentValue = (currentValue + 1) % 10; // Loop through all decades
+                        slider.value = currentValue;
+                        updateMapForDecade(currentValue);
+                    }, speed);
+                }
+            });
+            
+            // Initialize with the first decade
+            updateMapForDecade(0);
+            
+            consoleOutput.log("Time slider initialized");
+        }
+        
+        // Function to filter rivers based on the decade
+        function filterRiversForDecade(decade) {
+            const yearMap = {
+                0: 1820, 1: 1830, 2: 1840, 3: 1850, 4: 1860,
+                5: 1870, 6: 1890, 7: 1900, 8: 1910, 9: 1920
+            };
+            const year = yearMap[decade];
+            
+            // If river layer exists and is loaded
+            if (window.river && layers.river) {
+                // Remove existing river layer
+                if (map.hasLayer(layers.river)) {
+                    map.removeLayer(layers.river);
+                }
+                
+                // Clone the original GeoJSON
+                const filteredRivers = {
+                    type: "FeatureCollection",
+                    features: []
+                };
+                
+                // Filter features that were open during the selected year
+                river.features.forEach(feature => {
+                    const opened = feature.properties.OPENED;
+                    const closed = feature.properties.CLOSED || 9999; // If no closing date, use far future
+                    
+                    if (opened && closed && opened <= year && closed >= year) {
+                        filteredRivers.features.push(feature);
+                    }
+                });
+                
+                // Create new filtered layer
+                const filteredRiverLayer = L.vectorGrid.slicer(filteredRivers, {
+                    rendererFactory: L.svg.tile,
+                    vectorTileLayerStyles: {
+                        sliced: {
+                            color: layerColors.river || '#00F0FF',
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.5,
+                            fillColor: layerColors.river || '#00F0FF'
+                        }
+                    },
+                    maxZoom: vectorSettings.maxZoom,
+                    tileSize: vectorSettings.tileSize,
+                    buffer: vectorSettings.bufferSize,
+                    interactive: true,
+                    getFeatureId: function(f) {
+                        return f.properties.id || L.stamp(f);
+                    }
+                });
+                
+                // Add popup functionality
+                filteredRiverLayer.on('click', function(e) {
+                    const props = e.layer.properties;
+                    let popupContent = `<div style="color:#000;"><b>${props.NAME || 'Canal'}</b><br>`;
+                    popupContent += `Opened: ${props.OPENED}<br>`;
+                    popupContent += `Closed: ${props.CLOSED || 'Still active'}<br>`;
+                    if (props.LENGHT) popupContent += `Length: ${props.LENGHT} miles<br>`;
+                    if (props.REFERENCE) popupContent += `Reference: ${props.REFERENCE}<br>`;
+                    popupContent += '</div>';
+                    
+                    L.popup()
+                        .setContent(popupContent)
+                        .setLatLng(e.latlng)
+                        .openOn(map);
+                });
+                
+                // Store feature count
+                filteredRiverLayer.featureCount = filteredRivers.features.length;
+                
+                // Replace the original river layer in our layers object
+                layers.river = filteredRiverLayer;
+                
+                // Add the filtered layer if checkbox is checked
+                const riverCheckbox = document.getElementById('river');
+                if (riverCheckbox && riverCheckbox.checked) {
+                    layers.river.addTo(map);
+                }
+                
+                // Update info display
+                document.getElementById('info-rivers').textContent = 
+                    `Active Canals: ${filteredRivers.features.length}`;
+                
+                consoleOutput.log(`Filtered rivers for ${year}: ${filteredRivers.features.length} active canals`);
+            }
+        }
+        
+        // Function to filter trains based on the decade
+        function filterTrainsForDecade(decade) {
+            const yearMap = {
+                0: 1820, 1: 1830, 2: 1840, 3: 1850, 4: 1860,
+                5: 1870, 6: 1890, 7: 1900, 8: 1910, 9: 1920
+            };
+            const year = yearMap[decade];
+            
+            // If train layer exists and is loaded
+            if (window.train2 && layers.train2) {
+                // Remove existing train layer
+                if (map.hasLayer(layers.train2)) {
+                    map.removeLayer(layers.train2);
+                }
+                
+                // Clone the original GeoJSON
+                const filteredTrains = {
+                    type: "FeatureCollection",
+                    features: []
+                };
+                
+                // Filter features that were built by the selected year
+                train2.features.forEach(feature => {
+                    const trainDecade = feature.properties.Decade;
+                    
+                    if (trainDecade && trainDecade <= year) {
+                        filteredTrains.features.push(feature);
+                    }
+                });
+                
+                // Create new filtered layer
+                const filteredTrainLayer = L.vectorGrid.slicer(filteredTrains, {
+                    rendererFactory: L.svg.tile,
+                    vectorTileLayerStyles: {
+                        sliced: {
+                            color: layerColors.train2 || '#FF00CC',
+                            weight: 2,
+                            opacity: 0.8,
+                            fillOpacity: 0.5,
+                            fillColor: layerColors.train2 || '#FF00CC'
+                        }
+                    },
+                    maxZoom: vectorSettings.maxZoom,
+                    tileSize: vectorSettings.tileSize,
+                    buffer: vectorSettings.bufferSize,
+                    interactive: true,
+                    getFeatureId: function(f) {
+                        return f.properties.id || L.stamp(f);
+                    }
+                });
+                
+                // Add popup functionality
+                filteredTrainLayer.on('click', function(e) {
+                    const props = e.layer.properties;
+                    let popupContent = `<div style="color:#000;"><b>Railroad</b><br>`;
+                    popupContent += `Built: ${props.Decade}<br>`;
+                    popupContent += `State: ${props.STATENAM || 'N/A'}<br>`;
+                    if (props.SUM_Miles) popupContent += `Length: ${props.SUM_Miles.toFixed(2)} miles<br>`;
+                    popupContent += '</div>';
+                    
+                    L.popup()
+                        .setContent(popupContent)
+                        .setLatLng(e.latlng)
+                        .openOn(map);
+                });
+                
+                // Store feature count
+                filteredTrainLayer.featureCount = filteredTrains.features.length;
+                
+                // Replace the original train layer in our layers object
+                layers.train2 = filteredTrainLayer;
+                
+                // Add the filtered layer if checkbox is checked
+                const trainCheckbox = document.getElementById('train2');
+                if (trainCheckbox && trainCheckbox.checked) {
+                    layers.train2.addTo(map);
+                }
+                
+                // Update info display
+                document.getElementById('info-railroads').textContent = 
+                    `Active Railroads: ${getUniqueTrainSegments(filteredTrains.features)}`;
+                
+                consoleOutput.log(`Filtered trains for ${year}: ${getUniqueTrainSegments(filteredTrains.features)} railroad segments`);
+            }
+        }
+        
+        // Function to get the total unique railroad segments/lines (not just features)
+        function getUniqueTrainSegments(features) {
+            // This is a simplification - in reality we might want to identify unique rail lines
+            // rather than just count features, but this gives a reasonable approximation
+            return features.length;
+        }
+        
+        // Get total population for a specific year layer
+        function getTotalPopulation(yearLayer) {
+            if (!window[yearLayer] || !window[yearLayer].features) {
+                return "Unknown";
+            }
+            
+            const yearMatch = yearLayer.match(/\d{4}/);
+            if (!yearMatch) return "Unknown";
+            
+            const year = yearMatch[0];
+            const populationField = `A00AA${year}`;
+            
+            // Sum all population values
+            let totalPop = 0;
+            window[yearLayer].features.forEach(feature => {
+                if (feature.properties && feature.properties[populationField]) {
+                    totalPop += feature.properties[populationField];
+                }
+            });
+            
+            // Format with commas
+            return totalPop.toLocaleString();
+        }
+        
+        // Function to update all layers for the selected decade
+        function updateMapForDecade(decadeIndex) {
+            const yearMap = {
+                0: '1820', 1: '1830', 2: '1840', 3: '1850', 4: '1860',
+                5: '1870', 6: '1890', 7: '1900', 8: '1910', 9: '1920'
+            };
+            const year = yearMap[decadeIndex];
+            
+            // Update the year display
+            document.getElementById('year-display').textContent = year;
+            
+            // Show the population layer for this decade
+            showYearLayer(year);
+            
+            // Filter rivers based on their OPENED/CLOSED properties
+            filterRiversForDecade(decadeIndex);
+            
+            // Filter trains based on their Decade property
+            filterTrainsForDecade(decadeIndex);
+            
+            // Update the population info
+            const yearLayer = `y${year}`;
+            const totalPop = getTotalPopulation(yearLayer);
+            document.getElementById('info-population').textContent = `Population: ${totalPop}`;
+            
+            // Log the update
+            consoleOutput.log(`Updated map to show ${year} data`);
+        }
+        
         // Expose utility functions to window for console access
         window.mapUtils = {
             getLayerInfo: function() {
@@ -1173,6 +1630,11 @@
             }, 1000);
         }, 2000);
         
+        // Add time slider after initial load
+        setTimeout(() => {
+            addTimeSlider();
+        }, 3000);
+        
         // Log that we're ready
         setTimeout(() => {
             consoleOutput.toggle();
@@ -1181,9 +1643,6 @@
             consoleOutput.log("Available classification methods: linear, logarithmic, quantile, jenks");
             consoleOutput.log("Example: mapUtils.setClassification('jenks')");
         }, 1000);
-
-
-        
     </script>
 </body>
 </html>
