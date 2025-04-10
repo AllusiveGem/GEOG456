@@ -475,8 +475,21 @@
         let currentClassification = 'quantile';
         
         // AI Configuration
-        const API_KEY = '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';
-        const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+// Check if API key exists in localStorage
+let API_KEY = localStorage.getItem('OPENROUTER_API_KEY');
+
+// If not, prompt the user
+if (!API_KEY) {
+    API_KEY = prompt("🔑 Enter your OpenRouter API key (get one at https://openrouter.ai/keys):");
+    if (API_KEY) {
+        localStorage.setItem('OPENROUTER_API_KEY', API_KEY);
+    } else {
+        alert("AI features will be disabled without an API key.");
+    }
+}
+
+// Use the key in API calls
+const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';  
         let aiEnabled = false;
         let showGrowthRates = false;
         
