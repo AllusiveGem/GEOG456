@@ -269,6 +269,7 @@
             <button id="analyze-layers">Analyze Layers</button>
             <button id="toggle-console">Toggle Console Output</button>
             <button id="clear-console">Clear Console</button>
+            <button id="test-ai">Test AI Connection</button>
         </div>
     </div>
     
@@ -471,20 +472,32 @@
         
         // AI Configuration
 // Check if API key exists in localStorage
+// AI Configuration
 let API_KEY = localStorage.getItem('OPENROUTER_API_KEY');
+let aiEnabled = false;
 
-// If not, prompt the user
-if (!API_KEY) {
-    API_KEY = prompt("🔑 Enter your OpenRouter API key (get one at https://openrouter.ai/keys):");
-    if (API_KEY) {
-        localStorage.setItem('OPENROUTER_API_KEY', API_KEY);
+function validateAPIKey() {
+    if (!API_KEY) {
+        API_KEY = prompt("🔑 Enter your OpenRouter API key (get one at https://openrouter.ai/keys):");
+        if (API_KEY) {
+            localStorage.setItem('OPENROUTER_API_KEY', API_KEY);
+            checkAPIStatus(); // Verify the key works
+        } else {
+            alert("AI features disabled - no API key provided");
+            document.getElementById('ai-status').textContent = 'AI: Disabled (no key)';
+            document.getElementById('ai-status').style.color = '#ff3300';
+            document.getElementById('enable-ai').disabled = true;
+        }
     } else {
-        alert("AI features will be disabled without an API key.");
+        checkAPIStatus(); // Verify the existing key
     }
 }
 
 // Use the key in API calls
-const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';        let aiEnabled = false;
+const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+
+// Call this when the page loads
+validateAPIKey();
         let showGrowthRates = false;
         
         // Function to generate random neon colors
@@ -1060,48 +1073,58 @@ const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';        let
         
         // AI Explanation Functions
         async function getDeepSeekExplanation(countyName, stateName, prevYear, currYear, prevPop, currPop, growthRate) {
-            if (!aiEnabled) return "Enable AI for explanations";
-            
-            if (Math.abs(growthRate) < 4) {
-                return "Change too small for detailed analysis (less than 4%).";
-            }
+    if (!aiEnabled) return "Enable AI for explanations";
+    
+    // Early return for small changes
+    if (Math.abs(growthRate) < 4) {
+        return "Change too small for detailed analysis (less than 4%).";
+    }
 
-            const prompt = `You're a historical demographer. Why might ${countyName}, ${stateName} have had a ${growthRate.toFixed(2)}% population ${growthRate > 0 ? "increase" : "decrease"} between ${prevYear} and ${currYear}? Focus on migration, economy, and historical events. Keep your answer around 4-5 sentences.`;
+    const prompt = `As a historical demographer, explain why ${countyName}, ${stateName} had a ${growthRate.toFixed(2)}% population ${growthRate > 0 ? "increase" : "decrease"} between ${prevYear} and ${currYear}. Focus on 1-2 likely factors like migration patterns, economic conditions, or historical events. Keep response to 3 sentences max.`;
 
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${API_KEY}`,
-                        "HTTP-Referer": window.location.href,
-                        "X-Title": "Population Growth Map"
+    try {
+        const response = await fetch(API_ENDPOINT, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`,
+                "HTTP-Referer": window.location.href,
+                "X-Title": "Population Growth Map"
+            },
+            body: JSON.stringify({
+                "model": "deepseek/deepseek-chat",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You provide concise historical explanations for population changes. Focus on facts from the specified time period."
                     },
-                    body: JSON.stringify({
-                        "model": "deepseek/deepseek-chat:free",
-                        "messages": [
-                            { "role": "user", "content": prompt }
-                        ],
-                        "max_tokens": 150,
-                        "temperature": 0.7
-                    })
-                });
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    }
+                ],
+                "max_tokens": 150,
+                "temperature": 0.7
+            })
+        });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.error("API Error:", response.status, errorData);
-                    return `API Error: ${errorData.error?.message || response.statusText}`;
-                }
-
-                const data = await response.json();
-                return data?.choices?.[0]?.message?.content || "No explanation available.";
-
-            } catch (err) {
-                console.error("DeepSeek API error:", err);
-                return `Network Error: ${err.message || "Couldn't retrieve explanation."}`;
-            }
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
         }
 
+        const data = await response.json();
+        
+        // Debug log (remove in production)
+        console.log("API Response:", data);
+        
+        // Extract response from known structure
+        return data.choices[0].message.content;
+
+    } catch (err) {
+        console.error("API Error:", err);
+        return `Error: ${err.message}`;
+    }
+}
         async function checkAPIStatus() {
             try {
                 const response = await fetch('https://openrouter.ai/api/v1/auth/key', {
@@ -1640,6 +1663,48 @@ const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';        let
             consoleOutput.log("Available classification methods: linear, logarithmic, quantile, jenks");
             consoleOutput.log("Example: mapUtils.setClassification('jenks')");
         }, 1000);
+
+
+
+        document.getElementById('test-ai').addEventListener('click', async function() {
+    consoleOutput.log("Testing AI connection...");
+    try {
+        consoleOutput.log("Sending request to OpenRouter API...");
+        
+        const testResponse = await fetch(API_ENDPOINT, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`,
+                "HTTP-Referer": window.location.href,
+                "X-Title": "Population Growth Map"
+            },
+            body: JSON.stringify({
+                "model": "deepseek/deepseek-chat",
+                "messages": [
+                    { "role": "user", "content": "Test message - please respond with 'AI is working' if you receive this." }
+                ],
+                "max_tokens": 50
+            })
+        });
+        
+        const testData = await testResponse.json();
+        consoleOutput.log("Raw API Response:", JSON.stringify(testData, null, 2));
+        
+        if (!testResponse.ok) {
+            consoleOutput.log(`API Error: ${testResponse.status} ${testResponse.statusText}`);
+            return;
+        }
+        
+        if (testData.choices?.[0]?.message?.content) {
+            consoleOutput.log(`AI Test Success: ${testData.choices[0].message.content}`);
+        } else {
+            consoleOutput.log("Unexpected response structure:", testData);
+        }
+    } catch (e) {
+        consoleOutput.log(`AI Test Failed: ${e.message}`);
+    }
+});
     </script>
 </body>
 </html>
