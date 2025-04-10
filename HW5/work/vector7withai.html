@@ -1072,7 +1072,7 @@ const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
                 return "Change too small for detailed analysis (less than 4%).";
             }
 
-            const prompt = `You're a historical demographer. Why might ${countyName}, ${stateName} have had a ${growthRate.toFixed(2)}% population ${growthRate > 0 ? "increase" : "decrease"} between ${prevYear} and ${currYear}? Focus on migration, economy, and historical events. Keep your answer brief (2-3 sentences).`;
+            const prompt = `You're a historical demographer. Why might ${countyName}, ${stateName} have had a ${growthRate.toFixed(2)}% population ${growthRate > 0 ? "increase" : "decrease"} between ${prevYear} and ${currYear}? Focus on migration, economy, and historical events. Keep your answer brief (4-5 sentences).`;
 
             try {
                 const response = await fetch(API_ENDPOINT, {
