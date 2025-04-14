@@ -525,26 +525,27 @@
     <script>
         // Initialize the map with Carto Dark basemap
         const map = L.map('map', {
-    attributionControl: false,
-    maxBounds: [
-        [5, -200],   // Expanded Southwest corner
-        [75, -30]    // Expanded Northeast corner
-    ],
-    maxBoundsViscosity: 1.0,  // Keeps panning within bounds
-    minZoom: 3,               // Prevents zooming too far out
-    maxZoom: 13               // Already set in your tile layer, but can also be set here
-}).setView([39.8283, -98.5795], 4);
-// Using OpenStreetMap's standard tile layer - free and doesn't require an API key
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: ''
-}).addTo(map);
+            attributionControl: false,
+            maxBounds: [
+                [5, -200],   // Expanded Southwest corner
+                [75, -30]    // Expanded Northeast corner
+            ],
+            maxBoundsViscosity: 1.0,  // Keeps panning within bounds
+            minZoom: 3,               // Prevents zooming too far out
+            maxZoom: 13               // Already set in your tile layer, but can also be set here
+        }).setView([39.8283, -98.5795], 4);
+        
+        // Using OpenStreetMap's standard tile layer - free and doesn't require an API key
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: ''
+        }).addTo(map);
 
-// Add custom attribution control in a different position if desired
-L.control.attribution({
-    position: 'bottomleft',  // You can adjust this position as needed
-    prefix: ''  // Removes the "Leaflet" text
-}).addAttribution('&copy; <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html">Corey Reichert</a> AI Assisted - GEOG 456').addTo(map);
+        // Add custom attribution control in a different position if desired
+        L.control.attribution({
+            position: 'bottomleft',  // You can adjust this position as needed
+            prefix: ''  // Removes the "Leaflet" text
+        }).addAttribution('&copy; <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html">Corey Reichert</a> AI Assisted - GEOG 456').addTo(map);
 
         // Global variables
         let currentClassification = 'linear';
@@ -592,47 +593,47 @@ L.control.attribution({
                 document.getElementById('loading-text').textContent = 
                     `Loading layers (${this.loaded}/${this.total})...`;
                 
-                    if (this.loaded === this.total) {
-    setTimeout(() => {
-        document.getElementById('loading-container').style.display = 'none';
-        
-        // Add default layers in correct z-index order
-        // 1. State borders first (bottom)
-        if (layers.state) {
-            layers.state.addTo(map);
-        }
-        
-        // 2. Initial population layer
-        showYearLayer('1820');
-        
-        // 3. Transportation layers in order:
-        // Railroads next (above population)
-        if (layers.train2) {
-            layers.train2.addTo(map);
-            document.querySelector('[data-layer="train2"]').classList.add('active');
-            layers.train2.bringToFront();
-        }
-        
-        // Canals above railroads
-        if (layers.river) {
-            layers.river.addTo(map);
-            document.querySelector('[data-layer="river"]').classList.add('active');
-            layers.river.bringToFront();
-        }
-        
-        // Trails on top (above everything else)
-        if (layers.trail) {
-            layers.trail.addTo(map);
-            document.querySelector('[data-layer="trail"]').classList.add('active');
-            layers.trail.bringToFront();
-        }
-        
-        // Initialize time slider
-        addTimeSlider();
-        updateLegend();
-    }, 500);
-}          
-  }
+                if (this.loaded === this.total) {
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                        
+                        // Add default layers in correct z-index order
+                        // 1. State borders first (bottom)
+                        if (layers.state) {
+                            layers.state.addTo(map);
+                        }
+                        
+                        // 2. Initial population layer
+                        showYearLayer('1820');
+                        
+                        // 3. Transportation layers in order:
+                        // Railroads next (above population)
+                        if (layers.train2) {
+                            layers.train2.addTo(map);
+                            document.querySelector('[data-layer="train2"]').classList.add('active');
+                            layers.train2.bringToFront();
+                        }
+                        
+                        // Canals above railroads
+                        if (layers.river) {
+                            layers.river.addTo(map);
+                            document.querySelector('[data-layer="river"]').classList.add('active');
+                            layers.river.bringToFront();
+                        }
+                        
+                        // Trails on top (above everything else)
+                        if (layers.trail) {
+                            layers.trail.addTo(map);
+                            document.querySelector('[data-layer="trail"]').classList.add('active');
+                            layers.trail.bringToFront();
+                        }
+                        
+                        // Initialize time slider
+                        addTimeSlider();
+                        updateLegend();
+                    }, 500);
+                }          
+            }
         };
         
         // Function to create a graduated color scale for population data
@@ -655,12 +656,12 @@ L.control.attribution({
             
             // Define our color scale (5 classes)
             const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+                'rgba(199, 233, 192, 0.8)',   // Light green
+                'rgba(116, 196, 118, 0.8)',   // Medium green
+                'rgba(49, 163, 84, 0.8)',     // Deeper green
+                'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+            ];
             
             if (classification === 'linear') {
                 // Linear classification
@@ -985,12 +986,12 @@ L.control.attribution({
                 
                 // Define our color scale (5 classes)
                 const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+                    'rgba(199, 233, 192, 0.8)',   // Light green
+                    'rgba(116, 196, 118, 0.8)',   // Medium green
+                    'rgba(49, 163, 84, 0.8)',     // Deeper green
+                    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+                ];
                 
                 // Create legend content
                 legendContent.innerHTML = `
@@ -1029,38 +1030,69 @@ L.control.attribution({
         
         // Function to show only one year at a time
         function showYearLayer(year) {
-    // Remove all year layers first
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y')) {
-            map.removeLayer(layers[name]);
+            // Remove all year layers first
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y')) {
+                    map.removeLayer(layers[name]);
+                }
+            });
+            
+            // Add the selected year layer
+            const layerName = `y${year}`;
+            if (layers[layerName]) {
+                layers[layerName].addTo(map);
+                
+                // Ensure proper z-index ordering (population < railroads < canals < trails)
+                if (layers.train2 && map.hasLayer(layers.train2)) {
+                    layers.train2.bringToFront();
+                }
+                if (layers.river && map.hasLayer(layers.river)) {
+                    layers.river.bringToFront();
+                }
+                if (layers.trail && map.hasLayer(layers.trail)) {
+                    layers.trail.bringToFront();
+                }
+                
+                updateLegend();
+                return true;
+            } else {
+                return false;
+            }
         }
-    });
-    
-
-    
-    // Add the selected year layer
-    const layerName = `y${year}`;
-    if (layers[layerName]) {
-        layers[layerName].addTo(map);
         
-        // Ensure proper z-index ordering (population < railroads < canals < trails)
-        if (layers.train2 && map.hasLayer(layers.train2)) {
-            layers.train2.bringToFront();
+        // Function to enforce consistent layer ordering
+        function enforceLayerOrder() {
+            // First find the active population layer
+            let populationLayerActive = false;
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y') && map.hasLayer(layers[name])) {
+                    populationLayerActive = true;
+                    // Population should be at the bottom
+                    layers[name].bringToBack();
+                }
+            });
+            
+            // Log warning if no population layer is active
+            if (!populationLayerActive) {
+                console.warn("No population layer is currently active");
+            }
+            
+            if (layers.train2 && map.hasLayer(layers.train2)) {
+                // Trains above state boundaries
+                layers.train2.bringToFront();
+            }
+            
+            if (layers.river && map.hasLayer(layers.river)) {
+                // Rivers above trains
+                layers.river.bringToFront();
+            }
+            
+            if (layers.trail && map.hasLayer(layers.trail)) {
+                // Trails on top of everything
+                layers.trail.bringToFront();
+            }
         }
-        if (layers.river && map.hasLayer(layers.river)) {
-            layers.river.bringToFront();
-        }
-        if (layers.trail && map.hasLayer(layers.trail)) {
-            layers.trail.bringToFront();
-        } layers[layerName].bringToBack();
         
-        updateLegend();
-        return true;
-    } else {
-        console.error(`Layer ${layerName} not found in layers object`);
-        return false;
-    }
-}
         // AI Explanation Functions
         async function getDeepSeekExplanation(countyName, stateName, prevYear, currYear, prevPop, currPop, growthRate) {
             if (!aiEnabled) return "Enable AI for explanations";
@@ -1299,72 +1331,32 @@ L.control.attribution({
         
         // Function to update all layers for the selected decade
         function updateMapForDecade(decadeIndex) {
-    const yearMap = {
-        0: '1820', 1: '1830', 2: '1840', 3: '1850', 4: '1860',
-        5: '1870', 6: '1890', 7: '1900', 8: '1910', 9: '1920'
-    };
-    const year = yearMap[decadeIndex];
-    
-    // Update the year display
-    document.getElementById('year-display').textContent = year;
-    
-    // Show the population layer for this decade
-    const layerName = `y${year}`;
-    console.log(`Attempting to show ${layerName}`, layers[layerName] ? "Layer exists" : "Layer doesn't exist");
-    
-    const success = showYearLayer(year);
-    if (!success) {
-        console.error(`Failed to show population layer for year ${year}`);
-    }
-    
-    // Filter rivers based on their OPENED/CLOSED properties
-    filterRiversForDecade(decadeIndex);
-    
-    // Filter trains based on their Decade property
-    filterTrainsForDecade(decadeIndex);
-    
-    // Update the population info
-    const totalPop = getTotalPopulation(layerName);
-    document.getElementById('info-population').textContent = `Population: ${totalPop}`;
-    
-    // Ensure proper z-index layering
-    enforceLayerOrder();
-}
-
-// Add this new function to enforce consistent layer ordering
-function enforceLayerOrder() {
-    // First find the active population layer
-    let populationLayerActive = false;
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y') && map.hasLayer(layers[name])) {
-            populationLayerActive = true;
-            // Population should be at the bottom
-            layers[name].bringToBack();
+            const yearMap = {
+                0: '1820', 1: '1830', 2: '1840', 3: '1850', 4: '1860',
+                5: '1870', 6: '1890', 7: '1900', 8: '1910', 9: '1920'
+            };
+            const year = yearMap[decadeIndex];
+            
+            // Update the year display
+            document.getElementById('year-display').textContent = year;
+            
+            // Show the population layer for this decade
+            showYearLayer(year);
+            
+            // Filter rivers based on their OPENED/CLOSED properties
+            filterRiversForDecade(decadeIndex);
+            
+            // Filter trains based on their Decade property
+            filterTrainsForDecade(decadeIndex);
+            
+            // Update the population info
+            const yearLayer = `y${year}`;
+            const totalPop = getTotalPopulation(yearLayer);
+            document.getElementById('info-population').textContent = `Population: ${totalPop}`;
+            
+            // Ensure proper z-index layering
+            enforceLayerOrder();
         }
-    });
-    
-    // Log warning if no population layer is active
-    if (!populationLayerActive) {
-        console.warn("No population layer is currently active");
-    }
-    
-    
-    if (layers.train2 && map.hasLayer(layers.train2)) {
-        // Trains above state boundaries
-        layers.train2.bringToFront();
-    }
-    
-    if (layers.river && map.hasLayer(layers.river)) {
-        // Rivers above trains
-        layers.river.bringToFront();
-    }
-    
-    if (layers.trail && map.hasLayer(layers.trail)) {
-        // Trails on top of everything
-        layers.trail.bringToFront();
-    }
-}
-
         
         // Add the time slider
         function addTimeSlider() {
@@ -1437,21 +1429,21 @@ function enforceLayerOrder() {
         
         // Layer toggle buttons
         document.querySelectorAll('.layer-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const layerName = this.dataset.layer;
-        if (layers[layerName]) {
-            if (map.hasLayer(layers[layerName])) {
-                map.removeLayer(layers[layerName]);
-                this.classList.remove('active');
-            } else {
-                layers[layerName].addTo(map);
-                this.classList.add('active');
-                // Enforce correct layer order after adding a new layer
-                enforceLayerOrder();
-            }
-        }
-    });
-});
+            btn.addEventListener('click', function() {
+                const layerName = this.dataset.layer;
+                if (layers[layerName]) {
+                    if (map.hasLayer(layers[layerName])) {
+                        map.removeLayer(layers[layerName]);
+                        this.classList.remove('active');
+                    } else {
+                        layers[layerName].addTo(map);
+                        this.classList.add('active');
+                        // Enforce correct layer order after adding a new layer
+                        enforceLayerOrder();
+                    }
+                }
+            });
+        });
         
         // Classification buttons
         document.querySelectorAll('.classification-btn').forEach(btn => {
@@ -1503,68 +1495,47 @@ function enforceLayerOrder() {
         });
         
         // Growth rate toggle
-document.getElementById('show-growth').addEventListener('change', function() {
-    showGrowthRates = this.checked;
-    
-    // Recreate all year layers with new visualization
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y') && layers[name].metadata) {
-            layers[name].metadata.classification = currentClassification;
-            if (map.hasLayer(layers[name])) {
-                map.removeLayer(layers[name]);
-                layers[name].addTo(map);
-            }
+        document.getElementById('show-growth').addEventListener('change', function() {
+            showGrowthRates = this.checked;
+            
+            // Recreate all year layers with new visualization
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y') && layers[name].metadata) {
+                    layers[name].metadata.classification = currentClassification;
+                    if (map.hasLayer(layers[name])) {
+                        map.removeLayer(layers[name]);
+                        layers[name].addTo(map);
+                    }
+                }
+            });
+            
+            // Update the legend
+            updateLegend();
+            
+            // Maintain correct layer order after toggling growth rates
+            enforceLayerOrder();
+        });
+
+        // Debug function to check layer availability
+        function debugLayerAvailability() {
+            console.log("Checking available data layers:");
+            
+            // Check the raw data variables
+            ['1820', '1830', '1840', '1850', '1860', '1870', '1890', '1900', '1910', '1920'].forEach(year => {
+                console.log(`Raw data "${year}" available: ${window[year] !== undefined}`);
+            });
+            
+            // Check with y prefix
+            ['y1820', 'y1830', 'y1840', 'y1850', 'y1860', 'y1870', 'y1890', 'y1900', 'y1910', 'y1920'].forEach(layerName => {
+                console.log(`Layer "${layerName}" available: ${layers[layerName] !== undefined}`);
+            });
+            
+            // Print out all available layers
+            console.log("All defined layers:", Object.keys(layers));
         }
-    });
-    
-    // Update the legend
-    updateLegend();
-    
-    // Maintain correct layer order after toggling growth rates
-    enforceLayerOrder();
-});
-function initializeMap() {
-    // Make sure the time slider is initialized
-    addTimeSlider();
-    
-    // Ensure initial state with first decade's data is properly shown
-    document.getElementById('time-slider').value = 0;
-    updateMapForDecade(0);
-    
-    // Double-check that population layer is visible
-    const initialYearLayer = 'y1820';
-    if (layers[initialYearLayer] && !map.hasLayer(layers[initialYearLayer])) {
-        console.warn("Initial population layer wasn't added, adding now");
-        layers[initialYearLayer].addTo(map);
-    }
-    
-    // Enforce proper layer ordering
-    enforceLayerOrder();
-}
 
-// Replace your existing initialization code with this call
-initializeMap();
-
-function debugLayerAvailability() {
-    console.log("Checking available data layers:");
-    
-    // Check the raw data variables
-    ['1820', '1830', '1840', '1850', '1860', '1870', '1890', '1900', '1910', '1920'].forEach(year => {
-        console.log(`Raw data "${year}" available: ${window[year] !== undefined}`);
-    });
-    
-    // Check with y prefix
-    ['y1820', 'y1830', 'y1840', 'y1850', 'y1860', 'y1870', 'y1890', 'y1900', 'y1910', 'y1920'].forEach(layerName => {
-        console.log(`Layer "${layerName}" available: ${layers[layerName] !== undefined}`);
-    });
-    
-    // Print out all available layers
-    console.log("All defined layers:", Object.keys(layers));
-}
-
-// Call this after layers initialization
-debugLayerAvailability();
-
+        // Call debug after layers initialization
+        debugLayerAvailability();
     </script>
 </body>
 </html>
