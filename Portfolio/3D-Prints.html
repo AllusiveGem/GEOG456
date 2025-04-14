@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="3D Prints Gallery - Showcasing Corey Reichert's 3D printing projects and designs.">
+    <meta name="description" content="3D Prints Collection - Showcasing Corey Reichert's 3D printing projects and designs with detailed views.">
     <meta name="keywords" content="3D prints, 3D printing, urban planning, sustainable design, Corey Reichert">
     <meta name="author" content="Corey Reichert">
     <meta name="robots" content="index, follow">
-    <title>3D Prints Gallery | Corey Reichert</title>
+    <title>3D Prints Collection | Corey Reichert</title>
 
-    <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
-    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +16,9 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- PhotoSwipe Lightbox -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.3/photoswipe.min.css">
 
     <style>
         :root {
@@ -136,220 +136,272 @@
             color: var(--accent-color);
         }
 
-        /* Swiper Gallery Section */
-        .swiper {
-            width: 100%;
-            height: 100vh;
+        /* Main content */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
 
-        .swiper-slide {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .swiper-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .swiper-slide .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .page-header {
             text-align: center;
-            color: white;
-            padding: 2rem;
+            margin-bottom: 3rem;
         }
 
-        .swiper-slide .overlay h2 {
+        .page-header h1 {
             font-size: 2.5rem;
             margin-bottom: 1rem;
         }
 
-        .swiper-slide .overlay p {
+        .page-header p {
             font-size: 1.2rem;
+            color: #666;
             max-width: 800px;
             margin: 0 auto;
         }
 
-        /* Swiper Navigation Arrows */
-        .swiper-button-next,
-        .swiper-button-prev {
+        /* 3D Model Viewer */
+        .model-viewer-container {
+            width: 100%;
+            height: 500px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+        }
+
+        .model-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .model-controls button {
+            background: rgba(0,0,0,0.7);
             color: white;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1rem;
+            border: none;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
         }
 
-        .swiper-button-next::after,
-        .swiper-button-prev::after {
+        .model-controls button:hover {
+            background: rgba(0,0,0,0.9);
+        }
+
+        /* Print Showcase */
+        .print-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .print-item {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .print-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .print-image {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+        }
+
+        .print-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .print-item:hover .print-image img {
+            transform: scale(1.03);
+        }
+
+        .print-content {
+            padding: 1.5rem;
+        }
+
+        .print-content h3 {
+            margin-bottom: 0.75rem;
             font-size: 1.5rem;
         }
 
-        /* Fullscreen Button */
-        .fullscreen-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 1000;
+        .print-content p {
+            color: #666;
+            margin-bottom: 1rem;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .swiper-slide .overlay h2 {
-                font-size: 2rem;
-            }
-
-            .swiper-slide .overlay p {
-                font-size: 1rem;
-            }
+        .print-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.9rem;
         }
 
+        /* Footer */
         footer {
-        position: relative;
-        height: 200px;
-        background: #2A5C82;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        flex-direction: column;
-        color: white;
-    }
-
+            position: relative;
+            height: 200px;
+            background: #2A5C82;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            flex-direction: column;
+            color: white;
+        }
 
         .cube {
-        position: relative;
-        width: 60px;
-        height: 60px;
-        transform-style: preserve-3d;
-        transform: rotateX(45deg) rotateY(45deg);
-        animation: spin 5s infinite linear;
-        margin-top: 20px;
-    }
+            position: relative;
+            width: 60px;
+            height: 60px;
+            transform-style: preserve-3d;
+            transform: rotateX(45deg) rotateY(45deg);
+            animation: spin 5s infinite linear;
+            margin-top: 20px;
+        }
 
-    .side {
-        position: absolute;
-        width: 60px;
-        height: 60px;
-        background: rgba(255, 255, 255, 0.8);
-        border: 1px solid #ccc;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.5em;
-        font-weight: bold;
-        color: #333;
-        overflow: hidden;
-    }
+        .side {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            overflow: hidden;
+        }
 
-    .front  { transform: translateZ(30px); }
-    .back   { transform: rotateY(180deg) translateZ(30px); }
-    .left   { transform: rotateY(-90deg) translateZ(30px); }
-    .right  { transform: rotateY(90deg) translateZ(30px); }
-    .top    { transform: rotateX(90deg) translateZ(30px); }
-    .bottom { transform: rotateX(-90deg) translateZ(30px); }
+        .front  { transform: translateZ(30px); }
+        .back   { transform: rotateY(180deg) translateZ(30px); }
+        .left   { transform: rotateY(-90deg) translateZ(30px); }
+        .right  { transform: rotateY(90deg) translateZ(30px); }
+        .top    { transform: rotateX(90deg) translateZ(30px); }
+        .bottom { transform: rotateX(-90deg) translateZ(30px); }
 
-    @keyframes spin {
-        0%   { transform: rotateX(0) rotateY(0); }
-        100% { transform: rotateX(360deg) rotateY(360deg); }
-    }
+        @keyframes spin {
+            0%   { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
 
-   /* Mobile styles */
-   @media screen and (max-width: 768px) {
-    .nav {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        padding: 1rem;
-        align-items: center;
-    }
+        /* Mobile styles */
+        @media screen and (max-width: 768px) {
+            .nav {
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                padding: 1rem;
+                align-items: center;
+            }
 
-    .nav-brand {
-        font-size: 1.5rem;  /* Keep the same size on mobile */
-        grid-column: 1;
-        margin-right: auto;
-        display: flex;
-        align-items: center;
-        height: 100%;
-    }
+            .nav-brand {
+                font-size: 1.5rem;
+                grid-column: 1;
+                margin-right: auto;
+                display: flex;
+                align-items: center;
+                height: 100%;
+            }
 
-    .nav-toggle {
-        display: flex;
-        grid-column: 3;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: var(--primary-color);
-        padding: 0.5rem;
-        margin-left: auto;
-        align-items: center;
-        height: 100%;
-    }
+            .nav-toggle {
+                display: flex;
+                grid-column: 3;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: var(--primary-color);
+                padding: 0.5rem;
+                margin-left: auto;
+                align-items: center;
+                height: 100%;
+            }
 
-    .nav-links {
-        display: none;
-        grid-column: 1 / -1;
-        grid-row: 2;
-        width: 100%;
-        position: absolute;
-        top: calc(100% + 10px);
-        left: 0;
-        background: white;
-        padding: 1rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+            .nav-links {
+                display: none;
+                grid-column: 1 / -1;
+                grid-row: 2;
+                width: 100%;
+                position: absolute;
+                top: calc(100% + 10px);
+                left: 0;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
 
-    .nav-links.show {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;  /* Reduced from default gap */
-    }
+            .nav-links.show {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
 
-    .nav-links a {
-        padding: 0.5rem 0;  /* Reduced padding */
-    }
+            .nav-links a {
+                padding: 0.5rem 0;
+            }
 
-    .dropdown-content {
-        position: static;
-        box-shadow: none;
-        padding-left: 1.5rem;  /* Standardize dropdown indent */
-        margin-top: 0;
-        background: transparent;
-        width: 100%;
-    }
+            .dropdown-content {
+                position: static;
+                box-shadow: none;
+                padding-left: 1.5rem;
+                margin-top: 0;
+                background: transparent;
+                width: 100%;
+            }
 
-    .dropdown-content a {
-        padding: 0.5rem 0;  /* Standardize dropdown item padding */
-        font-size: 1rem;  /* Standardize dropdown font size */
-    }
+            .dropdown-content a {
+                padding: 0.5rem 0;
+                font-size: 1rem;
+            }
 
-    .dropdown-content li {
-        margin: 0;  /* Remove any margin */
-    }
-}
+            .dropdown-content li {
+                margin: 0;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .model-viewer-container {
+                height: 350px;
+            }
+
+            .print-showcase {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -383,59 +435,92 @@
             </li>
         </ul>
     </nav>
-    
 
-    <!-- Swiper Gallery Section -->
-    <div class="swiper">
-        <div class="swiper-wrapper">
-            <!-- Slide 1 -->
-            <div class="swiper-slide">
-                <img src="https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg" alt="3D Print 1">
-                <div class="overlay">
-                    <h2>Urban Model</h2>
-                    <p>A detailed 3D model of a sustainable urban development project, showcasing green spaces and efficient transportation systems.</p>
+    <!-- Main Content -->
+    <div class="container">
+        <header class="page-header">
+            <h1>3D Printed Models & Maps</h1>
+            <p>Explore my collection of 3D printed urban models, architectural prototypes, and interactive maps. Each piece combines technical precision with creative design to visualize urban spaces and concepts.</p>
+        </header>
+
+        <!-- 3D Model Viewer -->
+        <section class="model-viewer-container">
+            <div class="model-viewer" id="model-viewer">
+                <!-- This will be populated by JavaScript -->
+                <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="3D Model - Urban Development" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <div class="model-controls">
+                <button id="view-front"><i class="fas fa-arrow-up"></i></button>
+                <button id="view-left"><i class="fas fa-arrow-left"></i></button>
+                <button id="view-right"><i class="fas fa-arrow-right"></i></button>
+                <button id="view-top"><i class="fas fa-arrow-down"></i></button>
+                <button id="view-3d"><i class="fas fa-cube"></i></button>
+            </div>
+        </section>
+
+        <!-- Print Showcase -->
+        <section class="print-showcase">
+            <!-- Print Item 1 -->
+            <div class="print-item">
+                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
+                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Urban Model">
+                </a>
+                <div class="print-content">
+                    <h3>Urban Development Model</h3>
+                    <p>A detailed 3D model showcasing a sustainable urban development project. This model highlights green spaces, efficient transportation systems, and mixed-use zoning to demonstrate how cities can balance growth with environmental responsibility.</p>
+                    <div class="print-meta">
+                        <span>Scale: 1:1000</span>
+                        <span>2024</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Slide 2 -->
-            <div class="swiper-slide">
-                <img src="https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg" alt="3D Print 2">
-                <div class="overlay">
-                    <h2>Architectural Prototype</h2>
-                    <p>A prototype of a modern architectural design, highlighting innovative use of materials and space.</p>
+            <!-- Print Item 2 -->
+            <div class="print-item">
+                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
+                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Architectural Prototype">
+                </a>
+                <div class="print-content">
+                    <h3>Architectural Prototype</h3>
+                    <p>This prototype explores innovative use of materials and space in modern architecture. The design incorporates parametric elements and sustainable building techniques, printed at 1:200 scale to test structural concepts.</p>
+                    <div class="print-meta">
+                        <span>Scale: 1:200</span>
+                        <span>2023</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Slide 3 -->
-            <div class="swiper-slide">
-                <img src="https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg" alt="3D Print 3">
-                <div class="overlay">
-                    <h2>Historical Reconstruction</h2>
-                    <p>A 3D reconstruction of a historical building, preserving its architectural details for future generations.</p>
+            <!-- Print Item 3 -->
+            <div class="print-item">
+                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
+                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Historical Reconstruction">
+                </a>
+                <div class="print-content">
+                    <h3>Historical Building Reconstruction</h3>
+                    <p>A faithful 3D reconstruction of a 19th-century building, created from archival photographs and architectural drawings. This model preserves intricate facade details that were at risk of being lost to time.</p>
+                    <div class="print-meta">
+                        <span>Scale: 1:150</span>
+                        <span>2023</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Slide 4 -->
-            <div class="swiper-slide">
-                <img src="https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg" alt="3D Print 4">
-                <div class="overlay">
-                    <h2>Interactive Map</h2>
-                    <p>A 3D-printed interactive map of a city, designed for educational and planning purposes.</p>
+            <!-- Print Item 4 -->
+            <div class="print-item">
+                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
+                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Interactive Map">
+                </a>
+                <div class="print-content">
+                    <h3>Topographical City Map</h3>
+                    <p>An interactive 3D-printed map showing urban topography and infrastructure. This tactile representation helps planners and students understand elevation changes and their impact on urban development.</p>
+                    <div class="print-meta">
+                        <span>Scale: 1:2500</span>
+                        <span>2024</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Add more slides as needed -->
-        </div>
-
-        <!-- Swiper Navigation Arrows -->
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
+        </section>
     </div>
-
-    <!-- Fullscreen Button -->
-    <button class="fullscreen-button" onclick="toggleFullscreen()">
-        <i class="fas fa-expand"></i> Fullscreen
-    </button>
 
     <!-- Footer -->
     <footer>
@@ -449,38 +534,66 @@
             <div class="side top" onclick="window.location.href='savannah-map.html'" style="cursor: pointer;"><img src="https://images.squarespace-cdn.com/content/v1/5f825f6001f5227645324800/9fa1e251-fd9a-4c91-8da9-bb53a02f9bb6/Savannah%2BGeorgia%2BDrone%2B%2BServices.jpeg?format=2500w" alt="top" style="width:100%; height:100%; object-fit:cover;"></div>
             <div class="side bottom" onclick="window.location.href='TestingGround.html'" style="cursor: pointer;"><img src="https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4426338.png" alt="bottom" style="width:100%; height:100%; object-fit:cover;"></div>
         </div>
-
     </footer>
 
-    <!-- Swiper JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
+    <!-- PhotoSwipe Lightbox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.3/photoswipe.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.3/photoswipe-lightbox.umd.min.js"></script>
 
-    <!-- Initialize Swiper -->
     <script>
-        const swiper = new Swiper('.swiper', {
-            loop: true,
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
+        // Initialize PhotoSwipe Lightbox
+        const lightbox = new PhotoSwipeLightbox({
+            gallery: '.print-showcase',
+            children: 'a',
+            pswpModule: PhotoSwipe
+        });
+        lightbox.init();
+
+        // 3D Model Viewer Simulation
+        const modelViewer = document.getElementById('model-viewer');
+        const modelImages = [
+            { src: 'https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg', alt: 'Front View' },
+            { src: 'https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg', alt: 'Left View' },
+            { src: 'https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg', alt: 'Right View' },
+            { src: 'https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg', alt: 'Top View' },
+            { src: 'https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg', alt: '3D View' }
+        ];
+
+        document.getElementById('view-front').addEventListener('click', () => {
+            modelViewer.innerHTML = `<img src="${modelImages[0].src}" alt="${modelImages[0].alt}" style="width:100%; height:100%; object-fit:cover;">`;
         });
 
-        // Fullscreen functionality
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-    </script>
+        document.getElementById('view-left').addEventListener('click', () => {
+            modelViewer.innerHTML = `<img src="${modelImages[1].src}" alt="${modelImages[1].alt}" style="width:100%; height:100%; object-fit:cover;">`;
+        });
 
-    <!-- Scroll behavior script -->
-    <script>
+        document.getElementById('view-right').addEventListener('click', () => {
+            modelViewer.innerHTML = `<img src="${modelImages[2].src}" alt="${modelImages[2].alt}" style="width:100%; height:100%; object-fit:cover;">`;
+        });
+
+        document.getElementById('view-top').addEventListener('click', () => {
+            modelViewer.innerHTML = `<img src="${modelImages[3].src}" alt="${modelImages[3].alt}" style="width:100%; height:100%; object-fit:cover;">`;
+        });
+
+        document.getElementById('view-3d').addEventListener('click', () => {
+            modelViewer.innerHTML = `
+                <div style="position:relative; width:100%; height:100%; background:#f0f0f0; display:flex; justify-content:center; align-items:center;">
+                    <div style="text-align:center;">
+                        <i class="fas fa-cube" style="font-size:3rem; color:#666;"></i>
+                        <p style="margin-top:1rem;">3D Interactive Viewer</p>
+                        <p style="font-size:0.8rem;">(In a full implementation, this would be an interactive 3D model)</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Mobile navigation toggle
+        document.getElementById('nav-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('show');
+        });
+
+        // Scroll behavior for navigation
         let lastScroll = 0;
-
         window.addEventListener("scroll", () => {
             const currentScroll = window.scrollY;
             const nav = document.querySelector(".nav");
@@ -494,13 +607,6 @@
             }
 
             lastScroll = currentScroll;
-        });
-    </script>
-
-    <!-- Mobile navigation toggle -->
-    <script>
-        document.getElementById('nav-toggle').addEventListener('click', function() {
-            document.getElementById('nav-links').classList.toggle('show');
         });
     </script>
 </body>

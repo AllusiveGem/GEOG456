@@ -1036,6 +1036,8 @@ L.control.attribution({
         }
     });
     
+
+    
     // Add the selected year layer
     const layerName = `y${year}`;
     if (layers[layerName]) {
@@ -1050,11 +1052,12 @@ L.control.attribution({
         }
         if (layers.trail && map.hasLayer(layers.trail)) {
             layers.trail.bringToFront();
-        }
+        } layers[layerName].bringToBack();
         
         updateLegend();
         return true;
     } else {
+        console.error(`Layer ${layerName} not found in layers object`);
         return false;
     }
 }
@@ -1296,29 +1299,72 @@ L.control.attribution({
         
         // Function to update all layers for the selected decade
         function updateMapForDecade(decadeIndex) {
-            const yearMap = {
-                0: '1820', 1: '1830', 2: '1840', 3: '1850', 4: '1860',
-                5: '1870', 6: '1890', 7: '1900', 8: '1910', 9: '1920'
-            };
-            const year = yearMap[decadeIndex];
-            
-            // Update the year display
-            document.getElementById('year-display').textContent = year;
-            
-            // Show the population layer for this decade
-            showYearLayer(year);
-            
-            // Filter rivers based on their OPENED/CLOSED properties
-            filterRiversForDecade(decadeIndex);
-            
-            // Filter trains based on their Decade property
-            filterTrainsForDecade(decadeIndex);
-            
-            // Update the population info
-            const yearLayer = `y${year}`;
-            const totalPop = getTotalPopulation(yearLayer);
-            document.getElementById('info-population').textContent = `Population: ${totalPop}`;
+    const yearMap = {
+        0: '1820', 1: '1830', 2: '1840', 3: '1850', 4: '1860',
+        5: '1870', 6: '1890', 7: '1900', 8: '1910', 9: '1920'
+    };
+    const year = yearMap[decadeIndex];
+    
+    // Update the year display
+    document.getElementById('year-display').textContent = year;
+    
+    // Show the population layer for this decade
+    const layerName = `y${year}`;
+    console.log(`Attempting to show ${layerName}`, layers[layerName] ? "Layer exists" : "Layer doesn't exist");
+    
+    const success = showYearLayer(year);
+    if (!success) {
+        console.error(`Failed to show population layer for year ${year}`);
+    }
+    
+    // Filter rivers based on their OPENED/CLOSED properties
+    filterRiversForDecade(decadeIndex);
+    
+    // Filter trains based on their Decade property
+    filterTrainsForDecade(decadeIndex);
+    
+    // Update the population info
+    const totalPop = getTotalPopulation(layerName);
+    document.getElementById('info-population').textContent = `Population: ${totalPop}`;
+    
+    // Ensure proper z-index layering
+    enforceLayerOrder();
+}
+
+// Add this new function to enforce consistent layer ordering
+function enforceLayerOrder() {
+    // First find the active population layer
+    let populationLayerActive = false;
+    Object.keys(layers).forEach(name => {
+        if (name.startsWith('y') && map.hasLayer(layers[name])) {
+            populationLayerActive = true;
+            // Population should be at the bottom
+            layers[name].bringToBack();
         }
+    });
+    
+    // Log warning if no population layer is active
+    if (!populationLayerActive) {
+        console.warn("No population layer is currently active");
+    }
+    
+    
+    if (layers.train2 && map.hasLayer(layers.train2)) {
+        // Trains above state boundaries
+        layers.train2.bringToFront();
+    }
+    
+    if (layers.river && map.hasLayer(layers.river)) {
+        // Rivers above trains
+        layers.river.bringToFront();
+    }
+    
+    if (layers.trail && map.hasLayer(layers.trail)) {
+        // Trails on top of everything
+        layers.trail.bringToFront();
+    }
+}
+
         
         // Add the time slider
         function addTimeSlider() {
@@ -1391,19 +1437,21 @@ L.control.attribution({
         
         // Layer toggle buttons
         document.querySelectorAll('.layer-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const layerName = this.dataset.layer;
-                if (layers[layerName]) {
-                    if (map.hasLayer(layers[layerName])) {
-                        map.removeLayer(layers[layerName]);
-                        this.classList.remove('active');
-                    } else {
-                        layers[layerName].addTo(map);
-                        this.classList.add('active');
-                    }
-                }
-            });
-        });
+    btn.addEventListener('click', function() {
+        const layerName = this.dataset.layer;
+        if (layers[layerName]) {
+            if (map.hasLayer(layers[layerName])) {
+                map.removeLayer(layers[layerName]);
+                this.classList.remove('active');
+            } else {
+                layers[layerName].addTo(map);
+                this.classList.add('active');
+                // Enforce correct layer order after adding a new layer
+                enforceLayerOrder();
+            }
+        }
+    });
+});
         
         // Classification buttons
         document.querySelectorAll('.classification-btn').forEach(btn => {
@@ -1455,7 +1503,7 @@ L.control.attribution({
         });
         
         // Growth rate toggle
-        document.getElementById('show-growth').addEventListener('change', function() {
+document.getElementById('show-growth').addEventListener('change', function() {
     showGrowthRates = this.checked;
     
     // Recreate all year layers with new visualization
@@ -1465,23 +1513,58 @@ L.control.attribution({
             if (map.hasLayer(layers[name])) {
                 map.removeLayer(layers[name]);
                 layers[name].addTo(map);
-                
-                // Maintain z-index ordering after refresh
-                if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
-                if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
-                if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
             }
         }
     });
     
     // Update the legend
     updateLegend();
+    
+    // Maintain correct layer order after toggling growth rates
+    enforceLayerOrder();
 });
+function initializeMap() {
+    // Make sure the time slider is initialized
+    addTimeSlider();
+    
+    // Ensure initial state with first decade's data is properly shown
+    document.getElementById('time-slider').value = 0;
+    updateMapForDecade(0);
+    
+    // Double-check that population layer is visible
+    const initialYearLayer = 'y1820';
+    if (layers[initialYearLayer] && !map.hasLayer(layers[initialYearLayer])) {
+        console.warn("Initial population layer wasn't added, adding now");
+        layers[initialYearLayer].addTo(map);
+    }
+    
+    // Enforce proper layer ordering
+    enforceLayerOrder();
+}
 
+// Replace your existing initialization code with this call
+initializeMap();
 
-addTimeSlider();
-document.getElementById('time-slider').value = 0;
-updateMapForDecade(0);
+function debugLayerAvailability() {
+    console.log("Checking available data layers:");
+    
+    // Check the raw data variables
+    ['1820', '1830', '1840', '1850', '1860', '1870', '1890', '1900', '1910', '1920'].forEach(year => {
+        console.log(`Raw data "${year}" available: ${window[year] !== undefined}`);
+    });
+    
+    // Check with y prefix
+    ['y1820', 'y1830', 'y1840', 'y1850', 'y1860', 'y1870', 'y1890', 'y1900', 'y1910', 'y1920'].forEach(layerName => {
+        console.log(`Layer "${layerName}" available: ${layers[layerName] !== undefined}`);
+    });
+    
+    // Print out all available layers
+    console.log("All defined layers:", Object.keys(layers));
+}
+
+// Call this after layers initialization
+debugLayerAvailability();
+
     </script>
 </body>
 </html>

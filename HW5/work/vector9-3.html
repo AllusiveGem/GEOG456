@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>US Population & Transport 1820-1920</title>
+    <title>US Population Growth 1820-1920</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -9,495 +9,472 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     
     <style>
-        :root {
-            --primary: #0056b3;       /* Transportation blue */
-            --secondary: #e67e22;     /* Trail orange */
-            --rail: #6A1B9A;          /* Railroad brown */
-            --water: #3498db;         /* Canal blue */
-            --growth: #27ae60;        /* Growth green */
-            --decline: #e74c3c;       /* Decline red */
-            --text-light: #ecf0f1;
-            --text-dark: #2c3e50;
-            --bg-dark: #2c3e50;
-            --bg-light: #ecf0f1;
-            --shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            height: 100vh;
-            overflow: hidden;
+            font-family: 'Orbitron', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
         }
-
-        #app-container {
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        /* Combined Controls Container - Bottom Center */
+        .controls-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(20, 20, 30, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            color: #fff;
+            border: 1px solid #00f0ff;
+            max-width: 800px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            gap: 15px;
         }
-
-        #map {
-            flex: 1;
-            width: 100%;
-            z-index: 1;
-        }
-
-        /* Header */
-        .header {
-            background-color: var(--primary);
-            color: white;
-            padding: 10px 15px;
+        
+        .controls-top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--shadow);
-            z-index: 10;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-
-        .header h1 {
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: 600;
+        
+        .controls-bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-
-        .year-display {
-            font-size: 1.1rem;
+        
+        .classification-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 200px;
+        }
+        
+        .classification-section h4 {
+            margin: 0 0 5px 0;
+            color: #00f0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+        
+        .classification-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .classification-btn {
+            background: #002130;
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .classification-btn.active {
+            background: #003545;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        
+        .ai-toggle-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 200px;
+        }
+        
+        .growth-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+        
+        #enable-ai {
+            background: #002130;
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        #enable-ai:hover {
+            background: #003545;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        
+        #ai-status {
+            font-size: 12px;
+            color: #ff3300;
+            text-align: center;
+        }
+        
+        .layer-toggle-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .layer-toggle-btn {
+            background: #002130;
+            color: #00f0ff;
+            border: 1px solid #00f0ff;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .layer-toggle-btn.active {
+            background: #003545;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+        
+        .slider-section {
+            flex-grow: 1;
+            min-width: 300px;
+        }
+        
+        #year-display {
+            text-align: center;
+            font-size: 20px;
             font-weight: bold;
-            background-color: rgba(0,0,0,0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+            margin: 5px 0;
         }
-
-        /* Control Panel */
-        .control-panel {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            right: 15px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            padding: 15px;
-            z-index: 1000;
-            color: var(--text-dark);
-            transition: all 0.3s ease;
-        }
-
-        @media (min-width: 768px) {
-            .control-panel {
-                width: 350px;
-                right: auto;
-            }
-        }
-
-        /* Time Slider */
-        .time-slider-container {
-            margin-bottom: 15px;
-        }
-
+        
         #time-slider {
-    width: 100%;
-    height: 8px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: linear-gradient(to right, 
-        #004080, #0060A0, #0080C0, #00A0E0, 
-        #20C0FF, #40D0FF, #60E0FF, #80F0FF);
-    border-radius: 4px;
-    outline: none;
-    margin: 10px 0;
-}
-
+            width: 100%;
+            height: 15px;
+            appearance: none;
+            background: linear-gradient(to right, #FF3300, #FF6600, #FFCC00, #99FF00, #00FF66, #00FFCC, #0099FF, #6600FF, #CC00FF, #FF00FF);
+            border-radius: 10px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
         #time-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: white;
-            border: 3px solid var(--primary);
+            background: #002130;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-
+        
+        #time-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #002130;
+            border: 2px solid #00f0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+        }
+        
         .decade-markers {
             display: flex;
             justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--text-dark);
             margin-top: 5px;
+            font-size: 10px;
         }
-
-        /* Stats Bar */
-        .stats-bar {
+        
+        .decade-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
+            margin-top: 10px;
+            font-size: 12px;
         }
-
-        .stat-item {
+        
+        .info-item {
             text-align: center;
             flex: 1;
-            padding: 5px;
-            background-color: var(--bg-light);
-            margin: 0 2px;
-            border-radius: 4px;
-            font-weight: 500;
         }
-
-        /* Layer Controls */
-        .layer-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .layer-btn {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .layer-btn.active {
-            color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .layer-btn i {
-            margin-right: 5px;
-            font-size: 0.9rem;
-        }
-
-        /* Classification Controls */
-        .classification-controls {
-            margin-bottom: 15px;
-        }
-
-        .classification-title {
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-            color: var(--text-dark);
-            font-weight: 500;
-        }
-
-        .classification-btns {
-            display: flex;
-            gap: 8px;
-        }
-
-        .classification-btn {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            background-color: white;
-            transition: all 0.2s;
-        }
-
-        .classification-btn.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* Growth Toggle */
-        .growth-toggle {
-            display: flex;
-            align-items: center;
-            font-size: 0.8rem;
-            margin-bottom: 15px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 20px;
-            margin-right: 10px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
+        
+        /* Legend - Top Right */
+        .legend-container {
             position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 20px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--growth);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-
-        /* AI Controls */
-        .ai-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .ai-status {
-            font-size: 0.75rem;
-            color: var(--text-dark);
-        }
-
-        .ai-status.connected {
-            color: var(--growth);
-        }
-
-        .ai-status.disconnected {
-            color: var(--decline);
-        }
-
-        #enable-ai {
-            padding: 8px 15px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        #enable-ai:hover {
-            background-color: #004494;
-        }
-
-        /* Legend */
-        .legend {
-            position: absolute;
-            top: 60px;
-            right: 15px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            padding: 10px;
+            top: 10px;
+            right: 10px;
             z-index: 1000;
-            color: var(--text-dark);
-            max-width: 200px;
+            background: rgba(20, 20, 30, 0.85);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            color: #fff;
+            border: 1px solid #00f0ff;
+            max-width: 250px;
         }
-
-        .legend h4 {
-            margin: 0 0 8px 0;
-            font-size: 0.8rem;
-            font-weight: 600;
+        
+        .legend-container h4 {
+            margin: 5px 0 10px 0;
+            color: #00f0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            text-align: center;
         }
-
+        
         .legend-item {
             display: flex;
-            align-items: center;
             margin-bottom: 5px;
-            font-size: 0.7rem;
+            align-items: center;
         }
-
+        
         .legend-color {
             width: 15px;
             height: 15px;
             margin-right: 8px;
-            border-radius: 3px;
+            border: 1px solid #00f0ff;
         }
-
-        /* Loading Screen */
-        .loading-screen {
+        
+        .legend-label {
+            font-size: 12px;
+        }
+        
+        /* Loading screen */
+        #loading-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.8);
+            background: rgba(10, 10, 20, 0.9);
+            z-index: 2000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
-            color: white;
+            color: #00f0ff;
         }
-
-        .loading-bar {
-            width: 200px;
-            height: 10px;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 5px;
-            margin: 15px 0;
+        
+        #loading-bar {
+            width: 300px;
+            height: 20px;
+            border: 1px solid #00f0ff;
+            border-radius: 10px;
+            margin: 20px 0;
             overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
-
-        .loading-progress {
+        
+        #loading-progress {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #3498db, #2ecc71);
+            background: linear-gradient(90deg, #00f0ff, #0066ff);
             transition: width 0.3s;
         }
-
-        /* Popup Styles */
-        .leaflet-popup-content {
-            font-size: 0.85rem;
-            color: var(--text-dark);
+        
+        #loading-text {
+            margin-top: 10px;
+            font-size: 18px;
+            text-shadow: 0 0 5px #00f0ff;
         }
-
+        
+        /* AI Explanation Styles */
         .ai-explanation {
             margin-top: 8px;
             padding: 8px;
-            background-color: var(--bg-light);
+            background: rgba(20, 20, 30, 0.85);
             border-radius: 4px;
-            font-size: 0.8rem;
+            max-height: 150px;
+            overflow-y: auto;
+            color: #fff;
+            border: 1px solid #00f0ff;
+            font-size: 12px;
         }
-
-        /* Mobile specific */
-        @media (max-width: 767px) {
-            .header h1 {
-                font-size: 1rem;
+        
+        .ai-loading {
+            color: #00f0ff;
+            font-style: italic;
+        }
+        
+        .ai-error {
+            color: #ff3300;
+        }
+        
+        /* Hide Leaflet attribution */
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .controls-container {
+                left: 5px;
+                right: 5px;
+                padding: 10px;
             }
             
-            .year-display {
-                font-size: 0.9rem;
+            .controls-top-row, .controls-bottom-row {
+                flex-direction: column;
+                gap: 10px;
             }
             
-            .control-panel {
-                padding: 12px;
+            .classification-section, .ai-toggle-container {
+                min-width: 100%;
             }
             
-            .layer-btn {
-                padding: 6px 10px;
-                font-size: 0.7rem;
+            .layer-toggle-container {
+                width: 100%;
+                justify-content: space-between;
             }
             
-            .legend {
-                top: 50px;
-                right: 10px;
+            .layer-toggle-btn {
+                flex-grow: 1;
+                min-width: 0;
+            }
+            
+            .slider-section {
+                min-width: 100%;
+            }
+            
+            .legend-container {
+                top: 5px;
+                right: 5px;
+                max-width: 180px;
+            }
+            
+            #year-display {
+                font-size: 18px;
+            }
+            
+            .decade-markers {
+                font-size: 8px;
+            }
+            
+            .decade-info {
+                font-size: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .legend-container {
                 max-width: 150px;
+                font-size: 11px;
+            }
+            
+            .legend-color {
+                width: 12px;
+                height: 12px;
+            }
+            
+            .layer-toggle-btn {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            
+            .classification-btn {
+                min-width: 60px;
+                font-size: 11px;
+                padding: 5px 8px;
             }
         }
     </style>
     
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="app-container">
-        <!-- Header -->
-        <div class="header">
-            <h1>US Population & Transport 1820-1920</h1>
-            <div class="year-display" id="year-display">1820</div>
+    <div id="loading-container">
+        <h2>Loading Map Data</h2>
+        <div id="loading-bar">
+            <div id="loading-progress"></div>
         </div>
+        <div id="loading-text">Initializing...</div>
+    </div>
+    
+    <div id="map"></div>
+    
+    <!-- Legend - Top Right -->
+    <div class="legend-container" id="legend-container">
+        <!-- Dynamic legend content will be inserted here -->
+    </div>
+    
+    <!-- Combined Controls Container - Bottom Center -->
+    <div class="controls-container">
         
-        <!-- Map -->
-        <div id="map"></div>
-        
-        <!-- Legend -->
-        <div class="legend" id="legend">
-            <h4 id="legend-title">Population</h4>
-            <div id="legend-content"></div>
-        </div>
-        
-        <!-- Control Panel -->
-        <div class="control-panel">
-            <div class="time-slider-container">
+        <div class="controls-bottom-row">
+            <div class="slider-section">
+                <div id="year-display">1820</div>
                 <input type="range" min="0" max="9" value="0" id="time-slider">
                 <div class="decade-markers">
-                    <span>1820</span><span>1830</span><span>1840</span><span>1850</span>
-                    <span>1860</span><span>1870</span><span>1890</span><span>1900</span>
-                    <span>1910</span><span>1920</span>
+                    <span>1820</span>
+                    <span>1830</span>
+                    <span>1840</span>
+                    <span>1850</span>
+                    <span>1860</span>
+                    <span>1870</span>
+                    <span>1890</span>
+                    <span>1900</span>
+                    <span>1910</span>
+                    <span>1920</span>
                 </div>
-            </div>
-            
-            <div class="stats-bar">
-                <div class="stat-item" id="info-population">
-                    <i class="fas fa-users"></i> Population: Loading...
+                <div class="decade-info">
+                    <div class="info-item" id="info-population">Population: Loading...</div>
+                    <div class="info-item" id="info-rivers">Canals: 0</div>
+                    <div class="info-item" id="info-railroads">Railroads: 0</div>
                 </div>
-                <div class="stat-item" id="info-rivers">
-                    <i class="fas fa-water"></i> Canals: 0
-                </div>
-                <div class="stat-item" id="info-railroads">
-                    <i class="fas fa-train"></i> Railroads: 0
-                </div>
-            </div>
-            
-            <div class="layer-controls">
-                <button class="layer-btn" data-layer="train2" style="background-color: #6A1B9A; color: white;">
-                    <i class="fas fa-train"></i> Railroads
-                </button>
-                <button class="layer-btn" data-layer="river" style="background-color: #3498db; color: white;">
-                    <i class="fas fa-water"></i> Canals
-                </button>
-                <button class="layer-btn" data-layer="trail" style="background-color: #e67e22; color: white;">
-                    <i class="fas fa-hiking"></i> Trails
-                </button>
-            </div>
-            
-            <div class="classification-controls">
-                <div class="classification-title">Population Classification:</div>
-                <div class="classification-btns">
-                    <button class="classification-btn active" data-method="linear">Linear</button>
-                    <button class="classification-btn" data-method="logarithmic">Logarithmic</button>
-                    <button class="classification-btn" data-method="quantile">Quantile</button>
-                </div>
-            </div>
-            
-            <div class="growth-toggle">
-                <label class="switch">
-                    <input type="checkbox" id="show-growth">
-                    <span class="slider"></span>
-                </label>
-                <span>Show Growth Rates</span>
-            </div>
-            
-            <div class="ai-controls">
-                <div class="ai-status disconnected" id="ai-status">AI: Disabled</div>
-                <button id="enable-ai">
-                    <i class="fas fa-robot"></i> Enable AI
-                </button>
             </div>
         </div>
-        
-        <!-- Loading Screen -->
-        <div class="loading-screen" id="loading-container">
-            <h2>Loading Map Data</h2>
-            <div class="loading-bar">
-                <div class="loading-progress" id="loading-progress"></div>
+        <div class="controls-top-row">
+            <div class="classification-section">
+                <h4>Data Classification</h4>
+                <div class="classification-buttons">
+                    <button class="classification-btn active" data-method="quantile">Quantile</button>
+                    <button class="classification-btn" data-method="linear">Linear</button>
+                    <button class="classification-btn" data-method="logarithmic">Log</button>
+                </div>
             </div>
-            <div id="loading-text">Initializing...</div>
+            
+            <div class="ai-toggle-container">
+                <div class="growth-toggle">
+                    <input type="checkbox" id="show-growth">
+                    <label for="show-growth">Show Growth Rates</label>
+                </div>
+                <button id="enable-ai">Enable AI Explanations</button>
+                <div id="ai-status">AI: Disabled</div>
+            </div>
+            
+            <div class="layer-toggle-container">
+                <button class="layer-toggle-btn" id="toggle-train">Railroads</button>
+                <button class="layer-toggle-btn" id="toggle-river">Canals</button>
+                <button class="layer-toggle-btn" id="toggle-trail">Trails</button>
+            </div>
         </div>
     </div>
 
@@ -523,35 +500,52 @@
     <script src="state.js"></script>
     
     <script>
-        // Initialize the map with Carto Dark basemap
+        // Initialize the map
         const map = L.map('map', {
-    attributionControl: false,
-    maxBounds: [
-        [5, -200],   // Expanded Southwest corner
-        [75, -30]    // Expanded Northeast corner
-    ],
-    maxBoundsViscosity: 1.0,  // Keeps panning within bounds
-    minZoom: 3,               // Prevents zooming too far out
-    maxZoom: 13               // Already set in your tile layer, but can also be set here
-}).setView([39.8283, -98.5795], 4);
-// Using OpenStreetMap's standard tile layer - free and doesn't require an API key
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: ''
-}).addTo(map);
-
-// Add custom attribution control in a different position if desired
-L.control.attribution({
-    position: 'bottomleft',  // You can adjust this position as needed
-    prefix: ''  // Removes the "Leaflet" text
-}).addAttribution('&copy; <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html">Corey Reichert</a> AI Assisted - GEOG 456').addTo(map);
-
-        // Global variables
-        let currentClassification = 'linear';
-        let showGrowthRates = false;
-        let aiEnabled = false;
+            attributionControl: false // Disable default attribution
+        }).setView([39.8283, -98.5795], 4);
+        
+        // Add Carto Dark as default base layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '', // Empty attribution to prevent display
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Current classification method
+        let currentClassification = 'quantile';
+        
+        // AI Configuration
         let API_KEY = localStorage.getItem('OPENROUTER_API_KEY');
+        let aiEnabled = false;
+
+        function validateAPIKey() {
+            if (!API_KEY) {
+                API_KEY = prompt("🔑 Enter your OpenRouter API key (get one at https://openrouter.ai/keys):");
+                if (API_KEY) {
+                    localStorage.setItem('OPENROUTER_API_KEY', API_KEY);
+                    checkAPIStatus();
+                } else {
+                    document.getElementById('ai-status').textContent = 'AI: Disabled (no key)';
+                    document.getElementById('ai-status').style.color = '#ff3300';
+                    document.getElementById('enable-ai').disabled = true;
+                }
+            } else {
+                checkAPIStatus();
+            }
+        }
+
         const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+        validateAPIKey();
+        
+        let showGrowthRates = false;
+        
+        // Default vectorization settings
+        const vectorSettings = {
+            tileSize: 256,
+            maxZoom: 14,
+            bufferSize: 128
+        };
         
         // Object to store our layers
         const layers = {};
@@ -564,13 +558,13 @@ L.control.attribution({
             'y1910', 'y1920'
         ];
         
-        // Layer colors matching the transportation theme
+        // Layer colors
         const layerColors = {
-            'state': '#616161',    // Dark blue-gray for borders
-            'river': '#3498db',    // Blue for canals
-            'trail': '#e67e22',    // Orange for trails
-            'train2': '#6A1B9A',   // Brown for railroads
-            'y1820': '#FF3300',    // Population year colors (gradient)
+            'state': '#00BBFF',
+            'river': '#1A00B6',
+            'trail': '#FF9900',
+            'train2': '#FF00CC',
+            'y1820': '#FF3300',
             'y1830': '#FF6600',
             'y1840': '#FFCC00',
             'y1850': '#99FF00',
@@ -592,47 +586,36 @@ L.control.attribution({
                 document.getElementById('loading-text').textContent = 
                     `Loading layers (${this.loaded}/${this.total})...`;
                 
-                    if (this.loaded === this.total) {
-    setTimeout(() => {
-        document.getElementById('loading-container').style.display = 'none';
-        
-        // Add default layers in correct z-index order
-        // 1. State borders first (bottom)
-        if (layers.state) {
-            layers.state.addTo(map);
-        }
-        
-        // 2. Initial population layer
-        showYearLayer('1820');
-        
-        // 3. Transportation layers in order:
-        // Railroads next (above population)
-        if (layers.train2) {
-            layers.train2.addTo(map);
-            document.querySelector('[data-layer="train2"]').classList.add('active');
-            layers.train2.bringToFront();
-        }
-        
-        // Canals above railroads
-        if (layers.river) {
-            layers.river.addTo(map);
-            document.querySelector('[data-layer="river"]').classList.add('active');
-            layers.river.bringToFront();
-        }
-        
-        // Trails on top (above everything else)
-        if (layers.trail) {
-            layers.trail.addTo(map);
-            document.querySelector('[data-layer="trail"]').classList.add('active');
-            layers.trail.bringToFront();
-        }
-        
-        // Initialize time slider
-        addTimeSlider();
-        updateLegend();
-    }, 500);
-}          
-  }
+                if (this.loaded === this.total) {
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                        // Add default layers in correct z-index order
+                        if (layers.state) layers.state.addTo(map);
+                        
+                        // Add layers in specific order: population < railroads < canals < trails
+                        const yearLayer = `y1820`;
+                        if (layers[yearLayer]) layers[yearLayer].addTo(map);
+                        
+                        if (layers.train2) {
+                            layers.train2.addTo(map);
+                            document.getElementById('toggle-train').classList.add('active');
+                        }
+                        
+                        if (layers.river) {
+                            layers.river.addTo(map);
+                            document.getElementById('toggle-river').classList.add('active');
+                        }
+                        
+                        if (layers.trail) {
+                            layers.trail.addTo(map);
+                            document.getElementById('toggle-trail').classList.add('active');
+                        }
+                        
+                        // Initialize time slider
+                        updateMapForDecade(0);
+                    }, 500);
+                }
+            }
         };
         
         // Function to create a graduated color scale for population data
@@ -641,8 +624,8 @@ L.control.attribution({
             if (showGrowthRates) {
                 if (value === null) return 'rgba(50, 50, 50, 0.3)';
                 return value > 0 ?
-                       (value > 10 ? '#27ae60' : '#2ecc71') : // Greens for growth
-                       (value < -10 ? '#e74c3c' : '#e67e22'); // Reds for decline
+                       (value > 10 ? '#0c0' : '#8d0') : // Greens for growth
+                       (value < -10 ? '#c00' : '#f60'); // Reds for decline
             }
             
             // Original population count coloring
@@ -655,12 +638,12 @@ L.control.attribution({
             
             // Define our color scale (5 classes)
             const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+                'rgba(20, 220, 110, 0.8)',    // Bright jade
+                'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+                'rgba(0, 140, 70, 0.8)',      // Darker tech green
+                'rgba(0, 100, 50, 0.8)'       // Deep emerald
+            ];
             
             if (classification === 'linear') {
                 // Linear classification
@@ -753,7 +736,7 @@ L.control.attribution({
                         const value = showGrowthRates ? properties.growthRate : properties[populationField];
                         return {
                             weight: 1.5,
-                            color: '#616161',
+                            color: '#00f0ff',
                             opacity: 0.8,
                             fillColor: getGraduatedColor(value, minValue, maxValue, populationValues),
                             fillOpacity: 0.85,
@@ -761,9 +744,9 @@ L.control.attribution({
                         };
                     }
                 },
-                maxZoom: 14,
-                tileSize: 256,
-                buffer: 128,
+                maxZoom: vectorSettings.maxZoom,
+                tileSize: vectorSettings.tileSize,
+                buffer: vectorSettings.bufferSize,
                 interactive: true,
                 getFeatureId: function(f) {
                     return f.properties.id || L.stamp(f);
@@ -789,7 +772,7 @@ L.control.attribution({
                 const prevYear = props.prevYear || 'unknown';
                 const changeWord = growthRate > 0 ? "increase" : "decrease";
                 
-                let popupContent = `<div>
+                let popupContent = `<div style="color:#000;">
                     <b>${props.NHGISNAM || props.COUNTY_1 || 'Area'}</b><br>
                     <b>State:</b> ${props.STATENAM || props.STATE_1 || ''}<br>
                     <b>Year:</b> ${year}<br>
@@ -844,7 +827,7 @@ L.control.attribution({
         
         // Function to create a vector tile layer
         function createVectorTileLayer(name, geoJsonData) {
-            const layerColor = layerColors[name] || '#0056b3';
+            const layerColor = layerColors[name] || getRandomColor();
             
             const layer = L.vectorGrid.slicer(geoJsonData, {
                 rendererFactory: L.svg.tile,
@@ -857,45 +840,13 @@ L.control.attribution({
                         fillColor: layerColor
                     }
                 },
-                maxZoom: 14,
-                tileSize: 256,
-                buffer: 128,
+                maxZoom: vectorSettings.maxZoom,
+                tileSize: vectorSettings.tileSize,
+                buffer: vectorSettings.bufferSize,
                 interactive: true,
                 getFeatureId: function(f) {
                     return f.properties.id || L.stamp(f);
                 }
-            });
-            
-            // Add popup functionality
-            layer.on('click', function(e) {
-                const props = e.layer.properties;
-                let popupContent = `<div><b>${name}</b><br>`;
-                
-                // Customize popup content based on layer type
-                if (name === 'train2') {
-                    popupContent += `Built: ${props.Decade}<br>`;
-                    popupContent += `State: ${props.STATENAM || 'N/A'}<br>`;
-                    if (props.SUM_Miles) popupContent += `Length: ${props.SUM_Miles.toFixed(2)} miles<br>`;
-                } 
-                else if (name === 'river') {
-                    popupContent += `Opened: ${props.OPENED || 'Unknown'}<br>`;
-                    popupContent += `Closed: ${props.CLOSED || 'Still active'}<br>`;
-                    if (props.LENGHT) popupContent += `Length: ${props.LENGHT} miles<br>`;
-                }
-                else if (name === 'trail') {
-                    popupContent += `Name: ${props.NAME || 'Unknown'}<br>`;
-                    popupContent += `Type: ${props.TYPE || 'N/A'}<br>`;
-                }
-                else if (name === 'state') {
-                    popupContent += `State: ${props.STATENAM || 'N/A'}<br>`;
-                }
-                
-                popupContent += '</div>';
-                
-                L.popup()
-                    .setContent(popupContent)
-                    .setLatLng(e.latlng)
-                    .openOn(map);
             });
             
             // Store feature count in layer metadata
@@ -910,10 +861,9 @@ L.control.attribution({
         
         // Function to update the legend
         function updateLegend() {
-            const legendContent = document.getElementById('legend-content');
-            legendContent.innerHTML = '';
+            const legendContainer = document.getElementById('legend-container');
             
-            // Get the active layer to display its legend
+            // Get the active population layer to display its legend
             const activeLayers = Object.keys(layers).filter(name => {
                 return map.hasLayer(layers[name]) && 
                       name.startsWith('y') && 
@@ -921,8 +871,7 @@ L.control.attribution({
             });
             
             if (activeLayers.length === 0) {
-                document.getElementById('legend-title').textContent = 'Population';
-                legendContent.innerHTML = '<div class="legend-item">No data active</div>';
+                legendContainer.innerHTML = '<h4>No Data Active</h4>';
                 return;
             }
             
@@ -931,27 +880,32 @@ L.control.attribution({
             const metadata = activeLayer.metadata;
             
             if (showGrowthRates) {
-                document.getElementById('legend-title').textContent = 'Growth Rate';
-                legendContent.innerHTML = `
+                // Growth rate legend
+                legendContainer.innerHTML = `
+                    <h4>Population Growth (${metadata.name.slice(1)})</h4>
                     <div class="legend-item">
-                        <div class="legend-color" style="background-color: #e74c3c;"></div>
+                        <div class="legend-color" style="background-color: #c00;"></div>
                         <div class="legend-label">Decline > 10%</div>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background-color: #e67e22;"></div>
+                        <div class="legend-color" style="background-color: #f60;"></div>
                         <div class="legend-label">Decline 0-10%</div>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background-color: #2ecc71;"></div>
+                        <div class="legend-color" style="background-color: #8d0;"></div>
                         <div class="legend-label">Growth 0-10%</div>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color" style="background-color: #27ae60;"></div>
+                        <div class="legend-color" style="background-color: #0c0;"></div>
                         <div class="legend-label">Growth > 10%</div>
+                    </div>
+                    <div class="legend-item" style="margin-top: 5px;">
+                        <div class="legend-color" style="background-color: rgba(50, 50, 50, 0.3);"></div>
+                        <div class="legend-label">No data</div>
                     </div>
                 `;
             } else {
-                document.getElementById('legend-title').textContent = 'Population';
+                // Population count legend
                 const values = metadata.values.filter(v => v > 0).sort((a, b) => a - b);
                 
                 // Calculate breaks based on current classification
@@ -985,15 +939,16 @@ L.control.attribution({
                 
                 // Define our color scale (5 classes)
                 const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                    'rgba(0, 255, 157, 0.8)',    // Vivid electric green
+                    'rgba(20, 220, 110, 0.8)',    // Bright jade
+                    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
+                    'rgba(0, 140, 70, 0.8)',      // Darker tech green
+                    'rgba(0, 100, 50, 0.8)'       // Deep emerald
+                ];
                 
                 // Create legend content
-                legendContent.innerHTML = `
+                let legendContent = `
+                    <h4>Population ${metadata.name.slice(1)}</h4>
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: ${colors[0]};"></div>
                         <div class="legend-label">&lt; ${Math.round(breaks[0]).toLocaleString()}</div>
@@ -1014,50 +969,48 @@ L.control.attribution({
                         <div class="legend-color" style="background-color: ${colors[4]};"></div>
                         <div class="legend-label">&gt; ${Math.round(breaks[3]).toLocaleString()}</div>
                     </div>
+                    <div class="legend-item" style="margin-top: 5px;">
+                        <div class="legend-color" style="background-color: rgba(50, 50, 50, 0.3);"></div>
+                        <div class="legend-label">No data</div>
+                    </div>
                 `;
+                
+                legendContainer.innerHTML = legendContent;
             }
-            
-            // Add no data indicator
-            const noDataDiv = document.createElement('div');
-            noDataDiv.className = 'legend-item';
-            noDataDiv.innerHTML = `
-                <div class="legend-color" style="background-color: rgba(50, 50, 50, 0.3);"></div>
-                <div class="legend-label">No data</div>
-            `;
-            legendContent.appendChild(noDataDiv);
         }
         
         // Function to show only one year at a time
         function showYearLayer(year) {
-    // Remove all year layers first
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y')) {
-            map.removeLayer(layers[name]);
+            // Remove all year layers first
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y')) {
+                    map.removeLayer(layers[name]);
+                }
+            });
+            
+            // Add the selected year layer
+            const layerName = `y${year}`;
+            if (layers[layerName]) {
+                layers[layerName].addTo(map);
+                
+                // Ensure proper z-index ordering
+                if (layers.train2 && map.hasLayer(layers.train2)) {
+                    layers.train2.bringToFront();
+                }
+                if (layers.river && map.hasLayer(layers.river)) {
+                    layers.river.bringToFront();
+                }
+                if (layers.trail && map.hasLayer(layers.trail)) {
+                    layers.trail.bringToFront();
+                }
+                
+                updateLegend();
+                return true;
+            } else {
+                return false;
+            }
         }
-    });
-    
-    // Add the selected year layer
-    const layerName = `y${year}`;
-    if (layers[layerName]) {
-        layers[layerName].addTo(map);
         
-        // Ensure proper z-index ordering (population < railroads < canals < trails)
-        if (layers.train2 && map.hasLayer(layers.train2)) {
-            layers.train2.bringToFront();
-        }
-        if (layers.river && map.hasLayer(layers.river)) {
-            layers.river.bringToFront();
-        }
-        if (layers.trail && map.hasLayer(layers.trail)) {
-            layers.trail.bringToFront();
-        }
-        
-        updateLegend();
-        return true;
-    } else {
-        return false;
-    }
-}
         // AI Explanation Functions
         async function getDeepSeekExplanation(countyName, stateName, prevYear, currYear, prevPop, currPop, growthRate) {
             if (!aiEnabled) return "Enable AI for explanations";
@@ -1100,6 +1053,8 @@ L.control.attribution({
                 }
 
                 const data = await response.json();
+                
+                // Extract response from known structure
                 return data.choices[0].message.content;
 
             } catch (err) {
@@ -1118,18 +1073,21 @@ L.control.attribution({
                 
                 if (response.ok) {
                     document.getElementById('ai-status').textContent = 'AI: Connected';
-                    document.getElementById('ai-status').className = 'ai-status connected';
+                    document.getElementById('ai-status').style.color = '#00f0ff';
                 } else {
                     aiEnabled = false;
-                    document.getElementById('enable-ai').textContent = 'Enable AI';
+                    document.getElementById('enable-ai').textContent = 'Enable AI Explanations';
                     document.getElementById('ai-status').textContent = 'AI: Error (check key)';
-                    document.getElementById('ai-status').className = 'ai-status disconnected';
+                    document.getElementById('ai-status').style.color = '#ff3300';
+                    const errorData = await response.json();
+                    console.error('API Error Details:', errorData);
                 }
             } catch (error) {
                 aiEnabled = false;
-                document.getElementById('enable-ai').textContent = 'Enable AI';
+                document.getElementById('enable-ai').textContent = 'Enable AI Explanations';
                 document.getElementById('ai-status').textContent = 'AI: Connection failed';
-                document.getElementById('ai-status').className = 'ai-status disconnected';
+                document.getElementById('ai-status').style.color = '#ff3300';
+                console.error('API connection test failed:', error);
             }
         }
 
@@ -1156,7 +1114,7 @@ L.control.attribution({
                     const opened = feature.properties.OPENED;
                     const closed = feature.properties.CLOSED || 9999;
                     
-                    if (opened === null || closed === null || // Always include null values
+                    if (opened === null || closed === null ||
                         (opened && closed && opened <= year && closed >= year)) {
                         filteredRivers.features.push(feature);
                     }
@@ -1167,20 +1125,36 @@ L.control.attribution({
                     rendererFactory: L.svg.tile,
                     vectorTileLayerStyles: {
                         sliced: {
-                            color: layerColors.river || '#3498db',
+                            color: layerColors.river || '#00F0FF',
                             weight: 2,
                             opacity: 0.8,
                             fillOpacity: 0.5,
-                            fillColor: layerColors.river || '#3498db'
+                            fillColor: layerColors.river || '#00F0FF'
                         }
                     },
-                    maxZoom: 14,
-                    tileSize: 256,
-                    buffer: 128,
+                    maxZoom: vectorSettings.maxZoom,
+                    tileSize: vectorSettings.tileSize,
+                    buffer: vectorSettings.bufferSize,
                     interactive: true,
                     getFeatureId: function(f) {
                         return f.properties.id || L.stamp(f);
                     }
+                });
+
+                // Add popup functionality
+                filteredRiverLayer.on('click', function(e) {
+                    const props = e.layer.properties;
+                    let popupContent = `<div style="color:#000;"><b>${props.NAME || 'Canal'}</b><br>`;
+                    popupContent += `Opened: ${props.OPENED || 'Unknown'}<br>`;
+                    popupContent += `Closed: ${props.CLOSED || 'Still active'}<br>`;
+                    if (props.LENGHT) popupContent += `Length: ${props.LENGHT} miles<br>`;
+                    if (props.REFERENCE) popupContent += `Reference: ${props.REFERENCE}<br>`;
+                    popupContent += '</div>';
+                    
+                    L.popup()
+                        .setContent(popupContent)
+                        .setLatLng(e.latlng)
+                        .openOn(map);
                 });
 
                 // Store feature count
@@ -1189,10 +1163,11 @@ L.control.attribution({
                 // Replace the original river layer in our layers object
                 layers.river = filteredRiverLayer;
 
-                // Add the filtered layer if button is active
-                const riverBtn = document.querySelector('[data-layer="river"]');
+                // Add the filtered layer if checkbox is checked
+                const riverBtn = document.getElementById('toggle-river');
                 if (riverBtn && riverBtn.classList.contains('active')) {
                     layers.river.addTo(map);
+                    layers.river.bringToFront(); // Ensure canals appear above railroads
                 }
 
                 // Update info display
@@ -1236,20 +1211,35 @@ L.control.attribution({
                     rendererFactory: L.svg.tile,
                     vectorTileLayerStyles: {
                         sliced: {
-                            color: layerColors.train2 || '#6A1B9A',
+                            color: layerColors.train2 || '#FF00CC',
                             weight: 2,
                             opacity: 0.8,
                             fillOpacity: 0.5,
-                            fillColor: layerColors.train2 || '#6A1B9A'
+                            fillColor: layerColors.train2 || '#FF00CC'
                         }
                     },
-                    maxZoom: 14,
-                    tileSize: 256,
-                    buffer: 128,
+                    maxZoom: vectorSettings.maxZoom,
+                    tileSize: vectorSettings.tileSize,
+                    buffer: vectorSettings.bufferSize,
                     interactive: true,
                     getFeatureId: function(f) {
                         return f.properties.id || L.stamp(f);
                     }
+                });
+                
+                // Add popup functionality
+                filteredTrainLayer.on('click', function(e) {
+                    const props = e.layer.properties;
+                    let popupContent = `<div style="color:#000;"><b>Railroad</b><br>`;
+                    popupContent += `Built: ${props.Decade}<br>`;
+                    popupContent += `State: ${props.STATENAM || 'N/A'}<br>`;
+                    if (props.SUM_Miles) popupContent += `Length: ${props.SUM_Miles.toFixed(2)} miles<br>`;
+                    popupContent += '</div>';
+                    
+                    L.popup()
+                        .setContent(popupContent)
+                        .setLatLng(e.latlng)
+                        .openOn(map);
                 });
                 
                 // Store feature count
@@ -1258,10 +1248,14 @@ L.control.attribution({
                 // Replace the original train layer in our layers object
                 layers.train2 = filteredTrainLayer;
                 
-                // Add the filtered layer if button is active
-                const trainBtn = document.querySelector('[data-layer="train2"]');
+                // Add the filtered layer if checkbox is checked
+                const trainBtn = document.getElementById('toggle-train');
                 if (trainBtn && trainBtn.classList.contains('active')) {
                     layers.train2.addTo(map);
+                    // Ensure railroads appear above population but below canals and trails
+                    layers.train2.bringToFront();
+                    if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+                    if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
                 }
                 
                 // Update info display
@@ -1314,21 +1308,15 @@ L.control.attribution({
             // Filter trains based on their Decade property
             filterTrainsForDecade(decadeIndex);
             
+            // Ensure trails are on top
+            if (layers.trail && map.hasLayer(layers.trail)) {
+                layers.trail.bringToFront();
+            }
+            
             // Update the population info
             const yearLayer = `y${year}`;
             const totalPop = getTotalPopulation(yearLayer);
             document.getElementById('info-population').textContent = `Population: ${totalPop}`;
-        }
-        
-        // Add the time slider
-        function addTimeSlider() {
-            // Event listener for slider changes
-            document.getElementById('time-slider').addEventListener('input', function() {
-                updateMapForDecade(this.value);
-            });
-            
-            // Initialize with the first decade
-            updateMapForDecade(0);
         }
         
         // Function to initialize all layers
@@ -1363,7 +1351,25 @@ L.control.attribution({
                                 
                                 layers[name] = createGraduatedVectorLayer(name, window[name], populationField);
                             } else {
+                                // For non-population layers (like state, river, etc.), use the original method
+                                const layerColor = layerColors[name] || getRandomColor();
                                 layers[name] = createVectorTileLayer(name, window[name]);
+                                
+                                // Add popup functionality
+                                layers[name].on('click', function(e) {
+                                    const props = e.layer.properties;
+                                    let popupContent = `<div style="color:#000;"><b>${name}</b><br>`;
+                                    
+                                    for (const key in props) {
+                                        popupContent += `${key}: ${props[key]}<br>`;
+                                    }
+                                    popupContent += '</div>';
+                                    
+                                    L.popup()
+                                        .setContent(popupContent)
+                                        .setLatLng(e.latlng)
+                                        .openOn(map);
+                                });
                             }
                             
                         } catch (e) {
@@ -1382,7 +1388,7 @@ L.control.attribution({
         }
         
         // Listen for layer changes to update the legend
-        map.on('layeradd layerremove', function() {
+        map.on('layeradd layerremove', function(e) {
             updateLegend();
         });
         
@@ -1390,29 +1396,97 @@ L.control.attribution({
         initializeLayers();
         
         // Layer toggle buttons
-        document.querySelectorAll('.layer-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const layerName = this.dataset.layer;
-                if (layers[layerName]) {
-                    if (map.hasLayer(layers[layerName])) {
-                        map.removeLayer(layers[layerName]);
-                        this.classList.remove('active');
-                    } else {
-                        layers[layerName].addTo(map);
-                        this.classList.add('active');
-                    }
-                }
-            });
+        document.getElementById('toggle-train').addEventListener('click', function() {
+            this.classList.toggle('active');
+            if (this.classList.contains('active')) {
+                layers.train2.addTo(map);
+                // Ensure proper z-index ordering
+                layers.train2.bringToFront();
+                if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+                if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
+            } else {
+                map.removeLayer(layers.train2);
+            }
         });
         
-        // Classification buttons
+        document.getElementById('toggle-river').addEventListener('click', function() {
+            this.classList.toggle('active');
+            if (this.classList.contains('active')) {
+                layers.river.addTo(map);
+                // Ensure proper z-index ordering
+                layers.river.bringToFront();
+                if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
+            } else {
+                map.removeLayer(layers.river);
+            }
+        });
+        
+        document.getElementById('toggle-trail').addEventListener('click', function() {
+            this.classList.toggle('active');
+            if (this.classList.contains('active')) {
+                layers.trail.addTo(map);
+                // Ensure trails are always on top
+                layers.trail.bringToFront();
+            } else {
+                map.removeLayer(layers.trail);
+            }
+        });
+        
+        // AI toggle button
+        document.getElementById('enable-ai').addEventListener('click', function() {
+            aiEnabled = !aiEnabled;
+            this.textContent = aiEnabled ? 'Disable AI Explanations' : 'Enable AI Explanations';
+            document.getElementById('ai-status').textContent = `AI: ${aiEnabled ? 'Enabled' : 'Disabled'}`;
+            document.getElementById('ai-status').style.color = aiEnabled ? '#00f0ff' : '#ff3300';
+            
+            if (aiEnabled) {
+                // Check API connection
+                document.getElementById('ai-status').textContent = 'AI: Checking connection...';
+                checkAPIStatus();
+            }
+        });
+        
+        // Growth rate toggle
+        document.getElementById('show-growth').addEventListener('change', function() {
+            showGrowthRates = this.checked;
+            
+            // Recreate all year layers with new visualization
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y') && layers[name].metadata) {
+                    const year = name.substring(1);
+                    const populationField = `A00AA${year}`;
+                    
+                    // Recreate the layer
+                    const newLayer = createGraduatedVectorLayer(name, window[name], populationField);
+                    
+                    // Replace the existing layer
+                    if (map.hasLayer(layers[name])) {
+                        map.removeLayer(layers[name]);
+                        newLayer.addTo(map);
+                        
+                        // Ensure proper z-index ordering
+                        if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
+                        if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+                        if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
+                    }
+                    layers[name] = newLayer;
+                }
+            });
+            
+            // Update the legend
+            updateLegend();
+        });
+        
+        // Classification button handlers
         document.querySelectorAll('.classification-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 // Update active state
-                document.querySelectorAll('.classification-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.classification-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
                 this.classList.add('active');
                 
-                // Update classification method
+                // Set new classification method
                 currentClassification = this.dataset.method;
                 
                 // Update all population layers
@@ -1422,6 +1496,11 @@ L.control.attribution({
                         if (map.hasLayer(layers[name])) {
                             map.removeLayer(layers[name]);
                             layers[name].addTo(map);
+                            
+                            // Ensure proper z-index ordering
+                            if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
+                            if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+                            if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
                         }
                     }
                 });
@@ -1431,57 +1510,10 @@ L.control.attribution({
             });
         });
         
-        // AI toggle button
-        document.getElementById('enable-ai').addEventListener('click', function() {
-            if (!API_KEY) {
-                API_KEY = prompt("🔑 Enter your OpenRouter API key (get one at https://openrouter.ai/keys):");
-                if (API_KEY) {
-                    localStorage.setItem('OPENROUTER_API_KEY', API_KEY);
-                    checkAPIStatus();
-                } else {
-                    alert("AI features require an API key");
-                    return;
-                }
-            }
-            
-            aiEnabled = !aiEnabled;
-            this.textContent = aiEnabled ? 'Disable AI' : 'Enable AI';
-            document.getElementById('ai-status').textContent = `AI: ${aiEnabled ? 'Enabled' : 'Disabled'}`;
-            document.getElementById('ai-status').className = aiEnabled ? 'ai-status connected' : 'ai-status disconnected';
-            
-            if (aiEnabled) {
-                checkAPIStatus();
-            }
+        // Time slider event listener
+        document.getElementById('time-slider').addEventListener('input', function() {
+            updateMapForDecade(this.value);
         });
-        
-        // Growth rate toggle
-        document.getElementById('show-growth').addEventListener('change', function() {
-    showGrowthRates = this.checked;
-    
-    // Recreate all year layers with new visualization
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y') && layers[name].metadata) {
-            layers[name].metadata.classification = currentClassification;
-            if (map.hasLayer(layers[name])) {
-                map.removeLayer(layers[name]);
-                layers[name].addTo(map);
-                
-                // Maintain z-index ordering after refresh
-                if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
-                if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
-                if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
-            }
-        }
-    });
-    
-    // Update the legend
-    updateLegend();
-});
-
-
-addTimeSlider();
-document.getElementById('time-slider').value = 0;
-updateMapForDecade(0);
     </script>
 </body>
 </html>
