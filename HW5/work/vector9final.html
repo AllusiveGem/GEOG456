@@ -938,73 +938,6 @@
                 ];
                 
                 // Create legend content
-                if (showGrowthRates) {
-                // Growth rate legend
-                legendContainer.innerHTML = `
-                    <h4>Population Growth (${metadata.name.slice(1)})</h4>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #c00;"></div>
-                        <div class="legend-label">Decline > 10%</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #f60;"></div>
-                        <div class="legend-label">Decline 0-10%</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #8d0;"></div>
-                        <div class="legend-label">Growth 0-10%</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #0c0;"></div>
-                        <div class="legend-label">Growth > 10%</div>
-                    </div>
-                    <div class="legend-item" style="margin-top: 5px;">
-                        <div class="legend-color" style="background-color: rgba(50, 50, 50, 0.3);"></div>
-                        <div class="legend-label">No data</div>
-                    </div>
-                `;
-            } else {
-                // Population count legend
-                const values = metadata.values.filter(v => v > 0).sort((a, b) => a - b);
-                
-                // Calculate breaks based on current classification
-                let breaks = [];
-                if (currentClassification === 'linear') {
-                    const range = metadata.max - metadata.min;
-                    breaks = [
-                        metadata.min + range * 0.2,
-                        metadata.min + range * 0.4,
-                        metadata.min + range * 0.6,
-                        metadata.min + range * 0.8
-                    ];
-                } else if (currentClassification === 'logarithmic') {
-                    const logMin = Math.log10(metadata.min || 1);
-                    const logMax = Math.log10(metadata.max);
-                    const logRange = logMax - logMin;
-                    breaks = [
-                        Math.pow(10, logMin + logRange * 0.2),
-                        Math.pow(10, logMin + logRange * 0.4),
-                        Math.pow(10, logMin + logRange * 0.6),
-                        Math.pow(10, logMin + logRange * 0.8)
-                    ];
-                } else if (currentClassification === 'quantile') {
-                    breaks = [
-                        values[Math.floor(values.length * 0.2)],
-                        values[Math.floor(values.length * 0.4)],
-                        values[Math.floor(values.length * 0.6)],
-                        values[Math.floor(values.length * 0.8)]
-                    ];
-                }
-                
-                // Define our color scale (5 classes)
-                const colors = [
-                    'rgba(0, 255, 157, 0.8)',    // Vivid electric green
-                    'rgba(20, 220, 110, 0.8)',    // Bright jade
-                    'rgba(0, 180, 90, 0.8)',      // Medium cyber green
-                    'rgba(0, 140, 70, 0.8)',      // Darker tech green
-                    'rgba(0, 100, 50, 0.8)'       // Deep emerald
-                ];
-                
                 let legendContent = `
                     <h4>Population ${metadata.name.slice(1)}</h4>
                     <div class="legend-item">
@@ -1031,36 +964,9 @@
                         <div class="legend-color" style="background-color: rgba(50, 50, 50, 0.3);"></div>
                         <div class="legend-label">No data</div>
                     </div>
-                    <div class="classification-buttons">
-                        <div style="font-size: 10px; width: 100%; margin: 5px 0;">Classification:</div>
-                        <button class="classification-btn ${currentClassification === 'linear' ? 'active' : ''}" data-method="linear">Linear</button>
-                        <button class="classification-btn ${currentClassification === 'logarithmic' ? 'active' : ''}" data-method="logarithmic">Log</button>
-                        <button class="classification-btn ${currentClassification === 'quantile' ? 'active' : ''}" data-method="quantile">Quantile</button>
-                    </div>
                 `;
                 
                 legendContainer.innerHTML = legendContent;
-                
-                // Add event listeners to classification buttons
-                legendContainer.querySelectorAll('.classification-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        currentClassification = this.dataset.method;
-                        
-                        // Update all population layers
-                        Object.keys(layers).forEach(name => {
-                            if (name.startsWith('y') && layers[name].metadata) {
-                                layers[name].metadata.classification = currentClassification;
-                                if (map.hasLayer(layers[name])) {
-                                    map.removeLayer(layers[name]);
-                                    layers[name].addTo(map);
-                                }
-                            }
-                        });
-                        
-                        // Update the legend
-                        updateLegend();
-                    });
-                });
             }
         }
         
@@ -1524,6 +1430,34 @@
             
             // Update the legend
             updateLegend();
+        });
+        
+        // Classification button handlers
+        document.querySelectorAll('.classification-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active state
+                document.querySelectorAll('.classification-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Set new classification method
+                currentClassification = this.dataset.method;
+                
+                // Update all population layers
+                Object.keys(layers).forEach(name => {
+                    if (name.startsWith('y') && layers[name].metadata) {
+                        layers[name].metadata.classification = currentClassification;
+                        if (map.hasLayer(layers[name])) {
+                            map.removeLayer(layers[name]);
+                            layers[name].addTo(map);
+                        }
+                    }
+                });
+                
+                // Update the legend
+                updateLegend();
+            });
         });
         
         // Time slider event listener
