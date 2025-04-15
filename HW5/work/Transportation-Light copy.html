@@ -701,6 +701,16 @@ L.control.attribution({
                 if (value <= breaks[3]) return colors[3];
                 return colors[4];
             }
+
+            else if (classification === 'jenks') {
+    const breaks = jenksBreaks(sortedValues, 5);
+    if (value <= breaks[1]) return colors[0];
+    if (value <= breaks[2]) return colors[1];
+    if (value <= breaks[3]) return colors[2];
+    if (value <= breaks[4]) return colors[3];
+    return colors[4];
+}
+
             
             // Default to quantile if no valid classification
             const breaks = [
@@ -715,6 +725,8 @@ L.control.attribution({
             if (value <= breaks[2]) return colors[2];
             if (value <= breaks[3]) return colors[3];
             return colors[4];
+
+            
         }
         
         // Function to create a vector tile layer with graduated colors
@@ -781,6 +793,72 @@ L.control.attribution({
                 values: populationValues,
                 classification: currentClassification
             };
+
+
+
+
+            function jenksBreaks(data, numClasses) {
+    data = data.filter(v => v !== null && v !== undefined && !isNaN(v)).sort((a, b) => a - b);
+
+    const matrices = Array.from({ length: data.length + 1 }, () => Array(numClasses + 1).fill(0));
+    const variance = Array.from({ length: data.length + 1 }, () => Array(numClasses + 1).fill(0));
+
+    for (let i = 1; i <= numClasses; i++) {
+        matrices[0][i] = 1;
+        variance[0][i] = 0;
+        for (let j = 1; j <= data.length; j++) {
+            variance[j][i] = Infinity;
+        }
+    }
+
+    let sum = 0, sumSq = 0, w = 0;
+
+    for (let l = 1; l <= data.length; l++) {
+        let val = data[l - 1];
+        sum = 0;
+        sumSq = 0;
+        w = 0;
+
+        for (let m = 1; m <= l; m++) {
+            let i3 = l - m + 1;
+            val = data[i3 - 1];
+
+            w++;
+            sum += val;
+            sumSq += val * val;
+
+            const mean = sum / w;
+            const ssd = sumSq - (sum * sum) / w;
+
+            if (i3 !== 1) {
+                for (let j = 2; j <= numClasses; j++) {
+                    if (variance[l][j] >= (ssd + variance[i3 - 1][j - 1])) {
+                        matrices[l][j] = i3;
+                        variance[l][j] = ssd + variance[i3 - 1][j - 1];
+                    }
+                }
+            }
+        }
+
+        matrices[l][1] = 1;
+        variance[l][1] = sumSq - (sum * sum) / w;
+    }
+
+    const kclass = [];
+    let k = data.length;
+    let countNum = numClasses;
+
+    while (countNum >= 2) {
+        const id = matrices[k][countNum] - 1;
+        kclass[countNum - 1] = data[id];
+        k = matrices[k][countNum] - 1;
+        countNum--;
+    }
+
+    kclass[0] = data[0];
+    kclass[numClasses] = data[data.length - 1];
+    return kclass;
+}
             
             // Add popup with detailed information
             layer.on('click', function(e) {
@@ -984,6 +1062,10 @@ L.control.attribution({
                         values[Math.floor(values.length * 0.8)]
                     ];
                 }
+
+                else if (currentClassification === 'jenks') {
+    breaks = jenksBreaks(values, 5).slice(1, 5); // only inner 4 breaks
+}
                 
                 // Define our color scale (5 classes)
                 const colors = [
