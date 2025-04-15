@@ -639,8 +639,20 @@ L.control.attribution({
   }
         };
         
+
+
+        let jenksWorker;
+        
+// Function to create a blob URL for the worker
+function createJenksWorker() {
+    const workerScript = document.getElementById('jenks-worker').textContent;
+    const blob = new Blob([workerScript], { type: 'application/javascript' });
+    return new Worker(URL.createObjectURL(blob));
+}
+
+
         // Function to create a graduated color scale for population data
-        function getGraduatedColor(value, min, max, values, classification = currentClassification) {
+        function getGraduatedColor(value, min, max, values, classification = currentClassification, metadata) {
             // If showing growth rates
             if (showGrowthRates) {
                 if (value === null) return 'rgba(50, 50, 50, 0.3)';
@@ -703,36 +715,43 @@ L.control.attribution({
                 if (value <= breaks[3]) return colors[3];
                 return colors[4];
             }
-            else if (classification === 'jenks') {
-                // Jenks natural breaks classification
-                try {
-                    // Get breaks using simple-statistics
-                    const jenksBreaks = ss.jenks(sortedValues, 5); // 5 classes
-                    
-                    // Check if we got valid breaks
-                    if (jenksBreaks && jenksBreaks.length === 6) {
-                        if (value <= jenksBreaks[1]) return colors[0];
-                        if (value <= jenksBreaks[2]) return colors[1];
-                        if (value <= jenksBreaks[3]) return colors[2];
-                        if (value <= jenksBreaks[4]) return colors[3];
-                        return colors[4];
-                    }
-                } catch (e) {
-                    console.error("Jenks classification error:", e);
-                    // Fall back to quantile if Jenks fails
-                    const breaks = [
-                        sortedValues[Math.floor(sortedValues.length * 0.2)],
-                        sortedValues[Math.floor(sortedValues.length * 0.4)],
-                        sortedValues[Math.floor(sortedValues.length * 0.6)],
-                        sortedValues[Math.floor(sortedValues.length * 0.8)]
-                    ];
-                    
-                    if (value <= breaks[0]) return colors[0];
-                    if (value <= breaks[1]) return colors[1];
-                    if (value <= breaks[2]) return colors[2];
-                    if (value <= breaks[3]) return colors[3];
+            if (classification === 'jenks') {
+        // Initialize worker if not already created
+        if (!jenksWorker) {
+            jenksWorker = createJenksWorker();
+        }
+        
+        // Check for cached breaks in metadata
+        if (metadata && metadata.precomputedBreaks && metadata.precomputedBreaks.jenks) {
+            const jenksBreaks = metadata.precomputedBreaks.jenks;
+            if (value <= jenksBreaks[1]) return colors[0];
+            if (value <= jenksBreaks[2]) return colors[1];
+            if (value <= jenksBreaks[3]) return colors[2];
+            if (value <= jenksBreaks[4]) return colors[3];
+            return colors[4];
+        }
+        
+        // Fallback to synchronous calculation if worker isn't ready
+        try {
+            const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
+            if (sortedValues.length > 0) {
+                const jenksBreaks = ss.jenks(sortedValues, 5);
+                if (jenksBreaks && jenksBreaks.length === 6) {
+                    if (value <= jenksBreaks[1]) return colors[0];
+                    if (value <= jenksBreaks[2]) return colors[1];
+                    if (value <= jenksBreaks[3]) return colors[2];
+                    if (value <= jenksBreaks[4]) return colors[3];
                     return colors[4];
                 }
+            }
+        } catch (e) {
+            console.error("Sync Jenks fallback error:", e);
+        }
+        
+        // Default fallback
+        return colors[4];
+    }
+    
             }
             
             // Default to quantile if no valid classification
@@ -748,7 +767,7 @@ L.control.attribution({
             if (value <= breaks[2]) return colors[2];
             if (value <= breaks[3]) return colors[3];
             return colors[4];
-        }        
+                
         // Function to create a vector tile layer with graduated colors
         function createGraduatedVectorLayer(name, geoJsonData, populationField) {
             // Extract year from populationField (e.g., "A00AA1920" -> "1920")
@@ -1555,6 +1574,38 @@ const trainBtn = document.getElementById('toggle-train');
 addTimeSlider();
 document.getElementById('time-slider').value = 0;
 updateMapForDecade(0);
+
+
+// Clean up worker when page unloads
+window.addEventListener('beforeunload', function() {
+    if (jenksWorker) {
+        jenksWorker.terminate();
+    }
+});
     </script>
+
+
+<script id="jenks-worker" type="javascript/worker">
+    // This script will be converted to a Web Worker
+    self.importScripts('https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js');
+    
+    self.onmessage = function(e) {
+        const { values, numClasses } = e.data;
+        try {
+            // Sort and filter values first
+            const sortedValues = values.filter(v => v > 0).sort((a, b) => a - b);
+            if (sortedValues.length === 0) {
+                self.postMessage({ error: "No valid values" });
+                return;
+            }
+            
+            const breaks = ss.jenks(sortedValues, numClasses);
+            self.postMessage({ breaks });
+        } catch (error) {
+            self.postMessage({ error: error.message });
+        }
+    };
+        </script>
+    
 </body>
 </html>
