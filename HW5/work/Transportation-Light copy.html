@@ -507,6 +507,8 @@
     <!-- Leaflet.VectorGrid plugin -->
     <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
     
+    <script src="https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js"></script>
+
     <!-- Your GeoJSON files -->
     <script src="1820.js"></script>
     <script src="1830.js"></script>
@@ -657,12 +659,12 @@ L.control.attribution({
             
             // Define our color scale (5 classes)
             const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+                'rgba(199, 233, 192, 0.8)',   // Light green
+                'rgba(116, 196, 118, 0.8)',   // Medium green
+                'rgba(49, 163, 84, 0.8)',     // Deeper green
+                'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+            ];
             
             if (classification === 'linear') {
                 // Linear classification
@@ -701,16 +703,37 @@ L.control.attribution({
                 if (value <= breaks[3]) return colors[3];
                 return colors[4];
             }
-
             else if (classification === 'jenks') {
-    const breaks = jenksBreaks(sortedValues, 5);
-    if (value <= breaks[1]) return colors[0];
-    if (value <= breaks[2]) return colors[1];
-    if (value <= breaks[3]) return colors[2];
-    if (value <= breaks[4]) return colors[3];
-    return colors[4];
-}
-
+                // Jenks natural breaks classification
+                try {
+                    // Get breaks using simple-statistics
+                    const jenksBreaks = ss.jenks(sortedValues, 5); // 5 classes
+                    
+                    // Check if we got valid breaks
+                    if (jenksBreaks && jenksBreaks.length === 6) {
+                        if (value <= jenksBreaks[1]) return colors[0];
+                        if (value <= jenksBreaks[2]) return colors[1];
+                        if (value <= jenksBreaks[3]) return colors[2];
+                        if (value <= jenksBreaks[4]) return colors[3];
+                        return colors[4];
+                    }
+                } catch (e) {
+                    console.error("Jenks classification error:", e);
+                    // Fall back to quantile if Jenks fails
+                    const breaks = [
+                        sortedValues[Math.floor(sortedValues.length * 0.2)],
+                        sortedValues[Math.floor(sortedValues.length * 0.4)],
+                        sortedValues[Math.floor(sortedValues.length * 0.6)],
+                        sortedValues[Math.floor(sortedValues.length * 0.8)]
+                    ];
+                    
+                    if (value <= breaks[0]) return colors[0];
+                    if (value <= breaks[1]) return colors[1];
+                    if (value <= breaks[2]) return colors[2];
+                    if (value <= breaks[3]) return colors[3];
+                    return colors[4];
+                }
+            }
             
             // Default to quantile if no valid classification
             const breaks = [
@@ -725,10 +748,7 @@ L.control.attribution({
             if (value <= breaks[2]) return colors[2];
             if (value <= breaks[3]) return colors[3];
             return colors[4];
-
-            
-        }
-        
+        }        
         // Function to create a vector tile layer with graduated colors
         function createGraduatedVectorLayer(name, geoJsonData, populationField) {
             // Extract year from populationField (e.g., "A00AA1920" -> "1920")
@@ -793,72 +813,6 @@ L.control.attribution({
                 values: populationValues,
                 classification: currentClassification
             };
-
-
-
-
-            function jenksBreaks(data, numClasses) {
-    data = data.filter(v => v !== null && v !== undefined && !isNaN(v)).sort((a, b) => a - b);
-
-    const matrices = Array.from({ length: data.length + 1 }, () => Array(numClasses + 1).fill(0));
-    const variance = Array.from({ length: data.length + 1 }, () => Array(numClasses + 1).fill(0));
-
-    for (let i = 1; i <= numClasses; i++) {
-        matrices[0][i] = 1;
-        variance[0][i] = 0;
-        for (let j = 1; j <= data.length; j++) {
-            variance[j][i] = Infinity;
-        }
-    }
-
-    let sum = 0, sumSq = 0, w = 0;
-
-    for (let l = 1; l <= data.length; l++) {
-        let val = data[l - 1];
-        sum = 0;
-        sumSq = 0;
-        w = 0;
-
-        for (let m = 1; m <= l; m++) {
-            let i3 = l - m + 1;
-            val = data[i3 - 1];
-
-            w++;
-            sum += val;
-            sumSq += val * val;
-
-            const mean = sum / w;
-            const ssd = sumSq - (sum * sum) / w;
-
-            if (i3 !== 1) {
-                for (let j = 2; j <= numClasses; j++) {
-                    if (variance[l][j] >= (ssd + variance[i3 - 1][j - 1])) {
-                        matrices[l][j] = i3;
-                        variance[l][j] = ssd + variance[i3 - 1][j - 1];
-                    }
-                }
-            }
-        }
-
-        matrices[l][1] = 1;
-        variance[l][1] = sumSq - (sum * sum) / w;
-    }
-
-    const kclass = [];
-    let k = data.length;
-    let countNum = numClasses;
-
-    while (countNum >= 2) {
-        const id = matrices[k][countNum] - 1;
-        kclass[countNum - 1] = data[id];
-        k = matrices[k][countNum] - 1;
-        countNum--;
-    }
-
-    kclass[0] = data[0];
-    kclass[numClasses] = data[data.length - 1];
-    return kclass;
-}
             
             // Add popup with detailed information
             layer.on('click', function(e) {
@@ -1061,20 +1015,41 @@ L.control.attribution({
                         values[Math.floor(values.length * 0.6)],
                         values[Math.floor(values.length * 0.8)]
                     ];
+                } else if (currentClassification === 'jenks') {
+                    try {
+                        // Get Jenks breaks
+                        const jenksBreaks = ss.jenks(values, 5); // 5 classes
+                        if (jenksBreaks && jenksBreaks.length === 6) {
+                            breaks = jenksBreaks.slice(1, 5); // We need 4 breaks for 5 classes
+                        } else {
+                            // Fall back to quantile if Jenks fails
+                            breaks = [
+                                values[Math.floor(values.length * 0.2)],
+                                values[Math.floor(values.length * 0.4)],
+                                values[Math.floor(values.length * 0.6)],
+                                values[Math.floor(values.length * 0.8)]
+                            ];
+                        }
+                    } catch (e) {
+                        console.error("Jenks legend error:", e);
+                        // Fall back to quantile
+                        breaks = [
+                            values[Math.floor(values.length * 0.2)],
+                            values[Math.floor(values.length * 0.4)],
+                            values[Math.floor(values.length * 0.6)],
+                            values[Math.floor(values.length * 0.8)]
+                        ];
+                    }
                 }
-
-                else if (currentClassification === 'jenks') {
-    breaks = jenksBreaks(values, 5).slice(1, 5); // only inner 4 breaks
-}
                 
                 // Define our color scale (5 classes)
                 const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+                    'rgba(199, 233, 192, 0.8)',   // Light green
+                    'rgba(116, 196, 118, 0.8)',   // Medium green
+                    'rgba(49, 163, 84, 0.8)',     // Deeper green
+                    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+                ];
                 
                 // Create legend content
                 legendContent.innerHTML = `

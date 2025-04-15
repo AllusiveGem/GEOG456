@@ -507,8 +507,6 @@
     <!-- Leaflet.VectorGrid plugin -->
     <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
     
-    <script src="https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js"></script>
-
     <!-- Your GeoJSON files -->
     <script src="1820.js"></script>
     <script src="1830.js"></script>
@@ -641,83 +639,107 @@ L.control.attribution({
         
         // Function to create a graduated color scale for population data
         function getGraduatedColor(value, min, max, values, classification = currentClassification) {
-            // If showing growth rates
-            if (showGrowthRates) {
-                if (value === null) return 'rgba(50, 50, 50, 0.3)';
-                return value > 0 ?
-                       (value > 10 ? '#27ae60' : '#2ecc71') : // Greens for growth
-                       (value < -10 ? '#e74c3c' : '#e67e22'); // Reds for decline
-            }
-            
-            // Original population count coloring
-            if (value === null || value === undefined || value === 0) {
-                return 'rgba(50, 50, 50, 0.3)';
-            }
-            
-            // Filter out null/undefined/zero values and sort
-            const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
-            
-            // Define our color scale (5 classes)
-            const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
-            
-            if (classification === 'linear') {
-                // Linear classification
-                const ratio = (value - min) / (max - min);
-                if (ratio <= 0.2) return colors[0];
-                if (ratio <= 0.4) return colors[1];
-                if (ratio <= 0.6) return colors[2];
-                if (ratio <= 0.8) return colors[3];
-                return colors[4];
-            }
-            else if (classification === 'logarithmic') {
-                // Logarithmic classification
-                const logMin = Math.log10(min || 1);
-                const logMax = Math.log10(max);
-                const logValue = Math.log10(value);
-                const ratio = (logValue - logMin) / (logMax - logMin);
-                
-                if (ratio <= 0.2) return colors[0];
-                if (ratio <= 0.4) return colors[1];
-                if (ratio <= 0.6) return colors[2];
-                if (ratio <= 0.8) return colors[3];
-                return colors[4];
-            }
-            else if (classification === 'quantile') {
-                // Quantile classification
-                const breaks = [
-                    sortedValues[Math.floor(sortedValues.length * 0.2)],
-                    sortedValues[Math.floor(sortedValues.length * 0.4)],
-                    sortedValues[Math.floor(sortedValues.length * 0.6)],
-                    sortedValues[Math.floor(sortedValues.length * 0.8)]
-                ];
-                
-                if (value <= breaks[0]) return colors[0];
-                if (value <= breaks[1]) return colors[1];
-                if (value <= breaks[2]) return colors[2];
-                if (value <= breaks[3]) return colors[3];
-                return colors[4];
-            }
-            
-            // Default to quantile if no valid classification
-            const breaks = [
+    // If showing growth rates
+    if (showGrowthRates) {
+        if (value === null) return 'rgba(50, 50, 50, 0.3)';
+        return value > 0 ?
+               (value > 10 ? '#27ae60' : '#2ecc71') : // Greens for growth
+               (value < -10 ? '#e74c3c' : '#e67e22'); // Reds for decline
+    }
+    
+    // Original population count coloring
+    if (value === null || value === undefined || value === 0) {
+        return 'rgba(50, 50, 50, 0.3)';
+    }
+    
+    // Filter out null/undefined/zero values and sort
+    const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
+    
+    // Define our color scale (5 classes)
+    const colors = [
+        'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+        'rgba(199, 233, 192, 0.8)',   // Light green
+        'rgba(116, 196, 118, 0.8)',   // Medium green
+        'rgba(49, 163, 84, 0.8)',     // Deeper green
+        'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+    ];
+    
+    if (classification === 'linear') {
+        // Linear classification
+        const ratio = (value - min) / (max - min);
+        if (ratio <= 0.2) return colors[0];
+        if (ratio <= 0.4) return colors[1];
+        if (ratio <= 0.6) return colors[2];
+        if (ratio <= 0.8) return colors[3];
+        return colors[4];
+    }
+    else if (classification === 'logarithmic') {
+        // Logarithmic classification
+        const logMin = Math.log10(min || 1);
+        const logMax = Math.log10(max);
+        const logValue = Math.log10(value);
+        const ratio = (logValue - logMin) / (logMax - logMin);
+        
+        if (ratio <= 0.2) return colors[0];
+        if (ratio <= 0.4) return colors[1];
+        if (ratio <= 0.6) return colors[2];
+        if (ratio <= 0.8) return colors[3];
+        return colors[4];
+    }
+    else if (classification === 'quantile') {
+        // Quantile classification
+        const breaks = [
+            sortedValues[Math.floor(sortedValues.length * 0.2)],
+            sortedValues[Math.floor(sortedValues.length * 0.4)],
+            sortedValues[Math.floor(sortedValues.length * 0.6)],
+            sortedValues[Math.floor(sortedValues.length * 0.8)]
+        ];
+        
+        if (value <= breaks[0]) return colors[0];
+        if (value <= breaks[1]) return colors[1];
+        if (value <= breaks[2]) return colors[2];
+        if (value <= breaks[3]) return colors[3];
+        return colors[4];
+    }
+    if (classification === 'jenks') {
+        // Use the faster natural breaks
+        const breaks = getNaturalBreaks(sortedValues, 5);
+        if (!breaks || breaks.length < 5) {
+            // Fallback to quantile if natural breaks fails
+            const qBreaks = [
                 sortedValues[Math.floor(sortedValues.length * 0.2)],
                 sortedValues[Math.floor(sortedValues.length * 0.4)],
                 sortedValues[Math.floor(sortedValues.length * 0.6)],
                 sortedValues[Math.floor(sortedValues.length * 0.8)]
             ];
             
-            if (value <= breaks[0]) return colors[0];
-            if (value <= breaks[1]) return colors[1];
-            if (value <= breaks[2]) return colors[2];
-            if (value <= breaks[3]) return colors[3];
+            if (value <= qBreaks[0]) return colors[0];
+            if (value <= qBreaks[1]) return colors[1];
+            if (value <= qBreaks[2]) return colors[2];
+            if (value <= qBreaks[3]) return colors[3];
             return colors[4];
         }
+        
+        if (value <= breaks[1]) return colors[0];
+        if (value <= breaks[2]) return colors[1];
+        if (value <= breaks[3]) return colors[2];
+        if (value <= breaks[4]) return colors[3];
+        return colors[4];
+    }
+    // Default to quantile if no valid classification
+    const breaks = [
+        sortedValues[Math.floor(sortedValues.length * 0.2)],
+        sortedValues[Math.floor(sortedValues.length * 0.4)],
+        sortedValues[Math.floor(sortedValues.length * 0.6)],
+        sortedValues[Math.floor(sortedValues.length * 0.8)]
+    ];
+    
+    if (value <= breaks[0]) return colors[0];
+    if (value <= breaks[1]) return colors[1];
+    if (value <= breaks[2]) return colors[2];
+    if (value <= breaks[3]) return colors[3];
+    return colors[4];
+}
         
         // Function to create a vector tile layer with graduated colors
         function createGraduatedVectorLayer(name, geoJsonData, populationField) {
@@ -783,7 +805,78 @@ L.control.attribution({
                 values: populationValues,
                 classification: currentClassification
             };
-            
+
+
+
+
+// Jenks natural breaks algorithm
+// Faster natural breaks algorithm (simplified Fisher-Jenks)
+function getNaturalBreaks(data, numClass) {
+    if (data.length === 0 || numClass > data.length) return null;
+    
+    // Sort the data
+    data = data.slice().sort((a, b) => a - b);
+    
+    // Simple case: if we want more classes than unique values
+    const uniqueValues = [...new Set(data)];
+    if (uniqueValues.length <= numClass) {
+        return uniqueValues.concat([Infinity]);
+    }
+    
+    // Initialize breaks by dividing the data into equal intervals
+    let breaks = [];
+    for (let i = 0; i <= numClass; i++) {
+        const index = Math.floor((data.length - 1) * i / numClass);
+        breaks.push(data[index]);
+    }
+    breaks[breaks.length - 1] = Infinity; // Make last break inclusive
+    
+    // Optimize breaks through iteration (simplified k-means)
+    let improved = true;
+    let iterations = 0;
+    const maxIterations = 100;
+    
+    while (improved && iterations < maxIterations) {
+        improved = false;
+        iterations++;
+        
+        // Assign each value to a class
+        const classes = Array(numClass).fill().map(() => []);
+        let currentClass = 0;
+        
+        for (const value of data) {
+            while (value >= breaks[currentClass + 1] && currentClass < numClass - 1) {
+                currentClass++;
+            }
+            classes[currentClass].push(value);
+        }
+        
+        // Calculate new breaks as class means
+        const newBreaks = [data[0]];
+        for (let i = 0; i < numClass - 1; i++) {
+            if (classes[i].length > 0 && classes[i + 1].length > 0) {
+                const lastVal = classes[i][classes[i].length - 1];
+                const nextVal = classes[i + 1][0];
+                newBreaks.push((lastVal + nextVal) / 2);
+            } else {
+                newBreaks.push(breaks[i + 1]);
+            }
+        }
+        newBreaks.push(Infinity);
+        
+        // Check for improvement
+        for (let i = 1; i < numClass; i++) {
+            if (Math.abs(newBreaks[i] - breaks[i]) > (breaks[i] * 0.001)) {
+                improved = true;
+                break;
+            }
+        }
+        
+        breaks = newBreaks;
+    }
+    
+    return breaks;
+} 
             // Add popup with detailed information
             layer.on('click', function(e) {
                 const props = e.layer.properties;
@@ -986,6 +1079,71 @@ L.control.attribution({
                         values[Math.floor(values.length * 0.8)]
                     ];
                 }
+
+// In your updateLegend function:
+else if (currentClassification === 'jenks') {
+    const breaks = getNaturalBreaks(values, 5);
+    if (!breaks || breaks.length < 5) {
+        legendContent.innerHTML = '<div class="legend-item">Using quantile (data too small for natural breaks)</div>';
+        // Fallback to showing quantile breaks
+        const qBreaks = [
+            values[Math.floor(values.length * 0.2)],
+            values[Math.floor(values.length * 0.4)],
+            values[Math.floor(values.length * 0.6)],
+            values[Math.floor(values.length * 0.8)]
+        ];
+        
+        legendContent.innerHTML = `
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[0]};"></div>
+                <div class="legend-label">&lt; ${Math.round(qBreaks[0]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[1]};"></div>
+                <div class="legend-label">${Math.round(qBreaks[0]).toLocaleString()} - ${Math.round(qBreaks[1]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[2]};"></div>
+                <div class="legend-label">${Math.round(qBreaks[1]).toLocaleString()} - ${Math.round(qBreaks[2]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[3]};"></div>
+                <div class="legend-label">${Math.round(qBreaks[2]).toLocaleString()} - ${Math.round(qBreaks[3]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[4]};"></div>
+                <div class="legend-label">&gt; ${Math.round(qBreaks[3]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item" style="color: #777; font-size: 0.6rem;">
+                <i>Natural breaks not available - showing quantile</i>
+            </div>
+        `;
+        return;
+    }
+    
+    legendContent.innerHTML = `
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: ${colors[0]};"></div>
+            <div class="legend-label">&lt; ${Math.round(breaks[1]).toLocaleString()}</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: ${colors[1]};"></div>
+            <div class="legend-label">${Math.round(breaks[1]).toLocaleString()} - ${Math.round(breaks[2]).toLocaleString()}</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: ${colors[2]};"></div>
+            <div class="legend-label">${Math.round(breaks[2]).toLocaleString()} - ${Math.round(breaks[3]).toLocaleString()}</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: ${colors[3]};"></div>
+            <div class="legend-label">${Math.round(breaks[3]).toLocaleString()} - ${Math.round(breaks[4]).toLocaleString()}</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: ${colors[4]};"></div>
+            <div class="legend-label">&gt; ${Math.round(breaks[4]).toLocaleString()}</div>
+        </div>
+    `;
+}
                 
                 // Define our color scale (5 classes)
                 const colors = [
