@@ -99,17 +99,17 @@
         }
 
         #time-slider {
-    width: 100%;
-    height: 8px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: linear-gradient(to right, 
-        #004080, #0060A0, #0080C0, #00A0E0, 
-        #20C0FF, #40D0FF, #60E0FF, #80F0FF);
-    border-radius: 4px;
-    outline: none;
-    margin: 10px 0;
-}
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, 
+                #004080, #0060A0, #0080C0, #00A0E0, 
+                #20C0FF, #40D0FF, #60E0FF, #80F0FF);
+            border-radius: 4px;
+            outline: none;
+            margin: 10px 0;
+        }
 
         #time-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -185,6 +185,14 @@
             margin-bottom: 15px;
         }
 
+
+        .growth-active .classification-controls {
+    display: none !important;
+}
+
+.growth-active .classification-title {
+    display: none !important;
+}
         .classification-title {
             font-size: 0.8rem;
             margin-bottom: 8px;
@@ -472,6 +480,7 @@
                     <button class="classification-btn active" data-method="linear">Equal Interval</button>
                     <button class="classification-btn" data-method="logarithmic">Logarithmic</button>
                     <button class="classification-btn" data-method="quantile">Quantile</button>
+                    <button class="classification-btn" data-method="jenks">Jenks</button>
                 </div>
             </div>
             
@@ -524,30 +533,52 @@
     <script src="train2.js"></script>
     <script src="state.js"></script>
     
+    <!-- Web Worker Implementation -->
+    <script id="jenks-worker" type="javascript/worker">
+    self.importScripts('https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js');
+
+    self.onmessage = function(e) {
+        const { values, numClasses } = e.data;
+        try {
+            // Sort and filter values first
+            const sortedValues = values.filter(v => v > 0).sort((a, b) => a - b);
+            if (sortedValues.length === 0) {
+                self.postMessage({ error: "No valid values" });
+                return;
+            }
+            
+            const breaks = ss.jenks(sortedValues, numClasses);
+            self.postMessage({ breaks });
+        } catch (error) {
+            self.postMessage({ error: error.message });
+        }
+    };
+    </script>
+
     <script>
         // Initialize the map with expanded bounds
         const map = L.map('map', {
-    attributionControl: false,
-    maxBounds: [
-        [-30, -200],   // Expanded Southwest corner (more southern)
-        [75, -30]      // Northeast corner
-    ],
-    maxBoundsViscosity: 1.0,  // Keeps panning within bounds
-    minZoom: 3,               // Prevents zooming too far out
-    maxZoom: 13               // Already set in your tile layer, but can also be set here
-}).setView([39.8283, -98.5795], 4);
+            attributionControl: false,
+            maxBounds: [
+                [-30, -200],   // Expanded Southwest corner (more southern)
+                [75, -30]      // Northeast corner
+            ],
+            maxBoundsViscosity: 1.0,  // Keeps panning within bounds
+            minZoom: 3,               // Prevents zooming too far out
+            maxZoom: 13               // Already set in your tile layer, but can also be set here
+        }).setView([39.8283, -98.5795], 4);
 
-// Using CartoDB Positron - a free, white-themed basemap that doesn't require an API key
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: ''
-}).addTo(map);
+        // Using CartoDB Positron - a free, white-themed basemap that doesn't require an API key
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: ''
+        }).addTo(map);
 
-// Add custom attribution control in a different position if desired
-L.control.attribution({
-    position: 'bottomleft',  // You can adjust this position as needed
-    prefix: ''  // Removes the "Leaflet" text
-}).addAttribution('&copy; <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html">Corey Reichert</a> AI Assisted - GEOG 456').addTo(map);
+        // Add custom attribution control
+        L.control.attribution({
+            position: 'bottomleft',
+            prefix: ''
+        }).addAttribution('&copy; <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html">Corey Reichert</a> AI Assisted - GEOG 456').addTo(map);
 
         // Global variables
         let currentClassification = 'linear';
@@ -555,6 +586,7 @@ L.control.attribution({
         let aiEnabled = false;
         let API_KEY = localStorage.getItem('OPENROUTER_API_KEY');
         const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+        let jenksWorker = null;
         
         // Object to store our layers
         const layers = {};
@@ -595,51 +627,54 @@ L.control.attribution({
                 document.getElementById('loading-text').textContent = 
                     `Loading layers (${this.loaded}/${this.total})...`;
                 
-                    if (this.loaded === this.total) {
-    setTimeout(() => {
-        document.getElementById('loading-container').style.display = 'none';
-        
-        // Add default layers in correct z-index order
-        // 1. State borders first (bottom)
-        if (layers.state) {
-            layers.state.addTo(map);
-        }
-        
-        // 2. Initial population layer
-        showYearLayer('1820');
-        
-        // 3. Transportation layers in order:
-        // Railroads next (above population)
-        if (layers.train2) {
-            layers.train2.addTo(map);
-            document.querySelector('[data-layer="train2"]').classList.add('active');
-            layers.train2.bringToFront();
-        }
-        
-        // Canals above railroads
-        
-        // Trails on top (above everything else)
-        if (layers.trail) {
-            layers.trail.addTo(map);
-            document.querySelector('[data-layer="trail"]').classList.add('active');
-            layers.trail.bringToFront();
-        }
-        
-        if (layers.river) {
-            layers.river.addTo(map);
-            document.querySelector('[data-layer="river"]').classList.add('active');
-            layers.river.bringToFront();
-        }
-        // Initialize time slider
-        addTimeSlider();
-        updateLegend();
-    }, 500);
-} 
-  }
+                if (this.loaded === this.total) {
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                        
+                        // Add default layers in correct z-index order
+                        if (layers.state) {
+                            layers.state.addTo(map);
+                        }
+                        
+                        // Initial population layer
+                        showYearLayer('1820');
+                        
+                        // Transportation layers
+                        if (layers.train2) {
+                            layers.train2.addTo(map);
+                            document.querySelector('[data-layer="train2"]').classList.add('active');
+                            layers.train2.bringToFront();
+                        }
+                        
+                        if (layers.trail) {
+                            layers.trail.addTo(map);
+                            document.querySelector('[data-layer="trail"]').classList.add('active');
+                            layers.trail.bringToFront();
+                        }
+                        
+                        if (layers.river) {
+                            layers.river.addTo(map);
+                            document.querySelector('[data-layer="river"]').classList.add('active');
+                            layers.river.bringToFront();
+                        }
+                        
+                        // Initialize time slider
+                        addTimeSlider();
+                        updateLegend();
+                    }, 500);
+                } 
+            }
         };
         
+        // Function to create a blob URL for the worker
+        function createJenksWorker() {
+            const workerScript = document.getElementById('jenks-worker').textContent;
+            const blob = new Blob([workerScript], { type: 'application/javascript' });
+            return new Worker(URL.createObjectURL(blob));
+        }
+
         // Function to create a graduated color scale for population data
-        function getGraduatedColor(value, min, max, values, classification = currentClassification) {
+        function getGraduatedColor(value, min, max, values, classification = currentClassification, metadata) {
             // If showing growth rates
             if (showGrowthRates) {
                 if (value === null) return 'rgba(50, 50, 50, 0.3)';
@@ -653,19 +688,47 @@ L.control.attribution({
                 return 'rgba(50, 50, 50, 0.3)';
             }
             
-            // Filter out null/undefined/zero values and sort
-            const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
-            
             // Define our color scale (5 classes)
             const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+                'rgba(199, 233, 192, 0.8)',   // Light green
+                'rgba(116, 196, 118, 0.8)',   // Medium green
+                'rgba(49, 163, 84, 0.8)',     // Deeper green
+                'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+            ];
             
-            if (classification === 'linear') {
+            if (classification === 'jenks') {
+                // Check for cached breaks in metadata
+                if (metadata && metadata.precomputedBreaks && metadata.precomputedBreaks.jenks) {
+                    const jenksBreaks = metadata.precomputedBreaks.jenks;
+                    if (value <= jenksBreaks[1]) return colors[0];
+                    if (value <= jenksBreaks[2]) return colors[1];
+                    if (value <= jenksBreaks[3]) return colors[2];
+                    if (value <= jenksBreaks[4]) return colors[3];
+                    return colors[4];
+                }
+                
+                // Fallback to synchronous calculation if worker isn't ready
+                try {
+                    const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
+                    if (sortedValues.length > 0) {
+                        const jenksBreaks = ss.jenks(sortedValues, 5);
+                        if (jenksBreaks && jenksBreaks.length === 6) {
+                            if (value <= jenksBreaks[1]) return colors[0];
+                            if (value <= jenksBreaks[2]) return colors[1];
+                            if (value <= jenksBreaks[3]) return colors[2];
+                            if (value <= jenksBreaks[4]) return colors[3];
+                            return colors[4];
+                        }
+                    }
+                } catch (e) {
+                    console.error("Sync Jenks fallback error:", e);
+                }
+                
+                // Default fallback
+                return colors[4];
+            }
+            else if (classification === 'linear') {
                 // Linear classification
                 const ratio = (value - min) / (max - min);
                 if (ratio <= 0.2) return colors[0];
@@ -689,6 +752,7 @@ L.control.attribution({
             }
             else if (classification === 'quantile') {
                 // Quantile classification
+                const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
                 const breaks = [
                     sortedValues[Math.floor(sortedValues.length * 0.2)],
                     sortedValues[Math.floor(sortedValues.length * 0.4)],
@@ -704,6 +768,7 @@ L.control.attribution({
             }
             
             // Default to quantile if no valid classification
+            const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
             const breaks = [
                 sortedValues[Math.floor(sortedValues.length * 0.2)],
                 sortedValues[Math.floor(sortedValues.length * 0.4)],
@@ -748,9 +813,38 @@ L.control.attribution({
             const minValue = Math.min(...populationValues.filter(v => v > 0));
             const maxValue = Math.max(...populationValues);
             
-            // Create the vector grid layer with graduated colors
+            // Initialize worker if not already created
+            if (!jenksWorker) {
+                jenksWorker = createJenksWorker();
+            }
+            
+            // Create a promise to store the Jenks breaks
+            const jenksPromise = new Promise((resolve) => {
+                if (populationValues.length === 0) {
+                    resolve(null);
+                    return;
+                }
+                
+                const workerHandler = function(e) {
+                    if (e.data.error) {
+                        console.error("Jenks worker error:", e.data.error);
+                        resolve(null);
+                    } else {
+                        resolve(e.data.breaks);
+                    }
+                    jenksWorker.removeEventListener('message', workerHandler);
+                };
+                
+                jenksWorker.addEventListener('message', workerHandler);
+                jenksWorker.postMessage({
+                    values: populationValues,
+                    numClasses: 5
+                });
+            });
+            
+            // Create the vector grid layer
             const layer = L.vectorGrid.slicer(geoJsonData, {
-                rendererFactory: L.svg.tile,
+                rendererFactory: L.canvas.tile, // Use canvas for better performance
                 vectorTileLayerStyles: {
                     sliced: function(properties) {
                         const value = showGrowthRates ? properties.growthRate : properties[populationField];
@@ -758,7 +852,7 @@ L.control.attribution({
                             weight: 1.5,
                             color: '#616161',
                             opacity: 0.8,
-                            fillColor: getGraduatedColor(value, minValue, maxValue, populationValues),
+                            fillColor: getGraduatedColor(value, minValue, maxValue, populationValues, currentClassification, layer.metadata),
                             fillOpacity: 0.85,
                             fill: true
                         };
@@ -766,22 +860,39 @@ L.control.attribution({
                 },
                 maxZoom: 14,
                 tileSize: 256,
-                buffer: 128,
+                buffer: 64,
                 interactive: true,
                 getFeatureId: function(f) {
                     return f.properties.id || L.stamp(f);
                 }
             });
             
-            // Store metadata in layer for legend
+            // Store metadata with the promise for Jenks breaks
             layer.metadata = {
                 field: showGrowthRates ? 'growthRate' : populationField,
                 min: minValue,
                 max: maxValue,
                 name: name,
                 values: populationValues,
-                classification: currentClassification
+                classification: currentClassification,
+                jenksPromise: jenksPromise
             };
+            
+            // When Jenks breaks are ready, store them
+            jenksPromise.then(breaks => {
+                if (breaks) {
+                    if (!layer.metadata.precomputedBreaks) {
+                        layer.metadata.precomputedBreaks = {};
+                    }
+                    layer.metadata.precomputedBreaks.jenks = breaks;
+                    
+                    // If this layer is currently visible, update it
+                    if (map.hasLayer(layer)) {
+                        map.removeLayer(layer);
+                        layer.addTo(map);
+                    }
+                }
+            });
             
             // Add popup with detailed information
             layer.on('click', function(e) {
@@ -845,6 +956,7 @@ L.control.attribution({
             return layer;
         }
         
+        // [Rest of your existing functions remain unchanged...]
         // Function to create a vector tile layer
         function createVectorTileLayer(name, geoJsonData) {
             const layerColor = layerColors[name] || '#0056b3';
@@ -984,16 +1096,28 @@ L.control.attribution({
                         values[Math.floor(values.length * 0.6)],
                         values[Math.floor(values.length * 0.8)]
                     ];
+                } else if (currentClassification === 'jenks') {
+                    if (metadata.precomputedBreaks && metadata.precomputedBreaks.jenks) {
+                        breaks = metadata.precomputedBreaks.jenks.slice(1, 5);
+                    } else {
+                        // Fall back to quantile if Jenks breaks aren't ready
+                        breaks = [
+                            values[Math.floor(values.length * 0.2)],
+                            values[Math.floor(values.length * 0.4)],
+                            values[Math.floor(values.length * 0.6)],
+                            values[Math.floor(values.length * 0.8)]
+                        ];
+                    }
                 }
                 
                 // Define our color scale (5 classes)
                 const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+                    'rgba(199, 233, 192, 0.8)',   // Light green
+                    'rgba(116, 196, 118, 0.8)',   // Medium green
+                    'rgba(49, 163, 84, 0.8)',     // Deeper green
+                    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+                ];
                 
                 // Create legend content
                 legendContent.innerHTML = `
@@ -1032,35 +1156,36 @@ L.control.attribution({
         
         // Function to show only one year at a time
         function showYearLayer(year) {
-    // Remove all year layers first
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y')) {
-            map.removeLayer(layers[name]);
+            // Remove all year layers first
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y')) {
+                    map.removeLayer(layers[name]);
+                }
+            });
+            
+            // Add the selected year layer
+            const layerName = `y${year}`;
+            if (layers[layerName]) {
+                layers[layerName].addTo(map);
+                
+                // Ensure proper z-index ordering (population < railroads < canals < trails)
+                if (layers.train2 && map.hasLayer(layers.train2)) {
+                    layers.train2.bringToFront();
+                }
+                if (layers.trail && map.hasLayer(layers.trail)) {
+                    layers.trail.bringToFront();
+                }
+                if (layers.river && map.hasLayer(layers.river)) {
+                    layers.river.bringToFront();
+                }
+                
+                updateLegend();
+                return true;
+            } else {
+                return false;
+            }
         }
-    });
-    
-    // Add the selected year layer
-    const layerName = `y${year}`;
-    if (layers[layerName]) {
-        layers[layerName].addTo(map);
         
-        // Ensure proper z-index ordering (population < railroads < canals < trails)
-        if (layers.train2 && map.hasLayer(layers.train2)) {
-    layers.train2.bringToFront();
-}
-
-if (layers.trail && map.hasLayer(layers.trail)) {
-    layers.trail.bringToFront();
-}
-if (layers.river && map.hasLayer(layers.river)) {
-    layers.river.bringToFront();
-}       
-        updateLegend();
-        return true;
-    } else {
-        return false;
-    }
-}
         // AI Explanation Functions
         async function getDeepSeekExplanation(countyName, stateName, prevYear, currYear, prevPop, currPop, growthRate) {
             if (!aiEnabled) return "Enable AI for explanations";
@@ -1399,27 +1524,20 @@ if (layers.river && map.hasLayer(layers.river)) {
         
         // Layer toggle buttons
         document.querySelectorAll('.layer-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const layerName = this.dataset.layer;
-        if (layers[layerName]) {
-            if (map.hasLayer(layers[layerName])) {
-                map.removeLayer(layers[layerName]);
-                this.classList.remove('active');
-            } else {
-                layers[layerName].addTo(map);
-                this.classList.add('active');
-            }
-        }
-    });
-});
-const trainBtn = document.getElementById('toggle-train');
-                if (trainBtn && trainBtn.classList.contains('active')) {
-                    layers.train2.addTo(map);
-                    // Ensure railroads appear above population but below canals and trails
-                    layers.train2.bringToFront();
-                    if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
-                    if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
+            btn.addEventListener('click', function() {
+                const layerName = this.dataset.layer;
+                if (layers[layerName]) {
+                    if (map.hasLayer(layers[layerName])) {
+                        map.removeLayer(layers[layerName]);
+                        this.classList.remove('active');
+                    } else {
+                        layers[layerName].addTo(map);
+                        this.classList.add('active');
+                    }
                 }
+            });
+        });
+        
         // Classification buttons
         document.querySelectorAll('.classification-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -1440,6 +1558,16 @@ const trainBtn = document.getElementById('toggle-train');
                         }
                     }
                 });
+                
+                if (layers.train2 && map.hasLayer(layers.train2)) {
+            layers.train2.bringToFront();
+        }
+        if (layers.trail && map.hasLayer(layers.trail)) {
+            layers.trail.bringToFront();
+        }
+        if (layers.river && map.hasLayer(layers.river)) {
+            layers.river.bringToFront();
+        }
                 
                 // Update the legend
                 updateLegend();
@@ -1471,34 +1599,44 @@ const trainBtn = document.getElementById('toggle-train');
         
         // Growth rate toggle
         document.getElementById('show-growth').addEventListener('change', function() {
-    showGrowthRates = this.checked;
-    
-    // Recreate all year layers with new visualization
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y') && layers[name].metadata) {
-            layers[name].metadata.classification = currentClassification;
-            if (map.hasLayer(layers[name])) {
-                map.removeLayer(layers[name]);
-                layers[name].addTo(map);
-                
-                // Maintain z-index ordering after refresh
-                if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
-                if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
-                if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+            showGrowthRates = this.checked;
+            
 
+            const panel = document.querySelector('.control-panel');
+            panel.classList.toggle('growth-active', showGrowthRates);
+
+
+            // Recreate all year layers with new visualization
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y') && layers[name].metadata) {
+                    layers[name].metadata.classification = currentClassification;
+                    if (map.hasLayer(layers[name])) {
+                        map.removeLayer(layers[name]);
+                        layers[name].addTo(map);
+                        
+                        // Maintain z-index ordering after refresh
+                        if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
+                        if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
+                        if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+                    }
+                }
+            });
+            
+            // Update the legend
+            updateLegend();
+        });
+
+        // Clean up worker when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (jenksWorker) {
+                jenksWorker.terminate();
             }
-        }
-    });
-    
-    // Update the legend
-    updateLegend();
-});
+        });
 
-
-
-addTimeSlider();
-document.getElementById('time-slider').value = 0;
-updateMapForDecade(0);
+        // Initialize time slider
+        addTimeSlider();
+        document.getElementById('time-slider').value = 0;
+        updateMapForDecade(0);
     </script>
 </body>
 </html>
