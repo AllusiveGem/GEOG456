@@ -523,19 +523,20 @@
     <script src="state.js"></script>
     
     <script>
-        // Initialize the map with Carto Dark basemap
+        // Initialize the map with expanded bounds
         const map = L.map('map', {
     attributionControl: false,
     maxBounds: [
-        [5, -200],   // Expanded Southwest corner
-        [75, -30]    // Expanded Northeast corner
+        [-30, -200],   // Expanded Southwest corner (more southern)
+        [75, -30]      // Northeast corner
     ],
     maxBoundsViscosity: 1.0,  // Keeps panning within bounds
     minZoom: 3,               // Prevents zooming too far out
     maxZoom: 13               // Already set in your tile layer, but can also be set here
 }).setView([39.8283, -98.5795], 4);
-// Using OpenStreetMap's standard tile layer - free and doesn't require an API key
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+// Using CartoDB Positron - a free, white-themed basemap that doesn't require an API key
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: ''
 }).addTo(map);
