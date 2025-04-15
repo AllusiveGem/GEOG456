@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="3D Prints Collection - Showcasing Corey Reichert's 3D printing projects">
+    <title>3D Prints Collection | Corey Reichert</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2A5C82;
+            --secondary-color: #5C8374;
+            --accent-color: #D4A373;
+            --text-color: #333;
+            --light-bg: #f4f4f4;
+            --dark-bg: #2A5C82;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation styles */
+        .nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 1001;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            padding: 12px 16px;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        /* Main content */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        /* Model Viewer */
+        .model-viewer-container {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+            padding: 2rem;
+        }
+
+        .model-viewer-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .model-viewer {
+            flex: 1;
+            min-width: 300px;
+            height: 500px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .model-viewer img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .model-viewer img.active {
+            opacity: 1;
+        }
+
+        .zoning-legend {
+            flex: 0 0 250px;
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .model-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .model-controls button {
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .model-controls button:hover {
+            background: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .model-controls button.active {
+            background: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        /* Prints Grid */
+        .prints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .print-card {
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .print-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .print-image-container {
+            height: 250px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .print-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .print-image img.active {
+            opacity: 1;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-bg);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .model-viewer-wrapper {
+                flex-direction: column;
+            }
+            
+            .model-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .prints-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">Corey Reichert</a>
+        <ul class="nav-links">
+            <li><a href="TestingGround.html">Home</a></li>
+            <li><a href="TestingGround.html#resume">Resume</a></li>
+            <li class="dropdown">
+                <a href="TestingGround.html#portfolio">Portfolio ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="block-island-map.html">Block Island</a></li>
+                    <li><a href="savannah-map.html">Savannah Georgia</a></li>
+                    <li><a href="3D-Prints.html">3D Prints</a></li>
+                    <li><a href="Photography.html">Art Gallery</a></li>
+                    <li><a href="">QGIS Maps + Graphs</a></li>
+                    <li><a href="publications.html">Publications</a></li>
+                </ul>
+            </li>
+            <li><a href="#map">Interactive Maps</a></li>
+            <li class="dropdown">
+                <a href="#contact">Contact ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="https://www.linkedin.com/in/corey-reichert-47837a2aa/">LinkedIn</a></li>
+                    <li><a href="https://github.com/AllusiveGem">GitHub</a></li>
+                    <li><a href="mailto:reichertcorey08@gmail.com">Email</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <header class="page-header">
+            <h1>3D Printed Models & Maps</h1>
+            <p>Explore my collection of 3D printed urban models, from folly printed models of real-life cities to zoning models.</p>
+        </header>
+
+        <!-- Interactive Model Viewer -->
+        <section class="model-viewer-container">
+            <h2 class="model-title">My Slice Of American Pie</h2>
+            <p class="model-description">A Model Based Roughly on Harrisburg PA, showcasing the primary characteristics of 20th Century American Urban Design.</p>
+            
+            <div class="model-viewer-wrapper">
+                <div class="model-viewer" id="model-viewer">
+                    <!-- Top Down Views -->
+                    <img src="assets/3d/model/top/top-down.jpg" alt="Top Down View" id="view-top-down-img">
+                    <img src="assets/3d/model/top/top-down-left.jpg" alt="Top Down Left View" id="view-top-down-left-img">
+                    <img src="assets/3d/model/top/top-down-right.jpg" alt="Top Down Right View" id="view-top-down-right-img">
+                    
+                    <!-- Special Views -->
+                    <img src="assets/3d/model/top/specialview1.JPG" alt="Special View 1" id="view-special-1-img">
+                    <img src="assets/3d/model/top/specialview1.JPG" alt="Special View 2" id="view-special-2-img">
+                    
+                    <!-- Low Angle Views -->
+                    <img src="assets/3d/model/low/front.jpg" alt="Low Angle Front View" id="view-low-front-img" class="active">
+                    <img src="assets/3d/model/low/90-left.jpg" alt="Low Angle 90° Left View" id="view-low-90-left-img">
+                    <img src="assets/3d/model/low/45-left.jpg" alt="Low Angle 45° Left View" id="view-low-45-left-img">
+                    <img src="assets/3d/model/low/90-right.jpg" alt="Low Angle 90° Right View" id="view-low-90-right-img">
+                    <img src="assets/3d/model/low/45-right.jpg" alt="Low Angle 45° Right View" id="view-low-45-right-img">
+                    <img src="assets/3d/model/low/back.jpg" alt="Low Angle Back View" id="view-low-back-img">
+                    
+                    <!-- Mid Angle Views -->
+                    <img src="assets/3d/model/mid/front.jpg" alt="Mid Angle Front View" id="view-mid-front-img">
+                    <img src="assets/3d/model/mid/90-left.jpg" alt="Mid Angle 90° Left View" id="view-mid-90-left-img">
+                    <img src="assets/3d/model/mid/45-left.jpg" alt="Mid Angle 45° Left View" id="view-mid-45-left-img">
+                    <img src="assets/3d/model/mid/90-right.jpg" alt="Mid Angle 90° Right View" id="view-mid-90-right-img">
+                    <img src="assets/3d/model/mid/45-right.jpg" alt="Mid Angle 45° Right View" id="view-mid-45-right-img">
+                    <img src="assets/3d/model/mid/back.jpg" alt="Mid Angle Back View" id="view-mid-back-img">
+                </div>
+                
+                <div class="zoning-legend">
+                    <h3>Zoning Legend</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFFF00;"></div>
+                        <span class="legend-label">Residential (Low-Density)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFA500;"></div>
+                        <span class="legend-label">Residential (Medium-Density)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FF0000;"></div>
+                        <span class="legend-label">Industrial</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #0000FF;"></div>
+                        <span class="legend-label">Commercial</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #008000;"></div>
+                        <span class="legend-label">Parks / Open Space</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="model-controls">
+                <!-- Height Level Controls -->
+                <div class="control-group">
+                    <h4>Height Level</h4>
+                    <button id="level-low" title="Low Angle" class="active"><i class="fas fa-angle-down"></i> Low</button>
+                    <button id="level-mid" title="Mid Angle"><i class="fas fa-equals"></i> Mid</button>
+                </div>
+                
+                <!-- Top Down Views -->
+                <div class="control-group">
+                    <h4>Top Down</h4>
+                    <button id="view-top-down" title="Top Down"><i class="fas fa-chevron-up"></i></button>
+                    <button id="view-top-down-left" title="Top Down Left"><i class="fas fa-chevron-up"></i> <i class="fas fa-arrow-left"></i></button>
+                    <button id="view-top-down-right" title="Top Down Right"><i class="fas fa-chevron-up"></i> <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <!-- Special Views -->
+                <div class="control-group">
+                    <h4>Special Views</h4>
+                    <button id="view-special-1" title="Special View 1"><i class="fas fa-star"></i> 1</button>
+                    <button id="view-special-2" title="Special View 2"><i class="fas fa-star"></i> 2</button>
+                </div>
+                
+                <!-- Rotation Controls -->
+                <div class="control-group">
+                    <h4>Rotation</h4>
+                    <button id="view-front" title="Front View" class="active"><i class="fas fa-arrow-up"></i></button>
+                    <button id="view-90-left" title="90° Left"><i class="fas fa-undo"></i></button>
+                    <button id="view-45-left" title="45° Left"><i class="fas fa-arrow-left"></i></button>
+                    <button id="view-45-right" title="45° Right"><i class="fas fa-arrow-right"></i></button>
+                    <button id="view-90-right" title="90° Right"><i class="fas fa-redo"></i></button>
+                    <button id="view-back" title="Back View"><i class="fas fa-arrow-down"></i></button>
+                </div>
+            </div>
+            
+            <div class="level-indicator">
+                Current View: <span id="current-level">Low Angle</span> - <span id="current-angle">Front View</span>
+            </div>
+        </section>
+
+        <!-- Prints Grid -->
+        <section class="prints-grid">
+            <!-- Print 1 -->
+            <div class="print-card">
+                <div class="print-image-container">
+                    <div class="print-image">
+                        <img src="assets/3d/sideunch.jpg" alt="UNC Chapel Hill Model" class="active">
+                        <img src="assets/3d/uncch.jpg" alt="UNC Chapel Hill Alternate View">
+                    </div>
+                </div>
+                <div class="print-content">
+                    <h3>Chapel Hill</h3>
+                    <p>A model of my University (UNC-CH) in it's iconic Tarheel Blue color.</p>
+                    <div class="print-meta">
+                        <span>Printed: 2024</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print 2 -->
+            <div class="print-card">
+                <div class="print-image-container">
+                    <div class="print-image">
+                        <img src="assets/3d/Charlotte.jpg" alt="Charlotte Skyline" class="active">
+                        <img src="assets/3d/TopCharlotte.jpg" alt="Charlotte Top View">
+                    </div>
+                </div>
+                <div class="print-content">
+                    <h3>Downtown Charlotte</h3>
+                    <p>This model showcases the skyline of downtown Charlotte, NC.</p>
+                    <div class="print-meta">
+                        <span>Printed: 2025</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Model Viewer Functionality
+        let currentHeight = "low";
+        let currentRotation = "front";
+        let currentSpecialView = null;
+
+        function updateModelView() {
+            // Hide all images first
+            document.querySelectorAll('#model-viewer img').forEach(img => {
+                img.classList.remove('active');
+            });
+            
+            // Determine which image to show
+            let activeImageId;
+            
+            if (currentSpecialView) {
+                // Special views take priority
+                activeImageId = `view-${currentSpecialView}-img`;
+            } else if (currentHeight === "low") {
+                // Low angle views
+                activeImageId = `view-low-${currentRotation}-img`;
+            } else {
+                // Mid angle views
+                activeImageId = `view-mid-${currentRotation}-img`;
+            }
+            
+            // Show the active image
+            const activeImage = document.getElementById(activeImageId);
+            if (activeImage) {
+                activeImage.classList.add('active');
+            } else {
+                // Fallback to front view
+                document.getElementById('view-low-front-img').classList.add('active');
+            }
+            
+            // Update indicators
+            document.getElementById('current-level').textContent = 
+                currentHeight === 'low' ? 'Low Angle' : 'Mid Angle';
+                
+            document.getElementById('current-angle').textContent = 
+                currentSpecialView === 'top-down' ? 'Top Down' :
+                currentSpecialView === 'top-down-left' ? 'Top Down Left' :
+                currentSpecialView === 'top-down-right' ? 'Top Down Right' :
+                currentSpecialView === 'special-1' ? 'Special View 1' :
+                currentSpecialView === 'special-2' ? 'Special View 2' :
+                currentRotation === 'front' ? 'Front View' :
+                currentRotation === '90-left' ? '90° Left' :
+                currentRotation === '45-left' ? '45° Left' :
+                currentRotation === '45-right' ? '45° Right' :
+                currentRotation === '90-right' ? '90° Right' : 'Back View';
+        }
+
+        // Height level controls
+        document.getElementById('level-low').addEventListener('click', function() {
+            currentHeight = 'low';
+            currentSpecialView = null;
+            this.classList.add('active');
+            document.getElementById('level-mid').classList.remove('active');
+            updateModelView();
+        });
+
+        document.getElementById('level-mid').addEventListener('click', function() {
+            currentHeight = 'mid';
+            currentSpecialView = null;
+            this.classList.add('active');
+            document.getElementById('level-low').classList.remove('active');
+            updateModelView();
+        });
+
+        // Top Down Views
+        document.getElementById('view-top-down').addEventListener('click', function() {
+            currentSpecialView = 'top-down';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-top-down-left').addEventListener('click', function() {
+            currentSpecialView = 'top-down-left';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-top-down-right').addEventListener('click', function() {
+            currentSpecialView = 'top-down-right';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        // Special Views
+        document.getElementById('view-special-1').addEventListener('click', function() {
+            currentSpecialView = 'special-1';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-special-2').addEventListener('click', function() {
+            currentSpecialView = 'special-2';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        // Rotation controls
+        document.getElementById('view-front').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = 'front';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-45-left').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '45-left';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-90-left').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '90-left';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-45-right').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '45-right';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-90-right').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '90-right';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-back').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = 'back';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        // Initialize model viewer
+        updateModelView();
+    </script>
+</body>
+</html>

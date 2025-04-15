@@ -19,14 +19,37 @@
 
     <!-- PhotoSwipe Lightbox -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.3/photoswipe.min.css">
-
     <style>
+        .pswp__button--fs {
+            background: none;
+            margin: 0;
+            padding: 0;
+            width: 44px;
+            height: 44px;
+            position: relative;
+            float: right;
+        }
+        
+        .pswp__button--fs:before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+PHBhdGggZD0iTTcgMTRINVYxOUgxMFYxN0g3VjE0TTUgMTBIN1Y3SDEwVjVINVYxME0xNyAxN0gxNFYxOUgxOVYxNEgxN1YxN0oxNyAxMFYxNEgxOVYxMEgxN1YxMFoiLz48L3N2Zz4=') no-repeat center center;
+            background-size: 20px 20px;
+            position: absolute;
+            top: 12px;
+            left: 12px;
+        }
+
         :root {
             --primary-color: #2A5C82;
             --secondary-color: #5C8374;
             --accent-color: #D4A373;
             --text-color: #333;
             --light-bg: #f4f4f4;
+            --dark-bg: #2A5C82;
+            --white: #ffffff;
         }
 
         * {
@@ -46,6 +69,12 @@
             font-family: 'Playfair Display', serif;
             font-weight: 700;
             color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: #555;
         }
 
         /* Navigation styles */
@@ -160,90 +189,226 @@
             margin: 0 auto;
         }
 
-        /* 3D Model Viewer */
+        /* Enhanced Model Viewer from printtest.html */
         .model-viewer-container {
-            width: 100%;
-            height: 500px;
-            background-color: #fff;
+            background: var(--white);
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 3rem;
             overflow: hidden;
-            position: relative;
+            padding: 2rem;
+        }
+
+        .model-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .model-description {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #666;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .model-viewer-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
         }
 
         .model-viewer {
-            width: 100%;
-            height: 100%;
-            background-color: #f0f0f0;
+            flex: 1;
+            min-width: 300px;
+            height: 500px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .model-viewer img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        .model-viewer img.active {
+            opacity: 1;
+        }
+
+        .zoning-legend {
+            flex: 0 0 250px;
+            background: var(--light-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .zoning-legend h3 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            font-size: 0.9rem;
         }
 
         .model-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .control-group {
             display: flex;
-            gap: 10px;
-            z-index: 10;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group h4 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            grid-column: 1 / -1;
         }
 
         .model-controls button {
-            background: rgba(0,0,0,0.7);
-            color: white;
+            background: var(--primary-color);
+            color: var(--white);
             border: none;
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
 
         .model-controls button:hover {
-            background: rgba(0,0,0,0.9);
+            background: var(--accent-color);
+            transform: scale(1.1);
         }
 
-        /* Print Showcase */
-        .print-showcase {
+        .model-controls button.active {
+            background: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .level-indicator {
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Prints Grid with Image Gallery */
+        .prints-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
 
-        .print-item {
-            background: white;
+        .print-card {
+            background: var(--white);
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        .print-item:hover {
+        .print-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
-        .print-image {
-            width: 100%;
-            height: 300px;
+        .print-image-container {
+            height: 250px;
             position: relative;
             overflow: hidden;
-            cursor: zoom-in;
+        }
+
+        .print-image {
+            width: 100%;
+            height: 100%;
+            position: relative;
         }
 
         .print-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
+            transition: opacity 0.5s;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
         }
 
-        .print-item:hover .print-image img {
-            transform: scale(1.03);
+        .print-image img.active {
+            opacity: 1;
+        }
+
+        .print-image-nav {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            z-index: 2;
+        }
+
+        .print-image-nav button {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .print-image-nav button.active {
+            background: var(--accent-color);
+            transform: scale(1.2);
         }
 
         .print-content {
@@ -251,8 +416,9 @@
         }
 
         .print-content h3 {
-            margin-bottom: 0.75rem;
             font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary-color);
         }
 
         .print-content p {
@@ -265,19 +431,26 @@
             justify-content: space-between;
             color: #888;
             font-size: 0.9rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
         }
 
         /* Footer */
         footer {
             position: relative;
             height: 200px;
-            background: #2A5C82;
+            background: var(--dark-bg);
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             flex-direction: column;
-            color: white;
+            color: var(--white);
+        }
+
+        footer p {
+            color: var(--white);
+            margin-bottom: 1rem;
         }
 
         .cube {
@@ -315,6 +488,45 @@
         @keyframes spin {
             0%   { transform: rotateX(0) rotateY(0); }
             100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        /* Image Zoom Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            cursor: zoom-out;
+        }
+
+        .modal-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        /* Fullscreen button for modal */
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2001;
         }
 
         /* Mobile styles */
@@ -394,12 +606,25 @@
                 padding: 0 1rem;
             }
 
-            .model-viewer-container {
+            .model-viewer {
                 height: 350px;
             }
 
-            .print-showcase {
+            .prints-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .model-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .model-viewer-wrapper {
+                flex-direction: column;
+            }
+
+            .zoning-legend {
+                flex: 1;
+                width: 100%;
             }
         }
     </style>
@@ -440,81 +665,221 @@
     <div class="container">
         <header class="page-header">
             <h1>3D Printed Models & Maps</h1>
-            <p>Explore my collection of 3D printed urban models, architectural prototypes, and interactive maps. Each piece combines technical precision with creative design to visualize urban spaces and concepts.</p>
+            <p>Explore my collection of 3D printed urban models, from folly printed models of real-life cities to zoning models.</p>
         </header>
 
-        <!-- 3D Model Viewer -->
+        <!-- Interactive Model Viewer -->
         <section class="model-viewer-container">
-            <div class="model-viewer" id="model-viewer">
-                <!-- This will be populated by JavaScript -->
-                <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="3D Model - Urban Development" style="width:100%; height:100%; object-fit:cover;">
+            <h2 class="model-title">My Slice Of American Pie</h2>
+            <p class="model-description">A Model Based Roughly on Harrisburg PA, showcasing the primary characteristics of 20th Century American Urban Design.</p>
+            
+            <div class="model-viewer-wrapper">
+                <div class="model-viewer" id="model-viewer">
+                    <!-- Top Down Views -->
+          /          <img src="assets/3d/model/top/top1.JPG" alt="Top Down View" id="view-top-down-img">
+          /          <img src="assets/3d/model/top/topleft901.JPG" alt="Top Down Left View" id="view-top-down-left-img">
+          /          <img src="assets/3d/model/top/topright901.JPG" alt="Top Down Right View" id="view-top-down-right-img">
+                    
+                    <!-- Special Views -->
+          /          <img src="assets/3d/model/top/specialview1.JPG" alt="Special View 1" id="view-special-1-img">
+                    <img src="assets/3d/model/top/specialview2.JPG" alt="Special View 2" id="view-special-2-img">
+                    <img src="assets/3d/model/top/specialview3.jpg" alt="Special View 3" id="view-special-3-img">
+                    
+                    <!-- Low Angle Views -->
+                    <img src="assets/3d/model/low/front.jpg" alt="Low Angle Front View" id="view-low-front-img" class="active">
+                    <img src="assets/3d/model/low/90-left.jpg" alt="Low Angle 90° Left View" id="view-low-90-left-img">
+                    <img src="assets/3d/model/low/45-left.jpg" alt="Low Angle 45° Left View" id="view-low-45-left-img">
+                    <img src="assets/3d/model/low/90-right.jpg" alt="Low Angle 90° Right View" id="view-low-90-right-img">
+                    <img src="assets/3d/model/low/45-right.jpg" alt="Low Angle 45° Right View" id="view-low-45-right-img">
+                    <img src="assets/3d/model/low/back.jpg" alt="Low Angle Back View" id="view-low-back-img">
+                    
+                    <!-- Mid Angle Views -->
+                    <img src="assets/3d/model/mid/front.jpg" alt="Mid Angle Front View" id="view-mid-front-img">
+                    <img src="assets/3d/model/mid/90-left.jpg" alt="Mid Angle 90° Left View" id="view-mid-90-left-img">
+                    <img src="assets/3d/model/mid/45-left.jpg" alt="Mid Angle 45° Left View" id="view-mid-45-left-img">
+                    <img src="assets/3d/model/mid/90-right.jpg" alt="Mid Angle 90° Right View" id="view-mid-90-right-img">
+                    <img src="assets/3d/model/mid/45-right.jpg" alt="Mid Angle 45° Right View" id="view-mid-45-right-img">
+                    <img src="assets/3d/model/mid/back.jpg" alt="Mid Angle Back View" id="view-mid-back-img">
+                </div>
+                
+                <div class="zoning-legend">
+                    <h3>Zoning Legend</h3>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFFF00;"></div>
+                        <span class="legend-label">Residential (Low-Density)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFA500;"></div>
+                        <span class="legend-label">Residential (Medium-Density)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFA500;"></div>
+                        <span class="legend-label">Residential (High-Density)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #00FFFF;"></div>
+                        <span class="legend-label">Commercial (Low-Density)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #0000FF;"></div>
+                        <span class="legend-label">Commercial (High-Density)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FF0000;"></div>
+                        <span class="legend-label">Industrial</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #800080;"></div>
+                        <span class="legend-label">Public / Institutional</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #008000;"></div>
+                        <span class="legend-label">Parks / Open Space</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #f0f0f0;"></div>
+                        <span class="legend-label">Transportation / Parking</span>
+                    </div>
+                </div>
             </div>
+            
             <div class="model-controls">
-                <button id="view-front"><i class="fas fa-arrow-up"></i></button>
-                <button id="view-left"><i class="fas fa-arrow-left"></i></button>
-                <button id="view-right"><i class="fas fa-arrow-right"></i></button>
-                <button id="view-top"><i class="fas fa-arrow-down"></i></button>
-                <button id="view-3d"><i class="fas fa-cube"></i></button>
+                <!-- Height Level Controls -->
+                <div class="control-group">
+                    <h4>Height Level</h4>
+                    <button id="level-low" title="Low Angle" class="active"><i class="fas fa-angle-down"></i> Low</button>
+                    <button id="level-mid" title="Mid Angle"><i class="fas fa-equals"></i> Mid</button>
+                </div>
+                
+                <!-- Top Down Views -->
+                <div class="control-group">
+                    <h4>Top Down</h4>
+                    <button id="view-top-down" title="Top Down"><i class="fas fa-chevron-up"></i></button>
+                    <button id="view-top-down-left" title="Top Down Left"><i class="fas fa-chevron-up"></i> <i class="fas fa-arrow-left"></i></button>
+                    <button id="view-top-down-right" title="Top Down Right"><i class="fas fa-chevron-up"></i> <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <!-- Special Views -->
+                <div class="control-group">
+                    <h4>Special Views</h4>
+                    <button id="view-special-1" title="Special View 1"><i class="fas fa-star"></i> 1</button>
+                    <button id="view-special-2" title="Special View 2"><i class="fas fa-star"></i> 2</button>
+                    <button id="view-special-3" title="Special View 3"><i class="fas fa-star"></i> 3</button>
+                </div>
+                
+                <!-- Rotation Controls -->
+                <div class="control-group">
+                    <h4>Rotation</h4>
+                    <button id="view-front" title="Front View" class="active"><i class="fas fa-arrow-up"></i></button>
+                    <button id="view-90-left" title="90° Left"><i class="fas fa-undo"></i></button>
+                    <button id="view-45-left" title="45° Left"><i class="fas fa-arrow-left"></i></button>
+                    <button id="view-45-right" title="45° Right"><i class="fas fa-arrow-right"></i></button>
+                    <button id="view-90-right" title="90° Right"><i class="fas fa-redo"></i></button>
+                    <button id="view-back" title="Back View"><i class="fas fa-arrow-down"></i></button>
+                </div>
+            </div>
+
+            
+            <div class="level-indicator">
+                Current View: <span id="current-level">Low Angle</span> - <span id="current-angle">Front View (0°)</span>
             </div>
         </section>
 
-        <!-- Print Showcase -->
-        <section class="print-showcase">
-            <!-- Print Item 1 -->
-            <div class="print-item">
-                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
-                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Urban Model">
-                </a>
+        <!-- Prints Grid with Image Galleries -->
+        <section class="prints-grid">
+            <!-- Print 1 -->
+            <div class="print-card">
+                <div class="print-image-container">
+                    <div class="print-image">
+                        <!-- ================================================ -->
+                        <!-- PUT YOUR PRINT IMAGES HERE -->
+                        <img src="assets/3d/sideunch.jpg" alt="UNC Chapel Hill Model" class="active">
+                        <img src="assets/3d/uncch.jpg" alt="UNC Chapel Hill Alternate View">
+                        <!-- ================================================ -->
+                        <div class="print-image-nav">
+                            <button class="active" data-index="0"></button>
+                            <button data-index="1"></button>
+                        </div>
+                    </div>
+                </div>
                 <div class="print-content">
-                    <h3>Urban Development Model</h3>
-                    <p>A detailed 3D model showcasing a sustainable urban development project. This model highlights green spaces, efficient transportation systems, and mixed-use zoning to demonstrate how cities can balance growth with environmental responsibility.</p>
+                    <h3>Chapel Hill</h3>
+                    <p>A model of my University (UNC-CH) in it's iconic Tarheel Blue color.</p>
                     <div class="print-meta">
-                        <span>Scale: 1:1000</span>
+                        <span>Printed</span>
                         <span>2024</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Print Item 2 -->
-            <div class="print-item">
-                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
-                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Architectural Prototype">
-                </a>
+            <!-- Print 2 -->
+            <div class="print-card">
+                <div class="print-image-container">
+                    <div class="print-image">
+                        <!-- ================================================ -->
+                        <!-- PUT YOUR PRINT IMAGES HERE -->
+                        <img src="assets/3d/Charlotte.jpg" alt="Charlotte Skyline" class="active">
+                        <img src="assets/3d/TopCharlotte.jpg" alt="Charlotte Top View">
+                        <!-- ================================================ -->
+                        <div class="print-image-nav">
+                            <button class="active" data-index="0"></button>
+                            <button data-index="1"></button>
+                        </div>
+                    </div>
+                </div>
                 <div class="print-content">
-                    <h3>Architectural Prototype</h3>
-                    <p>This prototype explores innovative use of materials and space in modern architecture. The design incorporates parametric elements and sustainable building techniques, printed at 1:200 scale to test structural concepts.</p>
+                    <h3>Downtown Charlotte</h3>
+                    <p>This model showcases the skyline of downtown Charlotte, NC, featuring a distinctive color scheme inspired by the hometown NBA team, the Charlotte Hornets.</p>
                     <div class="print-meta">
-                        <span>Scale: 1:200</span>
+                        <span>Printed</span>
+                        <span>2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print 3 -->
+            <div class="print-card">
+                <div class="print-image-container">
+                    <div class="print-image">
+                        <!-- ================================================ -->
+                        <!-- PUT YOUR PRINT IMAGES HERE -->
+                        <img src="assets/3d/Savannahfull.jpg" alt="Savannah Full View" class="active">
+                        <img src="assets/3d/papercord.jpg" alt="Savannah Detail View">
+                        <!-- ================================================ -->
+                        <div class="print-image-nav">
+                            <button class="active" data-index="0"></button>
+                            <button data-index="1"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="print-content">
+                    <h3>Savannah GA Quadrant Map</h3>
+                    <p>An Expansive Map of the Beautiful City of Savannah</p>
+                    <div class="print-meta">
+                        <span>Printed</span>
                         <span>2023</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Print Item 3 -->
-            <div class="print-item">
-                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
-                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Historical Reconstruction">
-                </a>
-                <div class="print-content">
-                    <h3>Historical Building Reconstruction</h3>
-                    <p>A faithful 3D reconstruction of a 19th-century building, created from archival photographs and architectural drawings. This model preserves intricate facade details that were at risk of being lost to time.</p>
-                    <div class="print-meta">
-                        <span>Scale: 1:150</span>
-                        <span>2023</span>
+            <!-- Print 4 -->
+            <div class="print-card">
+                <div class="print-image-container">
+                    <div class="print-image">
+                        <!-- ================================================ -->
+                        <!-- PUT YOUR PRINT IMAGES HERE -->
+                        <img src="assets/3d/block.jpg" alt="Block Island Model" class="active">
+                        <!-- ================================================ -->
+                        <div class="print-image-nav">
+                            <button class="active" data-index="0"></button>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Print Item 4 -->
-            <div class="print-item">
-                <a href="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" data-pswp-width="1200" data-pswp-height="800" target="_blank" class="print-image">
-                    <img src="https://cdn.britannica.com/70/234870-050-D4D024BB/Orange-colored-cat-yawns-displaying-teeth.jpg" alt="Interactive Map">
-                </a>
                 <div class="print-content">
-                    <h3>Topographical City Map</h3>
-                    <p>An interactive 3D-printed map showing urban topography and infrastructure. This tactile representation helps planners and students understand elevation changes and their impact on urban development.</p>
+                    <h3>Topographical Block Island Model</h3>
+                    <p>Block Island DEM data that was 3D Printed into a model.</p>
                     <div class="print-meta">
-                        <span>Scale: 1:2500</span>
+                        <span>Printed</span>
                         <span>2024</span>
                     </div>
                 </div>
@@ -541,50 +906,221 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.3/photoswipe-lightbox.umd.min.js"></script>
 
     <script>
-        // Initialize PhotoSwipe Lightbox
-        const lightbox = new PhotoSwipeLightbox({
-            gallery: '.print-showcase',
-            children: 'a',
-            pswpModule: PhotoSwipe
+        // Model Viewer Functionality
+        let currentHeight = "low";
+        let currentRotation = "front";
+        let currentSpecialView = null;
+
+        function updateModelView() {
+            // Hide all images first
+            document.querySelectorAll('#model-viewer img').forEach(img => {
+                img.classList.remove('active');
+            });
+            
+            // Determine which image to show
+            let activeImageId;
+            
+            if (currentSpecialView) {
+                // Special views take priority
+                activeImageId = `view-${currentSpecialView}-img`;
+            } else if (currentHeight === "low") {
+                // Low angle views
+                activeImageId = `view-low-${currentRotation}-img`;
+            } else {
+                // Mid angle views
+                activeImageId = `view-mid-${currentRotation}-img`;
+            }
+            
+            // Show the active image
+            const activeImage = document.getElementById(activeImageId);
+            if (activeImage) {
+                activeImage.classList.add('active');
+            } else {
+                // Fallback to front view
+                document.getElementById('view-low-front-img').classList.add('active');
+            }
+            
+            // Update indicators
+            document.getElementById('current-level').textContent = 
+                currentHeight === 'low' ? 'Low Angle' : 'Mid Angle';
+                
+            document.getElementById('current-angle').textContent = 
+                currentSpecialView === 'top-down' ? 'Top Down' :
+                currentSpecialView === 'top-down-left' ? 'Top Down Left' :
+                currentSpecialView === 'top-down-right' ? 'Top Down Right' :
+                currentSpecialView === 'special-1' ? 'Special View 1' :
+                currentSpecialView === 'special-2' ? 'Special View 2' :
+                currentRotation === 'front' ? 'Front View' :
+                currentRotation === '90-left' ? '90° Left' :
+                currentRotation === '45-left' ? '45° Left' :
+                currentRotation === '45-right' ? '45° Right' :
+                currentRotation === '90-right' ? '90° Right' : 'Back View';
+        }
+
+        // Height level controls
+        document.getElementById('level-low').addEventListener('click', function() {
+            currentHeight = 'low';
+            currentSpecialView = null;
+            this.classList.add('active');
+            document.getElementById('level-mid').classList.remove('active');
+            updateModelView();
         });
-        lightbox.init();
 
-        // 3D Model Viewer Simulation
-        const modelViewer = document.getElementById('model-viewer');
-        const modelImages = [
-            { src: 'https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg', alt: 'Front View' },
-            { src: 'https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg', alt: 'Left View' },
-            { src: 'https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg', alt: 'Right View' },
-            { src: 'https://us1.discourse-cdn.com/flex022/uploads/snapmaker/original/3X/9/9/99cf27d40e346b16f78137198e4030534c42c95c.jpeg', alt: 'Top View' },
-            { src: 'https://i.ytimg.com/vi/xJOA-GvbeNA/sddefault.jpg', alt: '3D View' }
-        ];
-
-        document.getElementById('view-front').addEventListener('click', () => {
-            modelViewer.innerHTML = `<img src="${modelImages[0].src}" alt="${modelImages[0].alt}" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('level-mid').addEventListener('click', function() {
+            currentHeight = 'mid';
+            currentSpecialView = null;
+            this.classList.add('active');
+            document.getElementById('level-low').classList.remove('active');
+            updateModelView();
         });
 
-        document.getElementById('view-left').addEventListener('click', () => {
-            modelViewer.innerHTML = `<img src="${modelImages[1].src}" alt="${modelImages[1].alt}" style="width:100%; height:100%; object-fit:cover;">`;
+        // Top Down Views
+        document.getElementById('view-top-down').addEventListener('click', function() {
+            currentSpecialView = 'top-down';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
         });
 
-        document.getElementById('view-right').addEventListener('click', () => {
-            modelViewer.innerHTML = `<img src="${modelImages[2].src}" alt="${modelImages[2].alt}" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('view-top-down-left').addEventListener('click', function() {
+            currentSpecialView = 'top-down-left';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
         });
 
-        document.getElementById('view-top').addEventListener('click', () => {
-            modelViewer.innerHTML = `<img src="${modelImages[3].src}" alt="${modelImages[3].alt}" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('view-top-down-right').addEventListener('click', function() {
+            currentSpecialView = 'top-down-right';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
         });
 
-        document.getElementById('view-3d').addEventListener('click', () => {
-            modelViewer.innerHTML = `
-                <div style="position:relative; width:100%; height:100%; background:#f0f0f0; display:flex; justify-content:center; align-items:center;">
-                    <div style="text-align:center;">
-                        <i class="fas fa-cube" style="font-size:3rem; color:#666;"></i>
-                        <p style="margin-top:1rem;">3D Interactive Viewer</p>
-                        <p style="font-size:0.8rem;">(In a full implementation, this would be an interactive 3D model)</p>
-                    </div>
-                </div>
-            `;
+        // Special Views
+        document.getElementById('view-special-1').addEventListener('click', function() {
+            currentSpecialView = 'special-1';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-special-2').addEventListener('click', function() {
+            currentSpecialView = 'special-2';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-special-3').addEventListener('click', function() {
+            currentSpecialView = 'special-3';
+            document.querySelectorAll('.control-group button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        // Rotation controls
+        document.getElementById('view-front').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = 'front';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-45-left').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '45-left';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-90-left').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '90-left';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-45-right').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '45-right';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-90-right').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = '90-right';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        document.getElementById('view-back').addEventListener('click', function() {
+            currentSpecialView = null;
+            currentRotation = 'back';
+            document.querySelectorAll('.control-group:nth-child(4) button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            updateModelView();
+        });
+
+        // Image gallery navigation for print cards
+        document.querySelectorAll('.print-image-nav button').forEach(button => {
+            button.addEventListener('click', function() {
+                const container = this.closest('.print-image');
+                const index = parseInt(this.getAttribute('data-index'));
+                
+                // Update active image
+                container.querySelectorAll('img').forEach((img, i) => {
+                    img.classList.toggle('active', i === index);
+                });
+                
+                // Update active button
+                container.querySelectorAll('.print-image-nav button').forEach((btn, i) => {
+                    btn.classList.toggle('active', i === index);
+                });
+            });
+        });
+
+        // Enhanced image zoom functionality with fullscreen
+        document.querySelectorAll('.print-image img').forEach(img => {
+            img.addEventListener('click', () => {
+                const overlay = document.createElement('div');
+                overlay.className = 'modal-overlay';
+                
+                const zoomedImg = document.createElement('img');
+                zoomedImg.src = img.src;
+                zoomedImg.alt = img.alt;
+                zoomedImg.className = 'modal-image';
+                
+                // Add fullscreen button
+                const fullscreenBtn = document.createElement('button');
+                fullscreenBtn.className = 'fullscreen-btn';
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                fullscreenBtn.addEventListener('click', () => {
+                    if (zoomedImg.requestFullscreen) {
+                        zoomedImg.requestFullscreen();
+                    } else if (zoomedImg.webkitRequestFullscreen) {
+                        zoomedImg.webkitRequestFullscreen();
+                    } else if (zoomedImg.msRequestFullscreen) {
+                        zoomedImg.msRequestFullscreen();
+                    }
+                });
+                
+                overlay.appendChild(zoomedImg);
+                overlay.appendChild(fullscreenBtn);
+                document.body.appendChild(overlay);
+                
+                // Close on click
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay || e.target === zoomedImg) {
+                        document.body.removeChild(overlay);
+                    }
+                });
+            });
         });
 
         // Mobile navigation toggle
@@ -608,6 +1144,51 @@
 
             lastScroll = currentScroll;
         });
+
+        // Initialize PhotoSwipe Lightbox only for print cards
+        const lightbox = new PhotoSwipeLightbox({
+            gallery: '.print-image',
+            children: 'img',
+            pswpModule: PhotoSwipe,
+            arrowPrev: true,
+            arrowNext: true,
+            zoom: true,
+            close: true,
+            counter: true,
+            showHideAnimationType: 'fade',
+            bgOpacity: 0.9,
+            paddingFn: (viewportSize) => {
+                return {
+                    top: 30,
+                    bottom: 30,
+                    left: 0,
+                    right: 0
+                };
+            }
+        });
+
+        // Add fullscreen button functionality
+        lightbox.on('uiRegister', function() {
+            lightbox.pswp.ui.registerElement({
+                name: 'fs',
+                title: 'Toggle fullscreen',
+                order: 9,
+                isButton: true,
+                html: '<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>',
+                onClick: (event, el) => {
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    } else {
+                        lightbox.pswp.template.requestFullscreen();
+                    }
+                }
+            });
+        });
+
+        lightbox.init();
+
+        // Initialize model viewer
+        updateModelView();
     </script>
 </body>
 </html>
