@@ -99,17 +99,17 @@
         }
 
         #time-slider {
-    width: 100%;
-    height: 8px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: linear-gradient(to right, 
-        #004080, #0060A0, #0080C0, #00A0E0, 
-        #20C0FF, #40D0FF, #60E0FF, #80F0FF);
-    border-radius: 4px;
-    outline: none;
-    margin: 10px 0;
-}
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, 
+                #004080, #0060A0, #0080C0, #00A0E0, 
+                #20C0FF, #40D0FF, #60E0FF, #80F0FF);
+            border-radius: 4px;
+            outline: none;
+            margin: 10px 0;
+        }
 
         #time-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -507,6 +507,8 @@
     <!-- Leaflet.VectorGrid plugin -->
     <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
     
+    <script src="https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js"></script>
+
     <!-- Your GeoJSON files -->
     <script src="1820.js"></script>
     <script src="1830.js"></script>
@@ -523,30 +525,52 @@
     <script src="train2.js"></script>
     <script src="state.js"></script>
     
+    <!-- Web Worker Implementation -->
+    <script id="jenks-worker" type="javascript/worker">
+    self.importScripts('https://unpkg.com/simple-statistics@7.8.3/dist/simple-statistics.min.js');
+
+    self.onmessage = function(e) {
+        const { values, numClasses } = e.data;
+        try {
+            // Sort and filter values first
+            const sortedValues = values.filter(v => v > 0).sort((a, b) => a - b);
+            if (sortedValues.length === 0) {
+                self.postMessage({ error: "No valid values" });
+                return;
+            }
+            
+            const breaks = ss.jenks(sortedValues, numClasses);
+            self.postMessage({ breaks });
+        } catch (error) {
+            self.postMessage({ error: error.message });
+        }
+    };
+    </script>
+
     <script>
         // Initialize the map with expanded bounds
         const map = L.map('map', {
-    attributionControl: false,
-    maxBounds: [
-        [-30, -200],   // Expanded Southwest corner (more southern)
-        [75, -30]      // Northeast corner
-    ],
-    maxBoundsViscosity: 1.0,  // Keeps panning within bounds
-    minZoom: 3,               // Prevents zooming too far out
-    maxZoom: 13               // Already set in your tile layer, but can also be set here
-}).setView([39.8283, -98.5795], 4);
+            attributionControl: false,
+            maxBounds: [
+                [-30, -200],   // Expanded Southwest corner (more southern)
+                [75, -30]      // Northeast corner
+            ],
+            maxBoundsViscosity: 1.0,  // Keeps panning within bounds
+            minZoom: 3,               // Prevents zooming too far out
+            maxZoom: 13               // Already set in your tile layer, but can also be set here
+        }).setView([39.8283, -98.5795], 4);
 
-// Using CartoDB Positron - a free, white-themed basemap that doesn't require an API key
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: ''
-}).addTo(map);
+        // Using CartoDB Positron - a free, white-themed basemap that doesn't require an API key
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: ''
+        }).addTo(map);
 
-// Add custom attribution control in a different position if desired
-L.control.attribution({
-    position: 'bottomleft',  // You can adjust this position as needed
-    prefix: ''  // Removes the "Leaflet" text
-}).addAttribution('&copy; <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html">Corey Reichert</a> AI Assisted - GEOG 456').addTo(map);
+        // Add custom attribution control
+        L.control.attribution({
+            position: 'bottomleft',
+            prefix: ''
+        }).addAttribution('&copy; <a href="https://allusivegem.github.io/GEOG456/Portfolio/index.html">Corey Reichert</a> AI Assisted - GEOG 456').addTo(map);
 
         // Global variables
         let currentClassification = 'linear';
@@ -554,6 +578,7 @@ L.control.attribution({
         let aiEnabled = false;
         let API_KEY = localStorage.getItem('OPENROUTER_API_KEY');
         const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+        let jenksWorker = null;
         
         // Object to store our layers
         const layers = {};
@@ -594,152 +619,161 @@ L.control.attribution({
                 document.getElementById('loading-text').textContent = 
                     `Loading layers (${this.loaded}/${this.total})...`;
                 
-                    if (this.loaded === this.total) {
-    setTimeout(() => {
-        document.getElementById('loading-container').style.display = 'none';
-        
-        // Add default layers in correct z-index order
-        // 1. State borders first (bottom)
-        if (layers.state) {
-            layers.state.addTo(map);
-        }
-        
-        // 2. Initial population layer
-        showYearLayer('1820');
-        
-        // 3. Transportation layers in order:
-        // Railroads next (above population)
-        if (layers.train2) {
-            layers.train2.addTo(map);
-            document.querySelector('[data-layer="train2"]').classList.add('active');
-            layers.train2.bringToFront();
-        }
-        
-        // Canals above railroads
-        
-        // Trails on top (above everything else)
-        if (layers.trail) {
-            layers.trail.addTo(map);
-            document.querySelector('[data-layer="trail"]').classList.add('active');
-            layers.trail.bringToFront();
-        }
-        
-        if (layers.river) {
-            layers.river.addTo(map);
-            document.querySelector('[data-layer="river"]').classList.add('active');
-            layers.river.bringToFront();
-        }
-        // Initialize time slider
-        addTimeSlider();
-        updateLegend();
-    }, 500);
-} 
-  }
+                if (this.loaded === this.total) {
+                    setTimeout(() => {
+                        document.getElementById('loading-container').style.display = 'none';
+                        
+                        // Add default layers in correct z-index order
+                        if (layers.state) {
+                            layers.state.addTo(map);
+                        }
+                        
+                        // Initial population layer
+                        showYearLayer('1820');
+                        
+                        // Transportation layers
+                        if (layers.train2) {
+                            layers.train2.addTo(map);
+                            document.querySelector('[data-layer="train2"]').classList.add('active');
+                            layers.train2.bringToFront();
+                        }
+                        
+                        if (layers.trail) {
+                            layers.trail.addTo(map);
+                            document.querySelector('[data-layer="trail"]').classList.add('active');
+                            layers.trail.bringToFront();
+                        }
+                        
+                        if (layers.river) {
+                            layers.river.addTo(map);
+                            document.querySelector('[data-layer="river"]').classList.add('active');
+                            layers.river.bringToFront();
+                        }
+                        
+                        // Initialize time slider
+                        addTimeSlider();
+                        updateLegend();
+                    }, 500);
+                } 
+            }
         };
         
+        // Function to create a blob URL for the worker
+        function createJenksWorker() {
+            const workerScript = document.getElementById('jenks-worker').textContent;
+            const blob = new Blob([workerScript], { type: 'application/javascript' });
+            return new Worker(URL.createObjectURL(blob));
+        }
+
         // Function to create a graduated color scale for population data
-        function getGraduatedColor(value, min, max, values, classification = currentClassification) {
-    // If showing growth rates
-    if (showGrowthRates) {
-        if (value === null) return 'rgba(50, 50, 50, 0.3)';
-        return value > 0 ?
-               (value > 10 ? '#27ae60' : '#2ecc71') : // Greens for growth
-               (value < -10 ? '#e74c3c' : '#e67e22'); // Reds for decline
-    }
-    
-    // Original population count coloring
-    if (value === null || value === undefined || value === 0) {
-        return 'rgba(50, 50, 50, 0.3)';
-    }
-    
-    // Filter out null/undefined/zero values and sort
-    const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
-    
-    // Define our color scale (5 classes)
-    const colors = [
-        'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-        'rgba(199, 233, 192, 0.8)',   // Light green
-        'rgba(116, 196, 118, 0.8)',   // Medium green
-        'rgba(49, 163, 84, 0.8)',     // Deeper green
-        'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-    ];
-    
-    if (classification === 'linear') {
-        // Linear classification
-        const ratio = (value - min) / (max - min);
-        if (ratio <= 0.2) return colors[0];
-        if (ratio <= 0.4) return colors[1];
-        if (ratio <= 0.6) return colors[2];
-        if (ratio <= 0.8) return colors[3];
-        return colors[4];
-    }
-    else if (classification === 'logarithmic') {
-        // Logarithmic classification
-        const logMin = Math.log10(min || 1);
-        const logMax = Math.log10(max);
-        const logValue = Math.log10(value);
-        const ratio = (logValue - logMin) / (logMax - logMin);
-        
-        if (ratio <= 0.2) return colors[0];
-        if (ratio <= 0.4) return colors[1];
-        if (ratio <= 0.6) return colors[2];
-        if (ratio <= 0.8) return colors[3];
-        return colors[4];
-    }
-    else if (classification === 'quantile') {
-        // Quantile classification
-        const breaks = [
-            sortedValues[Math.floor(sortedValues.length * 0.2)],
-            sortedValues[Math.floor(sortedValues.length * 0.4)],
-            sortedValues[Math.floor(sortedValues.length * 0.6)],
-            sortedValues[Math.floor(sortedValues.length * 0.8)]
-        ];
-        
-        if (value <= breaks[0]) return colors[0];
-        if (value <= breaks[1]) return colors[1];
-        if (value <= breaks[2]) return colors[2];
-        if (value <= breaks[3]) return colors[3];
-        return colors[4];
-    }
-    if (classification === 'jenks') {
-        // Use the faster natural breaks
-        const breaks = getNaturalBreaks(sortedValues, 5);
-        if (!breaks || breaks.length < 5) {
-            // Fallback to quantile if natural breaks fails
-            const qBreaks = [
+        function getGraduatedColor(value, min, max, values, classification = currentClassification, metadata) {
+            // If showing growth rates
+            if (showGrowthRates) {
+                if (value === null) return 'rgba(50, 50, 50, 0.3)';
+                return value > 0 ?
+                       (value > 10 ? '#27ae60' : '#2ecc71') : // Greens for growth
+                       (value < -10 ? '#e74c3c' : '#e67e22'); // Reds for decline
+            }
+            
+            // Original population count coloring
+            if (value === null || value === undefined || value === 0) {
+                return 'rgba(50, 50, 50, 0.3)';
+            }
+            
+            // Define our color scale (5 classes)
+            const colors = [
+                'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+                'rgba(199, 233, 192, 0.8)',   // Light green
+                'rgba(116, 196, 118, 0.8)',   // Medium green
+                'rgba(49, 163, 84, 0.8)',     // Deeper green
+                'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+            ];
+            
+            if (classification === 'jenks') {
+                // Check for cached breaks in metadata
+                if (metadata && metadata.precomputedBreaks && metadata.precomputedBreaks.jenks) {
+                    const jenksBreaks = metadata.precomputedBreaks.jenks;
+                    if (value <= jenksBreaks[1]) return colors[0];
+                    if (value <= jenksBreaks[2]) return colors[1];
+                    if (value <= jenksBreaks[3]) return colors[2];
+                    if (value <= jenksBreaks[4]) return colors[3];
+                    return colors[4];
+                }
+                
+                // Fallback to synchronous calculation if worker isn't ready
+                try {
+                    const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
+                    if (sortedValues.length > 0) {
+                        const jenksBreaks = ss.jenks(sortedValues, 5);
+                        if (jenksBreaks && jenksBreaks.length === 6) {
+                            if (value <= jenksBreaks[1]) return colors[0];
+                            if (value <= jenksBreaks[2]) return colors[1];
+                            if (value <= jenksBreaks[3]) return colors[2];
+                            if (value <= jenksBreaks[4]) return colors[3];
+                            return colors[4];
+                        }
+                    }
+                } catch (e) {
+                    console.error("Sync Jenks fallback error:", e);
+                }
+                
+                // Default fallback
+                return colors[4];
+            }
+            else if (classification === 'linear') {
+                // Linear classification
+                const ratio = (value - min) / (max - min);
+                if (ratio <= 0.2) return colors[0];
+                if (ratio <= 0.4) return colors[1];
+                if (ratio <= 0.6) return colors[2];
+                if (ratio <= 0.8) return colors[3];
+                return colors[4];
+            }
+            else if (classification === 'logarithmic') {
+                // Logarithmic classification
+                const logMin = Math.log10(min || 1);
+                const logMax = Math.log10(max);
+                const logValue = Math.log10(value);
+                const ratio = (logValue - logMin) / (logMax - logMin);
+                
+                if (ratio <= 0.2) return colors[0];
+                if (ratio <= 0.4) return colors[1];
+                if (ratio <= 0.6) return colors[2];
+                if (ratio <= 0.8) return colors[3];
+                return colors[4];
+            }
+            else if (classification === 'quantile') {
+                // Quantile classification
+                const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
+                const breaks = [
+                    sortedValues[Math.floor(sortedValues.length * 0.2)],
+                    sortedValues[Math.floor(sortedValues.length * 0.4)],
+                    sortedValues[Math.floor(sortedValues.length * 0.6)],
+                    sortedValues[Math.floor(sortedValues.length * 0.8)]
+                ];
+                
+                if (value <= breaks[0]) return colors[0];
+                if (value <= breaks[1]) return colors[1];
+                if (value <= breaks[2]) return colors[2];
+                if (value <= breaks[3]) return colors[3];
+                return colors[4];
+            }
+            
+            // Default to quantile if no valid classification
+            const sortedValues = [...values].filter(v => v > 0).sort((a, b) => a - b);
+            const breaks = [
                 sortedValues[Math.floor(sortedValues.length * 0.2)],
                 sortedValues[Math.floor(sortedValues.length * 0.4)],
                 sortedValues[Math.floor(sortedValues.length * 0.6)],
                 sortedValues[Math.floor(sortedValues.length * 0.8)]
             ];
             
-            if (value <= qBreaks[0]) return colors[0];
-            if (value <= qBreaks[1]) return colors[1];
-            if (value <= qBreaks[2]) return colors[2];
-            if (value <= qBreaks[3]) return colors[3];
+            if (value <= breaks[0]) return colors[0];
+            if (value <= breaks[1]) return colors[1];
+            if (value <= breaks[2]) return colors[2];
+            if (value <= breaks[3]) return colors[3];
             return colors[4];
         }
-        
-        if (value <= breaks[1]) return colors[0];
-        if (value <= breaks[2]) return colors[1];
-        if (value <= breaks[3]) return colors[2];
-        if (value <= breaks[4]) return colors[3];
-        return colors[4];
-    }
-    // Default to quantile if no valid classification
-    const breaks = [
-        sortedValues[Math.floor(sortedValues.length * 0.2)],
-        sortedValues[Math.floor(sortedValues.length * 0.4)],
-        sortedValues[Math.floor(sortedValues.length * 0.6)],
-        sortedValues[Math.floor(sortedValues.length * 0.8)]
-    ];
-    
-    if (value <= breaks[0]) return colors[0];
-    if (value <= breaks[1]) return colors[1];
-    if (value <= breaks[2]) return colors[2];
-    if (value <= breaks[3]) return colors[3];
-    return colors[4];
-}
         
         // Function to create a vector tile layer with graduated colors
         function createGraduatedVectorLayer(name, geoJsonData, populationField) {
@@ -771,9 +805,38 @@ L.control.attribution({
             const minValue = Math.min(...populationValues.filter(v => v > 0));
             const maxValue = Math.max(...populationValues);
             
-            // Create the vector grid layer with graduated colors
+            // Initialize worker if not already created
+            if (!jenksWorker) {
+                jenksWorker = createJenksWorker();
+            }
+            
+            // Create a promise to store the Jenks breaks
+            const jenksPromise = new Promise((resolve) => {
+                if (populationValues.length === 0) {
+                    resolve(null);
+                    return;
+                }
+                
+                const workerHandler = function(e) {
+                    if (e.data.error) {
+                        console.error("Jenks worker error:", e.data.error);
+                        resolve(null);
+                    } else {
+                        resolve(e.data.breaks);
+                    }
+                    jenksWorker.removeEventListener('message', workerHandler);
+                };
+                
+                jenksWorker.addEventListener('message', workerHandler);
+                jenksWorker.postMessage({
+                    values: populationValues,
+                    numClasses: 5
+                });
+            });
+            
+            // Create the vector grid layer
             const layer = L.vectorGrid.slicer(geoJsonData, {
-                rendererFactory: L.svg.tile,
+                rendererFactory: L.canvas.tile, // Use canvas for better performance
                 vectorTileLayerStyles: {
                     sliced: function(properties) {
                         const value = showGrowthRates ? properties.growthRate : properties[populationField];
@@ -781,7 +844,7 @@ L.control.attribution({
                             weight: 1.5,
                             color: '#616161',
                             opacity: 0.8,
-                            fillColor: getGraduatedColor(value, minValue, maxValue, populationValues),
+                            fillColor: getGraduatedColor(value, minValue, maxValue, populationValues, currentClassification, layer.metadata),
                             fillOpacity: 0.85,
                             fill: true
                         };
@@ -789,94 +852,41 @@ L.control.attribution({
                 },
                 maxZoom: 14,
                 tileSize: 256,
-                buffer: 128,
+                buffer: 64,
                 interactive: true,
                 getFeatureId: function(f) {
                     return f.properties.id || L.stamp(f);
                 }
             });
             
-            // Store metadata in layer for legend
+            // Store metadata with the promise for Jenks breaks
             layer.metadata = {
                 field: showGrowthRates ? 'growthRate' : populationField,
                 min: minValue,
                 max: maxValue,
                 name: name,
                 values: populationValues,
-                classification: currentClassification
+                classification: currentClassification,
+                jenksPromise: jenksPromise
             };
-
-
-
-
-// Jenks natural breaks algorithm
-// Faster natural breaks algorithm (simplified Fisher-Jenks)
-function getNaturalBreaks(data, numClass) {
-    if (data.length === 0 || numClass > data.length) return null;
-    
-    // Sort the data
-    data = data.slice().sort((a, b) => a - b);
-    
-    // Simple case: if we want more classes than unique values
-    const uniqueValues = [...new Set(data)];
-    if (uniqueValues.length <= numClass) {
-        return uniqueValues.concat([Infinity]);
-    }
-    
-    // Initialize breaks by dividing the data into equal intervals
-    let breaks = [];
-    for (let i = 0; i <= numClass; i++) {
-        const index = Math.floor((data.length - 1) * i / numClass);
-        breaks.push(data[index]);
-    }
-    breaks[breaks.length - 1] = Infinity; // Make last break inclusive
-    
-    // Optimize breaks through iteration (simplified k-means)
-    let improved = true;
-    let iterations = 0;
-    const maxIterations = 100;
-    
-    while (improved && iterations < maxIterations) {
-        improved = false;
-        iterations++;
-        
-        // Assign each value to a class
-        const classes = Array(numClass).fill().map(() => []);
-        let currentClass = 0;
-        
-        for (const value of data) {
-            while (value >= breaks[currentClass + 1] && currentClass < numClass - 1) {
-                currentClass++;
-            }
-            classes[currentClass].push(value);
-        }
-        
-        // Calculate new breaks as class means
-        const newBreaks = [data[0]];
-        for (let i = 0; i < numClass - 1; i++) {
-            if (classes[i].length > 0 && classes[i + 1].length > 0) {
-                const lastVal = classes[i][classes[i].length - 1];
-                const nextVal = classes[i + 1][0];
-                newBreaks.push((lastVal + nextVal) / 2);
-            } else {
-                newBreaks.push(breaks[i + 1]);
-            }
-        }
-        newBreaks.push(Infinity);
-        
-        // Check for improvement
-        for (let i = 1; i < numClass; i++) {
-            if (Math.abs(newBreaks[i] - breaks[i]) > (breaks[i] * 0.001)) {
-                improved = true;
-                break;
-            }
-        }
-        
-        breaks = newBreaks;
-    }
-    
-    return breaks;
-} 
+            
+            // When Jenks breaks are ready, store them
+            jenksPromise.then(breaks => {
+                if (breaks) {
+                    if (!layer.metadata.precomputedBreaks) {
+                        layer.metadata.precomputedBreaks = {};
+                    }
+                    layer.metadata.precomputedBreaks.jenks = breaks;
+                    
+                    // If this layer is currently visible, update it
+                    if (map.hasLayer(layer)) {
+                        map.removeLayer(layer);
+                        layer.addTo(map);
+                        updateLegend();
+                    }
+                }
+            });
+            
             // Add popup with detailed information
             layer.on('click', function(e) {
                 const props = e.layer.properties;
@@ -1005,30 +1015,72 @@ function getNaturalBreaks(data, numClass) {
             return layer;
         }
         
+        // Helper function to calculate breaks
+        function calculateBreaks(values, metadata, classification) {
+            if (classification === 'linear') {
+                const range = metadata.max - metadata.min;
+                return [
+                    metadata.min + range * 0.2,
+                    metadata.min + range * 0.4,
+                    metadata.min + range * 0.6,
+                    metadata.min + range * 0.8
+                ];
+            } else if (classification === 'logarithmic') {
+                const logMin = Math.log10(metadata.min || 1);
+                const logMax = Math.log10(metadata.max);
+                const logRange = logMax - logMin;
+                return [
+                    Math.pow(10, logMin + logRange * 0.2),
+                    Math.pow(10, logMin + logRange * 0.4),
+                    Math.pow(10, logMin + logRange * 0.6),
+                    Math.pow(10, logMin + logRange * 0.8)
+                ];
+            } else if (classification === 'quantile') {
+                return [
+                    values[Math.floor(values.length * 0.2)],
+                    values[Math.floor(values.length * 0.4)],
+                    values[Math.floor(values.length * 0.6)],
+                    values[Math.floor(values.length * 0.8)]
+                ];
+            } else if (classification === 'jenks') {
+                if (metadata.precomputedBreaks?.jenks) {
+                    return metadata.precomputedBreaks.jenks.slice(1, 5);
+                }
+                // Fallback to quantile
+                return [
+                    values[Math.floor(values.length * 0.2)],
+                    values[Math.floor(values.length * 0.4)],
+                    values[Math.floor(values.length * 0.6)],
+                    values[Math.floor(values.length * 0.8)]
+                ];
+            }
+            return [];
+        }
+        
         // Function to update the legend
-        function updateLegend() {
+        async function updateLegend() {
             const legendContent = document.getElementById('legend-content');
+            const legendTitle = document.getElementById('legend-title');
+            
+            // Clear existing legend
             legendContent.innerHTML = '';
             
-            // Get the active layer to display its legend
-            const activeLayers = Object.keys(layers).filter(name => {
-                return map.hasLayer(layers[name]) && 
-                      name.startsWith('y') && 
-                      layers[name].metadata;
-            });
+            // Get active population layer
+            const activeLayer = Object.keys(layers).find(name => 
+                name.startsWith('y') && map.hasLayer(layers[name])
+            );
             
-            if (activeLayers.length === 0) {
-                document.getElementById('legend-title').textContent = 'Population';
+            if (!activeLayer) {
+                legendTitle.textContent = 'Population';
                 legendContent.innerHTML = '<div class="legend-item">No data active</div>';
                 return;
             }
             
-            // Use the first active population layer
-            const activeLayer = layers[activeLayers[0]];
-            const metadata = activeLayer.metadata;
+            const layer = layers[activeLayer];
+            const metadata = layer.metadata;
             
             if (showGrowthRates) {
-                document.getElementById('legend-title').textContent = 'Growth Rate';
+                legendTitle.textContent = 'Growth Rate';
                 legendContent.innerHTML = `
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #e74c3c;"></div>
@@ -1048,135 +1100,56 @@ function getNaturalBreaks(data, numClass) {
                     </div>
                 `;
             } else {
-                document.getElementById('legend-title').textContent = 'Population';
-                const values = metadata.values.filter(v => v > 0).sort((a, b) => a - b);
+                legendTitle.textContent = 'Population';
+                
+                // Handle Jenks classification specifically
+                if (currentClassification === 'jenks' && 
+                    (!metadata.precomputedBreaks || !metadata.precomputedBreaks.jenks)) {
+                    if (metadata.jenksPromise) {
+                        legendContent.innerHTML = '<div class="legend-item">Calculating classification...</div>';
+                        await metadata.jenksPromise;
+                        return updateLegend(); // Recall after breaks are ready
+                    }
+                }
                 
                 // Calculate breaks based on current classification
-                let breaks = [];
-                if (currentClassification === 'linear') {
-                    const range = metadata.max - metadata.min;
-                    breaks = [
-                        metadata.min + range * 0.2,
-                        metadata.min + range * 0.4,
-                        metadata.min + range * 0.6,
-                        metadata.min + range * 0.8
-                    ];
-                } else if (currentClassification === 'logarithmic') {
-                    const logMin = Math.log10(metadata.min || 1);
-                    const logMax = Math.log10(metadata.max);
-                    const logRange = logMax - logMin;
-                    breaks = [
-                        Math.pow(10, logMin + logRange * 0.2),
-                        Math.pow(10, logMin + logRange * 0.4),
-                        Math.pow(10, logMin + logRange * 0.6),
-                        Math.pow(10, logMin + logRange * 0.8)
-                    ];
-                } else if (currentClassification === 'quantile') {
-                    breaks = [
-                        values[Math.floor(values.length * 0.2)],
-                        values[Math.floor(values.length * 0.4)],
-                        values[Math.floor(values.length * 0.6)],
-                        values[Math.floor(values.length * 0.8)]
-                    ];
-                }
-
-// In your updateLegend function:
-else if (currentClassification === 'jenks') {
-    const breaks = getNaturalBreaks(values, 5);
-    if (!breaks || breaks.length < 5) {
-        legendContent.innerHTML = '<div class="legend-item">Using quantile (data too small for natural breaks)</div>';
-        // Fallback to showing quantile breaks
-        const qBreaks = [
-            values[Math.floor(values.length * 0.2)],
-            values[Math.floor(values.length * 0.4)],
-            values[Math.floor(values.length * 0.6)],
-            values[Math.floor(values.length * 0.8)]
-        ];
-        
-        legendContent.innerHTML = `
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: ${colors[0]};"></div>
-                <div class="legend-label">&lt; ${Math.round(qBreaks[0]).toLocaleString()}</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: ${colors[1]};"></div>
-                <div class="legend-label">${Math.round(qBreaks[0]).toLocaleString()} - ${Math.round(qBreaks[1]).toLocaleString()}</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: ${colors[2]};"></div>
-                <div class="legend-label">${Math.round(qBreaks[1]).toLocaleString()} - ${Math.round(qBreaks[2]).toLocaleString()}</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: ${colors[3]};"></div>
-                <div class="legend-label">${Math.round(qBreaks[2]).toLocaleString()} - ${Math.round(qBreaks[3]).toLocaleString()}</div>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: ${colors[4]};"></div>
-                <div class="legend-label">&gt; ${Math.round(qBreaks[3]).toLocaleString()}</div>
-            </div>
-            <div class="legend-item" style="color: #777; font-size: 0.6rem;">
-                <i>Natural breaks not available - showing quantile</i>
-            </div>
-        `;
-        return;
-    }
-    
-    legendContent.innerHTML = `
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: ${colors[0]};"></div>
-            <div class="legend-label">&lt; ${Math.round(breaks[1]).toLocaleString()}</div>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: ${colors[1]};"></div>
-            <div class="legend-label">${Math.round(breaks[1]).toLocaleString()} - ${Math.round(breaks[2]).toLocaleString()}</div>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: ${colors[2]};"></div>
-            <div class="legend-label">${Math.round(breaks[2]).toLocaleString()} - ${Math.round(breaks[3]).toLocaleString()}</div>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: ${colors[3]};"></div>
-            <div class="legend-label">${Math.round(breaks[3]).toLocaleString()} - ${Math.round(breaks[4]).toLocaleString()}</div>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: ${colors[4]};"></div>
-            <div class="legend-label">&gt; ${Math.round(breaks[4]).toLocaleString()}</div>
-        </div>
-    `;
-}
+                const values = metadata.values.filter(v => v > 0).sort((a, b) => a - b);
+                let breaks = calculateBreaks(values, metadata, currentClassification);
                 
-                // Define our color scale (5 classes)
+                // Define color scale
                 const colors = [
-    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-    'rgba(199, 233, 192, 0.8)',   // Light green
-    'rgba(116, 196, 118, 0.8)',   // Medium green
-    'rgba(49, 163, 84, 0.8)',     // Deeper green
-    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-];
+                    'rgba(247, 252, 245, 0.8)',
+                    'rgba(199, 233, 192, 0.8)',
+                    'rgba(116, 196, 118, 0.8)',
+                    'rgba(49, 163, 84, 0.8)',
+                    'rgba(0, 109, 44, 0.8)'
+                ];
                 
-                // Create legend content
-                legendContent.innerHTML = `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[0]};"></div>
-                        <div class="legend-label">&lt; ${Math.round(breaks[0]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[1]};"></div>
-                        <div class="legend-label">${Math.round(breaks[0]).toLocaleString()} - ${Math.round(breaks[1]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[2]};"></div>
-                        <div class="legend-label">${Math.round(breaks[1]).toLocaleString()} - ${Math.round(breaks[2]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[3]};"></div>
-                        <div class="legend-label">${Math.round(breaks[2]).toLocaleString()} - ${Math.round(breaks[3]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[4]};"></div>
-                        <div class="legend-label">&gt; ${Math.round(breaks[3]).toLocaleString()}</div>
-                    </div>
-                `;
+                // Create legend HTML
+                if (breaks.length >= 4) {
+                    legendContent.innerHTML = `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: ${colors[0]};"></div>
+                            <div class="legend-label">&lt; ${Math.round(breaks[0]).toLocaleString()}</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: ${colors[1]};"></div>
+                            <div class="legend-label">${Math.round(breaks[0]).toLocaleString()} - ${Math.round(breaks[1]).toLocaleString()}</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: ${colors[2]};"></div>
+                            <div class="legend-label">${Math.round(breaks[1]).toLocaleString()} - ${Math.round(breaks[2]).toLocaleString()}</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: ${colors[3]};"></div>
+                            <div class="legend-label">${Math.round(breaks[2]).toLocaleString()} - ${Math.round(breaks[3]).toLocaleString()}</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: ${colors[4]};"></div>
+                            <div class="legend-label">&gt; ${Math.round(breaks[3]).toLocaleString()}</div>
+                        </div>
+                    `;
+                }
             }
             
             // Add no data indicator
@@ -1191,110 +1164,39 @@ else if (currentClassification === 'jenks') {
         
         // Function to show only one year at a time
         function showYearLayer(year) {
-    // Remove all year layers first
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y')) {
-            map.removeLayer(layers[name]);
-        }
-    });
-    
-    // Add the selected year layer
-    const layerName = `y${year}`;
-    if (layers[layerName]) {
-        layers[layerName].addTo(map);
-        
-        // Ensure proper z-index ordering (population < railroads < canals < trails)
-        if (layers.train2 && map.hasLayer(layers.train2)) {
-    layers.train2.bringToFront();
-}
-
-if (layers.trail && map.hasLayer(layers.trail)) {
-    layers.trail.bringToFront();
-}
-if (layers.river && map.hasLayer(layers.river)) {
-    layers.river.bringToFront();
-}       
-        updateLegend();
-        return true;
-    } else {
-        return false;
-    }
-}
-        // AI Explanation Functions
-        async function getDeepSeekExplanation(countyName, stateName, prevYear, currYear, prevPop, currPop, growthRate) {
-            if (!aiEnabled) return "Enable AI for explanations";
+            // Remove all year layers first
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y')) {
+                    map.removeLayer(layers[name]);
+                }
+            });
             
-            // Early return for small changes
-            if (Math.abs(growthRate) < 4) {
-                return "Change too small for detailed analysis (less than 4%).";
-            }
-
-            const prompt = `As a historical demographer, explain why ${countyName}, ${stateName} had a ${growthRate.toFixed(2)}% population ${growthRate > 0 ? "increase" : "decrease"} between ${prevYear} and ${currYear}. Focus on 1-2 likely factors like migration patterns, economic conditions, or historical events. Keep response to 3 sentences max.`;
-
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${API_KEY}`,
-                        "HTTP-Referer": window.location.href,
-                        "X-Title": "Population Growth Map"
-                    },
-                    body: JSON.stringify({
-                        "model": "deepseek/deepseek-chat",
-                        "messages": [
-                            {
-                                "role": "system",
-                                "content": "You provide concise historical explanations for population changes. Focus on facts from the specified time period."
-                            },
-                            {
-                                "role": "user", 
-                                "content": prompt
-                            }
-                        ],
-                        "max_tokens": 150,
-                        "temperature": 0.7
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
+            // Add the selected year layer
+            const layerName = `y${year}`;
+            if (layers[layerName]) {
+                // Preserve classification method when adding layer
+                layers[layerName].metadata.classification = currentClassification;
+                layers[layerName].addTo(map);
+                
+                // Ensure proper z-index ordering
+                if (layers.train2 && map.hasLayer(layers.train2)) {
+                    layers.train2.bringToFront();
                 }
-
-                const data = await response.json();
-                return data.choices[0].message.content;
-
-            } catch (err) {
-                console.error("API Error:", err);
-                return `Error: ${err.message}`;
+                if (layers.trail && map.hasLayer(layers.trail)) {
+                    layers.trail.bringToFront();
+                }
+                if (layers.river && map.hasLayer(layers.river)) {
+                    layers.river.bringToFront();
+                }
+                
+                // Update legend
+                updateLegend();
+                return true;
+            } else {
+                return false;
             }
         }
         
-        async function checkAPIStatus() {
-            try {
-                const response = await fetch('https://openrouter.ai/api/v1/auth/key', {
-                    headers: {
-                        'Authorization': `Bearer ${API_KEY}`
-                    }
-                });
-                
-                if (response.ok) {
-                    document.getElementById('ai-status').textContent = 'AI: Connected';
-                    document.getElementById('ai-status').className = 'ai-status connected';
-                } else {
-                    aiEnabled = false;
-                    document.getElementById('enable-ai').textContent = 'Enable AI';
-                    document.getElementById('ai-status').textContent = 'AI: Error (check key)';
-                    document.getElementById('ai-status').className = 'ai-status disconnected';
-                }
-            } catch (error) {
-                aiEnabled = false;
-                document.getElementById('enable-ai').textContent = 'Enable AI';
-                document.getElementById('ai-status').textContent = 'AI: Connection failed';
-                document.getElementById('ai-status').className = 'ai-status disconnected';
-            }
-        }
-
         // Function to filter rivers based on the decade
         function filterRiversForDecade(decade) {
             const yearMap = {
@@ -1475,22 +1377,30 @@ if (layers.river && map.hasLayer(layers.river)) {
             
             // Filter trains based on their Decade property
             filterTrainsForDecade(decadeIndex);
+            
+            // Maintain z-index ordering
             if (layers.trail && map.hasLayer(layers.trail)) {
                 layers.trail.bringToFront();
             }
             if (layers.river && map.hasLayer(layers.river)) {
                 layers.river.bringToFront();
             }
+            
             // Update the population info
             const yearLayer = `y${year}`;
             const totalPop = getTotalPopulation(yearLayer);
             document.getElementById('info-population').textContent = `Population: ${totalPop}`;
+            
+            // Force legend update
+            updateLegend();
         }
         
         // Add the time slider
         function addTimeSlider() {
+            const slider = document.getElementById('time-slider');
+            
             // Event listener for slider changes
-            document.getElementById('time-slider').addEventListener('input', function() {
+            slider.addEventListener('input', function() {
                 updateMapForDecade(this.value);
             });
             
@@ -1548,6 +1458,81 @@ if (layers.river && map.hasLayer(layers.river)) {
             });
         }
         
+        // AI Explanation Functions
+        async function getDeepSeekExplanation(countyName, stateName, prevYear, currYear, prevPop, currPop, growthRate) {
+            if (!aiEnabled) return "Enable AI for explanations";
+            
+            // Early return for small changes
+            if (Math.abs(growthRate) < 4) {
+                return "Change too small for detailed analysis (less than 4%).";
+            }
+
+            const prompt = `As a historical demographer, explain why ${countyName}, ${stateName} had a ${growthRate.toFixed(2)}% population ${growthRate > 0 ? "increase" : "decrease"} between ${prevYear} and ${currYear}. Focus on 1-2 likely factors like migration patterns, economic conditions, or historical events. Keep response to 3 sentences max.`;
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${API_KEY}`,
+                        "HTTP-Referer": window.location.href,
+                        "X-Title": "Population Growth Map"
+                    },
+                    body: JSON.stringify({
+                        "model": "deepseek/deepseek-chat",
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": "You provide concise historical explanations for population changes. Focus on facts from the specified time period."
+                            },
+                            {
+                                "role": "user", 
+                                "content": prompt
+                            }
+                        ],
+                        "max_tokens": 150,
+                        "temperature": 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.choices[0].message.content;
+
+            } catch (err) {
+                console.error("API Error:", err);
+                return `Error: ${err.message}`;
+            }
+        }
+        
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch('https://openrouter.ai/api/v1/auth/key', {
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`
+                    }
+                });
+                
+                if (response.ok) {
+                    document.getElementById('ai-status').textContent = 'AI: Connected';
+                    document.getElementById('ai-status').className = 'ai-status connected';
+                } else {
+                    aiEnabled = false;
+                    document.getElementById('enable-ai').textContent = 'Enable AI';
+                    document.getElementById('ai-status').textContent = 'AI: Error (check key)';
+                    document.getElementById('ai-status').className = 'ai-status disconnected';
+                }
+            } catch (error) {
+                aiEnabled = false;
+                document.getElementById('enable-ai').textContent = 'Enable AI';
+                document.getElementById('ai-status').textContent = 'AI: Connection failed';
+                document.getElementById('ai-status').className = 'ai-status disconnected';
+            }
+        }
+
         // Listen for layer changes to update the legend
         map.on('layeradd layerremove', function() {
             updateLegend();
@@ -1558,30 +1543,23 @@ if (layers.river && map.hasLayer(layers.river)) {
         
         // Layer toggle buttons
         document.querySelectorAll('.layer-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const layerName = this.dataset.layer;
-        if (layers[layerName]) {
-            if (map.hasLayer(layers[layerName])) {
-                map.removeLayer(layers[layerName]);
-                this.classList.remove('active');
-            } else {
-                layers[layerName].addTo(map);
-                this.classList.add('active');
-            }
-        }
-    });
-});
-const trainBtn = document.getElementById('toggle-train');
-                if (trainBtn && trainBtn.classList.contains('active')) {
-                    layers.train2.addTo(map);
-                    // Ensure railroads appear above population but below canals and trails
-                    layers.train2.bringToFront();
-                    if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
-                    if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
+            btn.addEventListener('click', function() {
+                const layerName = this.dataset.layer;
+                if (layers[layerName]) {
+                    if (map.hasLayer(layers[layerName])) {
+                        map.removeLayer(layers[layerName]);
+                        this.classList.remove('active');
+                    } else {
+                        layers[layerName].addTo(map);
+                        this.classList.add('active');
+                    }
                 }
+            });
+        });
+        
         // Classification buttons
         document.querySelectorAll('.classification-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', async function() {
                 // Update active state
                 document.querySelectorAll('.classification-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
@@ -1596,12 +1574,27 @@ const trainBtn = document.getElementById('toggle-train');
                         if (map.hasLayer(layers[name])) {
                             map.removeLayer(layers[name]);
                             layers[name].addTo(map);
+                            if (currentClassification === 'jenks' && layers[name].metadata?.jenksPromise) {
+    layers[name].metadata.jenksPromise.then(updateLegend);
+} else {
+    updateLegend();
+}
                         }
                     }
                 });
                 
+                if (layers.train2 && map.hasLayer(layers.train2)) {
+                    layers.train2.bringToFront();
+                }
+                if (layers.trail && map.hasLayer(layers.trail)) {
+                    layers.trail.bringToFront();
+                }
+                if (layers.river && map.hasLayer(layers.river)) {
+                    layers.river.bringToFront();
+                }
+                
                 // Update the legend
-                updateLegend();
+                await updateLegend();
             });
         });
         
@@ -1630,34 +1623,39 @@ const trainBtn = document.getElementById('toggle-train');
         
         // Growth rate toggle
         document.getElementById('show-growth').addEventListener('change', function() {
-    showGrowthRates = this.checked;
-    
-    // Recreate all year layers with new visualization
-    Object.keys(layers).forEach(name => {
-        if (name.startsWith('y') && layers[name].metadata) {
-            layers[name].metadata.classification = currentClassification;
-            if (map.hasLayer(layers[name])) {
-                map.removeLayer(layers[name]);
-                layers[name].addTo(map);
-                
-                // Maintain z-index ordering after refresh
-                if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
-                if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
-                if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+            showGrowthRates = this.checked;
+            
+            // Recreate all year layers with new visualization
+            Object.keys(layers).forEach(name => {
+                if (name.startsWith('y') && layers[name].metadata) {
+                    layers[name].metadata.classification = currentClassification;
+                    if (map.hasLayer(layers[name])) {
+                        map.removeLayer(layers[name]);
+                        layers[name].addTo(map);
+                        
+                        // Maintain z-index ordering after refresh
+                        if (layers.train2 && map.hasLayer(layers.train2)) layers.train2.bringToFront();
+                        if (layers.trail && map.hasLayer(layers.trail)) layers.trail.bringToFront();
+                        if (layers.river && map.hasLayer(layers.river)) layers.river.bringToFront();
+                    }
+                }
+            });
+            
+            // Update the legend
+            updateLegend();
+        });
 
+        // Clean up worker when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (jenksWorker) {
+                jenksWorker.terminate();
             }
-        }
-    });
-    
-    // Update the legend
-    updateLegend();
-});
+        });
 
-
-
-addTimeSlider();
-document.getElementById('time-slider').value = 0;
-updateMapForDecade(0);
+        // Initialize time slider
+        addTimeSlider();
+        document.getElementById('time-slider').value = 0;
+        updateMapForDecade(0);
     </script>
 </body>
 </html>

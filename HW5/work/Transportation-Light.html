@@ -480,7 +480,6 @@
                     <button class="classification-btn active" data-method="linear">Equal Interval</button>
                     <button class="classification-btn" data-method="logarithmic">Logarithmic</button>
                     <button class="classification-btn" data-method="quantile">Quantile</button>
-                    <button class="classification-btn" data-method="jenks">Jenks</button>
                 </div>
             </div>
             
@@ -1024,135 +1023,151 @@
         }
         
         // Function to update the legend
-        function updateLegend() {
-            const legendContent = document.getElementById('legend-content');
-            legendContent.innerHTML = '';
+        // Modified updateLegend function
+async function updateLegend() {
+    const legendContent = document.getElementById('legend-content');
+    legendContent.innerHTML = '';
+    
+    // Get the active layer to display its legend
+    const activeLayers = Object.keys(layers).filter(name => {
+        return map.hasLayer(layers[name]) && 
+              name.startsWith('y') && 
+              layers[name].metadata;
+    });
+    
+    if (activeLayers.length === 0) {
+        document.getElementById('legend-title').textContent = 'Population';
+        legendContent.innerHTML = '<div class="legend-item">No data active</div>';
+        return;
+    }
+    
+    // Use the first active population layer
+    const activeLayer = layers[activeLayers[0]];
+    const metadata = activeLayer.metadata;
+    
+    if (showGrowthRates) {
+        document.getElementById('legend-title').textContent = 'Growth Rate';
+        legendContent.innerHTML = `
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                <div class="legend-label">Decline > 10%</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e67e22;"></div>
+                <div class="legend-label">Decline 0-10%</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2ecc71;"></div>
+                <div class="legend-label">Growth 0-10%</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #27ae60;"></div>
+                <div class="legend-label">Growth > 10%</div>
+            </div>
+        `;
+    } else {
+        document.getElementById('legend-title').textContent = 'Population';
+        
+        // Show loading state if we're waiting for Jenks breaks
+        if (currentClassification === 'jenks' && 
+            (!metadata.precomputedBreaks || !metadata.precomputedBreaks.jenks) && 
+            metadata.jenksPromise) {
+            legendContent.innerHTML = '<div class="legend-item">Calculating Jenks breaks...</div>';
             
-            // Get the active layer to display its legend
-            const activeLayers = Object.keys(layers).filter(name => {
-                return map.hasLayer(layers[name]) && 
-                      name.startsWith('y') && 
-                      layers[name].metadata;
-            });
+            // Wait for the Jenks breaks to be calculated
+            await metadata.jenksPromise;
             
-            if (activeLayers.length === 0) {
-                document.getElementById('legend-title').textContent = 'Population';
-                legendContent.innerHTML = '<div class="legend-item">No data active</div>';
-                return;
-            }
-            
-            // Use the first active population layer
-            const activeLayer = layers[activeLayers[0]];
-            const metadata = activeLayer.metadata;
-            
-            if (showGrowthRates) {
-                document.getElementById('legend-title').textContent = 'Growth Rate';
-                legendContent.innerHTML = `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #e74c3c;"></div>
-                        <div class="legend-label">Decline > 10%</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #e67e22;"></div>
-                        <div class="legend-label">Decline 0-10%</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #2ecc71;"></div>
-                        <div class="legend-label">Growth 0-10%</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #27ae60;"></div>
-                        <div class="legend-label">Growth > 10%</div>
-                    </div>
-                `;
-            } else {
-                document.getElementById('legend-title').textContent = 'Population';
-                const values = metadata.values.filter(v => v > 0).sort((a, b) => a - b);
-                
-                // Calculate breaks based on current classification
-                let breaks = [];
-                if (currentClassification === 'linear') {
-                    const range = metadata.max - metadata.min;
-                    breaks = [
-                        metadata.min + range * 0.2,
-                        metadata.min + range * 0.4,
-                        metadata.min + range * 0.6,
-                        metadata.min + range * 0.8
-                    ];
-                } else if (currentClassification === 'logarithmic') {
-                    const logMin = Math.log10(metadata.min || 1);
-                    const logMax = Math.log10(metadata.max);
-                    const logRange = logMax - logMin;
-                    breaks = [
-                        Math.pow(10, logMin + logRange * 0.2),
-                        Math.pow(10, logMin + logRange * 0.4),
-                        Math.pow(10, logMin + logRange * 0.6),
-                        Math.pow(10, logMin + logRange * 0.8)
-                    ];
-                } else if (currentClassification === 'quantile') {
-                    breaks = [
-                        values[Math.floor(values.length * 0.2)],
-                        values[Math.floor(values.length * 0.4)],
-                        values[Math.floor(values.length * 0.6)],
-                        values[Math.floor(values.length * 0.8)]
-                    ];
-                } else if (currentClassification === 'jenks') {
-                    if (metadata.precomputedBreaks && metadata.precomputedBreaks.jenks) {
-                        breaks = metadata.precomputedBreaks.jenks.slice(1, 5);
-                    } else {
-                        // Fall back to quantile if Jenks breaks aren't ready
-                        breaks = [
-                            values[Math.floor(values.length * 0.2)],
-                            values[Math.floor(values.length * 0.4)],
-                            values[Math.floor(values.length * 0.6)],
-                            values[Math.floor(values.length * 0.8)]
-                        ];
-                    }
-                }
-                
-                // Define our color scale (5 classes)
-                const colors = [
-                    'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
-                    'rgba(199, 233, 192, 0.8)',   // Light green
-                    'rgba(116, 196, 118, 0.8)',   // Medium green
-                    'rgba(49, 163, 84, 0.8)',     // Deeper green
-                    'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
-                ];
-                
-                // Create legend content
-                legendContent.innerHTML = `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[0]};"></div>
-                        <div class="legend-label">&lt; ${Math.round(breaks[0]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[1]};"></div>
-                        <div class="legend-label">${Math.round(breaks[0]).toLocaleString()} - ${Math.round(breaks[1]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[2]};"></div>
-                        <div class="legend-label">${Math.round(breaks[1]).toLocaleString()} - ${Math.round(breaks[2]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[3]};"></div>
-                        <div class="legend-label">${Math.round(breaks[2]).toLocaleString()} - ${Math.round(breaks[3]).toLocaleString()}</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${colors[4]};"></div>
-                        <div class="legend-label">&gt; ${Math.round(breaks[3]).toLocaleString()}</div>
-                    </div>
-                `;
-            }
-            
-            // Add no data indicator
-            const noDataDiv = document.createElement('div');
-            noDataDiv.className = 'legend-item';
-            noDataDiv.innerHTML = `
-                <div class="legend-color" style="background-color: rgba(50, 50, 50, 0.3);"></div>
-                <div class="legend-label">No data</div>
-            `;
-            legendContent.appendChild(noDataDiv);
+            // After breaks are calculated, recall this function to update with proper values
+            return updateLegend();
         }
+        
+        const values = metadata.values.filter(v => v > 0).sort((a, b) => a - b);
+        
+        // Calculate breaks based on current classification
+        let breaks = [];
+        if (currentClassification === 'linear') {
+            const range = metadata.max - metadata.min;
+            breaks = [
+                metadata.min + range * 0.2,
+                metadata.min + range * 0.4,
+                metadata.min + range * 0.6,
+                metadata.min + range * 0.8
+            ];
+        } else if (currentClassification === 'logarithmic') {
+            const logMin = Math.log10(metadata.min || 1);
+            const logMax = Math.log10(metadata.max);
+            const logRange = logMax - logMin;
+            breaks = [
+                Math.pow(10, logMin + logRange * 0.2),
+                Math.pow(10, logMin + logRange * 0.4),
+                Math.pow(10, logMin + logRange * 0.6),
+                Math.pow(10, logMin + logRange * 0.8)
+            ];
+        } else if (currentClassification === 'quantile') {
+            breaks = [
+                values[Math.floor(values.length * 0.2)],
+                values[Math.floor(values.length * 0.4)],
+                values[Math.floor(values.length * 0.6)],
+                values[Math.floor(values.length * 0.8)]
+            ];
+        } else if (currentClassification === 'jenks') {
+            if (metadata.precomputedBreaks && metadata.precomputedBreaks.jenks) {
+                breaks = metadata.precomputedBreaks.jenks.slice(1, 5);
+            } else {
+                // If we get here, we should have already waited for the promise
+                // So just use quantile as a last resort
+                breaks = [
+                    values[Math.floor(values.length * 0.2)],
+                    values[Math.floor(values.length * 0.4)],
+                    values[Math.floor(values.length * 0.6)],
+                    values[Math.floor(values.length * 0.8)]
+                ];
+            }
+        }
+        
+        // Define our color scale (5 classes)
+        const colors = [
+            'rgba(247, 252, 245, 0.8)',   // Very light green (low population)
+            'rgba(199, 233, 192, 0.8)',   // Light green
+            'rgba(116, 196, 118, 0.8)',   // Medium green
+            'rgba(49, 163, 84, 0.8)',     // Deeper green
+            'rgba(0, 109, 44, 0.8)'       // Dark green (high population)
+        ];
+        
+        // Create legend content
+        legendContent.innerHTML = `
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[0]};"></div>
+                <div class="legend-label">&lt; ${Math.round(breaks[0]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[1]};"></div>
+                <div class="legend-label">${Math.round(breaks[0]).toLocaleString()} - ${Math.round(breaks[1]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[2]};"></div>
+                <div class="legend-label">${Math.round(breaks[1]).toLocaleString()} - ${Math.round(breaks[2]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[3]};"></div>
+                <div class="legend-label">${Math.round(breaks[2]).toLocaleString()} - ${Math.round(breaks[3]).toLocaleString()}</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${colors[4]};"></div>
+                <div class="legend-label">&gt; ${Math.round(breaks[3]).toLocaleString()}</div>
+            </div>
+        `;
+    }
+    
+    // Add no data indicator
+    const noDataDiv = document.createElement('div');
+    noDataDiv.className = 'legend-item';
+    noDataDiv.innerHTML = `
+        <div class="legend-color" style="background-color: rgba(50, 50, 50, 0.3);"></div>
+        <div class="legend-label">No data</div>
+    `;
+    legendContent.appendChild(noDataDiv);
+}
         
         // Function to show only one year at a time
         function showYearLayer(year) {
@@ -1539,27 +1554,28 @@
         });
         
         // Classification buttons
-        document.querySelectorAll('.classification-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Update active state
-                document.querySelectorAll('.classification-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Update classification method
-                currentClassification = this.dataset.method;
-                
-                // Update all population layers
-                Object.keys(layers).forEach(name => {
-                    if (name.startsWith('y') && layers[name].metadata) {
-                        layers[name].metadata.classification = currentClassification;
-                        if (map.hasLayer(layers[name])) {
-                            map.removeLayer(layers[name]);
-                            layers[name].addTo(map);
-                        }
-                    }
-                });
-                
-                if (layers.train2 && map.hasLayer(layers.train2)) {
+// Classification buttons
+document.querySelectorAll('.classification-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        // Update active state
+        document.querySelectorAll('.classification-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update classification method
+        currentClassification = this.dataset.method;
+        
+        // Update all population layers
+        Object.keys(layers).forEach(name => {
+            if (name.startsWith('y') && layers[name].metadata) {
+                layers[name].metadata.classification = currentClassification;
+                if (map.hasLayer(layers[name])) {
+                    map.removeLayer(layers[name]);
+                    layers[name].addTo(map);
+                }
+            }
+        });
+        
+        if (layers.train2 && map.hasLayer(layers.train2)) {
             layers.train2.bringToFront();
         }
         if (layers.trail && map.hasLayer(layers.trail)) {
@@ -1568,12 +1584,18 @@
         if (layers.river && map.hasLayer(layers.river)) {
             layers.river.bringToFront();
         }
-                
-                // Update the legend
-                updateLegend();
-            });
-        });
         
+        // Update the legend - now async
+        await updateLegend();
+    });
+});
+        
+// Listen for layer changes to update the legend
+map.on('layeradd layerremove', async function() {
+    await updateLegend();
+});
+
+
         // AI toggle button
         document.getElementById('enable-ai').addEventListener('click', function() {
             if (!API_KEY) {
