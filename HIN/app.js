@@ -480,3 +480,314 @@ document.addEventListener('DOMContentLoaded', function() {
     initAutocomplete();
     setupButtons();
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the map centered on Charlotte
+    var map = L.map('map').setView([35.2271, -80.8431], 13);
+
+    // Add base tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // =============================================
+    // 1. Prepare safety data and road network
+    // =============================================
+    
+    function prepareSafetyData(geojson) {
+        const dataYears = 17;
+        return {
+            type: "FeatureCollection",
+            features: geojson.features.map(feature => {
+                const totalCrashes = feature.properties.CrashID_co || 0;
+                const annualCrashes = totalCrashes / dataYears;
+                const safetyScore = totalCrashes === 0 ? 1.0 : 1 / (1 + Math.log1p(annualCrashes * 3));
+                
+                return {
+                    ...feature,
+                    properties: {
+                        ...feature.properties,
+                        safetyScore: safetyScore,
+                        totalCrashes: totalCrashes,
+                        annualCrashes: parseFloat(annualCrashes.toFixed(2)),
+                        // Add weight for routing - higher safety score means preferred route
+                        weight: totalCrashes === 0 ? 1 : 1 + Math.log1p(annualCrashes * 5)
+                    }
+                };
+            })
+        };
+    }
+
+    var safetyData = prepareSafetyData(count);
+    var roadNetwork = L.geoJSON(safetyData, {
+        style: function(feature) {
+            return {
+                color: getSafetyColor(feature),
+                weight: 4,
+                opacity: 0.7
+            };
+        },
+        onEachFeature: function(feature, layer) {
+            if (feature.properties) {
+                layer.bindPopup(`
+                    <div class="road-popup">
+                        <h3>${feature.properties.FULLNAME || 'Unnamed Road'}</h3>
+                        <p><strong>Safety:</strong> ${getSafetyDescription(feature)}</p>
+                        <p><strong>Annual Crashes:</strong> ${feature.properties.annualCrashes}</p>
+                        <p><strong>Total Crashes (2007-2023):</strong> ${feature.properties.totalCrashes}</p>
+                    </div>
+                `);
+            }
+        }
+    }).addTo(map);
+
+    // =============================================
+    // 2. Custom routing with safety weights
+    // =============================================
+
+    // Create a custom router that considers safety scores
+    var safetyRouter = L.Routing.osrmv1({
+        serviceUrl: 'https://router.project-osrm.org/route/v1',
+        routeOptions: {
+            alternatives: false,
+            steps: true,
+            geometries: 'polyline',
+            overview: 'full',
+            annotations: true
+        },
+        route: function(waypoints, callback, context, options) {
+            // Get the selected route type
+            const routeType = document.querySelector('.route-option.active').dataset.route;
+            
+            // Modify waypoints to include safety considerations
+            const from = waypoints[0].latLng;
+            const to = waypoints[1].latLng;
+            
+            // In a real implementation, we would send these to a custom routing server
+            // that considers the safety scores. For this demo, we'll simulate it.
+            
+            // For safest route, we'll add intermediate waypoints that avoid high-crash areas
+            if (routeType === 'safest') {
+                // Find safer intermediate points
+                const mid1 = findSaferMidpoint(from, to, 0.3);
+                const mid2 = findSaferMidpoint(from, to, 0.7);
+                
+                waypoints = [
+                    L.Routing.waypoint(from, "Start"),
+                    L.Routing.waypoint(mid1, "Via"),
+                    L.Routing.waypoint(mid2, "Via"),
+                    L.Routing.waypoint(to, "End")
+                ];
+            }
+            
+            // Call OSRM with modified waypoints
+            L.Routing.osrmv1.prototype.route.call(this, waypoints, callback, context, options);
+        }
+    });
+
+    // Find safer midpoint between two points
+    function findSaferMidpoint(from, to, fraction) {
+        // Calculate theoretical midpoint
+        const lat = from.lat + (to.lat - from.lat) * fraction;
+        const lng = from.lng + (to.lng - from.lng) * fraction;
+        
+        // Find nearest safe road
+        let safestPoint = null;
+        let highestScore = 0;
+        
+        safetyData.features.forEach(feature => {
+            if (feature.geometry && feature.geometry.coordinates) {
+                feature.geometry.coordinates.forEach(line => {
+                    line.forEach(coord => {
+                        const point = L.latLng(coord[1], coord[0]);
+                        const distance = point.distanceTo([lat, lng]);
+                        
+                        // Consider points within 500 meters
+                        if (distance < 500 && feature.properties.safetyScore > highestScore) {
+                            highestScore = feature.properties.safetyScore;
+                            safestPoint = point;
+                        }
+                    });
+                });
+            }
+        });
+        
+        return safestPoint || L.latLng(lat, lng);
+    }
+
+    // Initialize routing control with our custom router
+    var routingControl = L.Routing.control({
+        waypoints: [],
+        routeWhileDragging: true,
+        showAlternatives: false,
+        router: safetyRouter,
+        createMarker: function(i, wp) {
+            // Custom markers with different icons
+            const iconType = i === 0 ? 'map-marker-alt' : 'flag';
+            return L.marker(wp.latLng, {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: `<i class="fas fa-${iconType}"></i>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30]
+                }),
+                draggable: true
+            });
+        },
+        formatter: new L.Routing.Formatter({
+            language: 'en',
+            units: 'imperial'
+        })
+    }).addTo(map);
+
+    // =============================================
+    // 3. Address search and autocomplete
+    // =============================================
+
+    // Combine road names and Charlotte addresses
+    var searchData = [
+        ...charlotteAddresses.map(addr => ({
+            name: addr.address,
+            location: addr.location,
+            coords: [addr.lat, addr.lng],
+            type: 'address'
+        })),
+        ...safetyData.features
+            .filter(f => f.properties.FULLNAME)
+            .map(f => ({
+                name: f.properties.FULLNAME,
+                location: f.properties.FULLNAME,
+                coords: [f.geometry.coordinates[0][0][1], f.geometry.coordinates[0][0][0]],
+                type: 'road'
+            }))
+    ];
+
+    // Initialize autocomplete
+    function initAutocomplete() {
+        const fromInput = document.getElementById('from');
+        const toInput = document.getElementById('to');
+        const fromSuggestions = document.getElementById('from-suggestions');
+        const toSuggestions = document.getElementById('to-suggestions');
+        
+        function setupInput(input, suggestions) {
+            input.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                suggestions.innerHTML = '';
+                
+                if (query.length < 2) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+                
+                const matches = searchData.filter(item => 
+                    item.name.toLowerCase().includes(query) || 
+                    item.location.toLowerCase().includes(query)
+                ).slice(0, 5);
+                
+                matches.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div><strong>${item.name}</strong></div>
+                        <div class="suggestion-sub">${item.location}</div>
+                    `;
+                    li.addEventListener('click', () => {
+                        input.value = item.name;
+                        suggestions.style.display = 'none';
+                    });
+                    suggestions.appendChild(li);
+                });
+                
+                suggestions.style.display = matches.length ? 'block' : 'none';
+            });
+        }
+        
+        setupInput(fromInput, fromSuggestions);
+        setupInput(toInput, toSuggestions);
+        
+        // Close suggestions when clicking elsewhere
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.input-field')) {
+                fromSuggestions.style.display = 'none';
+                toSuggestions.style.display = 'none';
+            }
+        });
+    }
+
+    // =============================================
+    // 4. Button functionality and routing
+    // =============================================
+
+    function setupButtons() {
+        // [Previous button setup code remains...]
+        
+        // Go button with enhanced routing
+        document.getElementById('go-button').addEventListener('click', function() {
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+            
+            if (!from || !to) {
+                alert("Please enter both starting point and destination");
+                return;
+            }
+            
+            // Find locations in our combined dataset
+            const fromLoc = searchData.find(item => 
+                item.name === from || item.location === from
+            );
+            const toLoc = searchData.find(item => 
+                item.name === to || item.location === to
+            );
+            
+            if (!fromLoc || !toLoc) {
+                alert("Could not find one or both locations");
+                return;
+            }
+            
+            // Clear previous instructions
+            document.getElementById('instructions-panel').innerHTML = '';
+            
+            // Set route with safety considerations
+            routingControl.setWaypoints([
+                L.latLng(fromLoc.coords[0], fromLoc.coords[1]),
+                L.latLng(toLoc.coords[0], toLoc.coords[1])
+            ]);
+            
+            // Zoom to the route
+            map.fitBounds(L.latLngBounds(
+                [fromLoc.coords[0], fromLoc.coords[1]],
+                [toLoc.coords[0], toLoc.coords[1]]
+            ), {padding: [50, 50]});
+        });
+    }
+
+    // =============================================
+    // Helper functions
+    // =============================================
+
+    function getSafetyDescription(feature) {
+        const annual = feature.properties.annualCrashes;
+        if (annual === 0) return "Excellent (0 crashes/year)";
+        if (annual < 0.5) return "Very Good (<0.5 crashes/year)";
+        if (annual < 1.5) return "Good (~1 crash/year)";
+        if (annual < 3) return "Caution (1.5-3 crashes/year)";
+        if (annual < 5) return "Dangerous (3-5 crashes/year)";
+        return "Very Dangerous (5+ crashes/year)";
+    }
+
+    function getSafetyColor(feature) {
+        const annual = feature.properties.annualCrashes;
+        if (annual === 0) return '#00ff00';
+        if (annual < 0.5) return '#a6d96a';
+        if (annual < 1.5) return '#fee08b';
+        if (annual < 3) return '#fdae61';
+        if (annual < 5) return '#f46d43';
+        return '#d73027';
+    }
+
+    // =============================================
+    // Initialize all functionality
+    // =============================================
+    
+    initAutocomplete();
+    setupButtons();
+});
