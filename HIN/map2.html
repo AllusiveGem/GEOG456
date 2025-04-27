@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charlotte NC - Safer Routes Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        
+        .controls {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+        }
+        
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .autocomplete-active {
+            background-color: #e9e9e9 !important;
+        }
+        
+        .legend {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+        
+        .legend span {
+            width: 20px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 5px;
+            opacity: 0.7;
+        }
+        
+        .legend div {
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"] {
+            padding: 8px;
+            width: 250px;
+            margin-right: 10px;
+        }
+        
+        button {
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .route-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+        
+        .route-options {
+            margin: 10px 0;
+        }
+        
+        .route-options label {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .route-marker {
+            background-color: #3388ff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+        }
+        
+        .directions-panel {
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        
+        .directions-step {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h2>Charlotte NC - Safer Routes Map</h2>
+        <div>
+            <div class="autocomplete">
+                <input type="text" id="from" placeholder="Starting point">
+            </div>
+            <div class="autocomplete">
+                <input type="text" id="to" placeholder="Destination">
+            </div>
+            <div class="route-options">
+                <label><input type="radio" name="routeType" value="fastest" checked> Fastest Route</label>
+                <label><input type="radio" name="routeType" value="balanced"> Balanced Route</label>
+                <label><input type="radio" name="routeType" value="safest"> Safest Route</label>
+            </div>
+            <button id="go">Find Route</button>
+        </div>
+        <div class="route-info" id="routeInfo"></div>
+        <div class="directions-panel" id="directionsPanel"></div>
+    </div>
+    
+    <div id="map"></div>
+    

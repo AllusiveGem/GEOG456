@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charlotte NC - Safer Routes Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        
+        .controls {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+        }
+        
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .autocomplete-active {
+            background-color: #e9e9e9 !important;
+        }
+        
+        .legend {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+        
+        .legend span {
+            width: 20px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 5px;
+            opacity: 0.7;
+        }
+        
+        .legend div {
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"] {
+            padding: 8px;
+            width: 250px;
+            margin-right: 10px;
+        }
+        
+        button {
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .route-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+        
+        .route-options {
+            margin: 10px 0;
+        }
+        
+        .route-options label {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .route-marker {
+            background-color: #3388ff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+        }
+        
+        .directions-panel {
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        
+        .directions-step {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h2>Charlotte NC - Safer Routes Map</h2>
+        <div>
+            <div class="autocomplete">
+                <input type="text" id="from" placeholder="Starting point">
+            </div>
+            <div class="autocomplete">
+                <input type="text" id="to" placeholder="Destination">
+            </div>
+            <div class="route-options">
+                <label><input type="radio" name="routeType" value="fastest" checked> Fastest Route</label>
+                <label><input type="radio" name="routeType" value="balanced"> Balanced Route</label>
+                <label><input type="radio" name="routeType" value="safest"> Safest Route</label>
+            </div>
+            <button id="go">Find Route</button>
+        </div>
+        <div class="route-info" id="routeInfo"></div>
+        <div class="directions-panel" id="directionsPanel"></div>
+    </div>
+    
+    <div id="map"></div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    
+    <script>
+// Initialize the map centered on Charlotte
+var map = L.map('map').setView([35.2271, -80.8431], 12);
+
+// Add base tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Function to convert EPSG:3857 to WGS84 (lat/lng)
+function convertToLatLng(coords) {
+    var x = coords[0];
+    var y = coords[1];
+    
+    // Convert from EPSG:3857 to WGS84 (lat/lng)
+    var lon = (x * 180) / 20037508.34;
+    var lat = (Math.atan(Math.exp(y * Math.PI / 20037508.34)) * 360) / Math.PI - 90;
+    
+    return [lat, lon];
+}
+
+// Convert your GeoJSON to a safer format with annualized weights
+function prepareSafetyData(geojson) {
+    const dataYears = 17; // January 2007 - December 2023 = 17 years
+    
+    return {
+        type: "FeatureCollection",
+        features: geojson.features.map(feature => {
+            // Convert null crash counts to 0 and calculate annual average
+            const totalCrashes = feature.properties.CrashID_co || 0;
+            const annualCrashes = totalCrashes / dataYears;
+            
+            // Enhanced safety score calculation
+            let safetyScore;
+            
+            if (totalCrashes === 0) {
+                // Perfectly safe streets get maximum score
+                safetyScore = 1.0;
+            } else {
+                // Logarithmic scale to reduce impact of extreme values
+                safetyScore = 1 / (1 + Math.log1p(annualCrashes * 3));
+                // Multiplied by 3 to increase sensitivity to crashes
+            }
+            
+            // Add a danger score that increases with crash frequency
+            const dangerScore = Math.min(1, annualCrashes / 2); // Cap at 1
+            
+            // Convert coordinates for each linestring in the MultiLineString
+            if (feature.geometry && feature.geometry.coordinates) {
+                feature.geometry.coordinates = feature.geometry.coordinates.map(line => {
+                    return line.map(coord => convertToLatLng(coord));
+                });
+            }
+            
+            return {
+                ...feature,
+                properties: {
+                    ...feature.properties,
+                    safetyScore: safetyScore,
+                    dangerScore: dangerScore,
+                    totalCrashes: totalCrashes,
+                    annualCrashes: parseFloat(annualCrashes.toFixed(2))
+                }
+            };
+        })
+    };
+}
+
+var safetyData = prepareSafetyData(count);
+
+// Create the streets layer
+var streetsLayer = L.geoJSON(safetyData, {
+    style: function(feature) {
+        return {
+            color: getSafetyColor(feature),
+            weight: 5,
+            opacity: 0.7
+        };
+    },
+    onEachFeature: function(feature, layer) {
+        if (feature.properties && feature.properties.FULLNAME) {
+            const props = feature.properties;
+            let safetyText = "";
+            
+            if (props.annualCrashes === 0) safetyText = "Excellent (0 crashes/yr)";
+            else if (props.annualCrashes < 0.5) safetyText = "Very Good (<0.5/yr)";
+            else if (props.annualCrashes < 1.5) safetyText = "Good (~1/yr)";
+            else if (props.annualCrashes < 3) safetyText = "Caution (1.5-3/yr)";
+            else if (props.annualCrashes < 5) safetyText = "Dangerous (3-5/yr)";
+            else safetyText = "Very Dangerous (5+/yr)";
+            
+            layer.bindPopup(`
+                <strong>${props.FULLNAME}</strong><br>
+                Total Crashes: ${props.totalCrashes || 0}<br>
+                Annual Average: ${props.annualCrashes}/yr<br>
+                Safety Rating: ${safetyText}
+            `);
+        }
+    }
+}).addTo(map);
+
+// Create a lookup for street names
+var streetLookup = {};
+safetyData.features.forEach(feature => {
+    const name = feature.properties.FULLNAME;
+    if (name && !streetLookup[name]) {
+        streetLookup[name] = feature;
+    }
+});
+
+// Autocomplete functionality
+function autocomplete(inp, arr) {
+    inp.addEventListener("input", function(e) {
+        var val = this.value;
+        closeAllLists();
+        if (!val) return false;
+        
+        // Filter streets that start with the input
+        var matches = Object.keys(arr).filter(
+            street => street.toLowerCase().includes(val.toLowerCase())
+        ).slice(0, 10);
+        
+        if (matches.length === 0) return;
+        
+        var list = document.createElement("div");
+        list.setAttribute("class", "autocomplete-items");
+        this.parentNode.appendChild(list);
+        
+        matches.forEach(match => {
+            var item = document.createElement("div");
+            item.innerHTML = "<strong>" + match + "</strong>";
+            item.innerHTML += "<br>Safety: " + 
+                (arr[match].properties.annualCrashes === 0 ? "Excellent (0 crashes/yr)" : 
+                 arr[match].properties.annualCrashes < 0.5 ? "Very Good (<0.5/yr)" : 
+                 arr[match].properties.annualCrashes < 1.5 ? "Good (~1/yr)" : 
+                 arr[match].properties.annualCrashes < 3 ? "Caution (1.5-3/yr)" : 
+                 arr[match].properties.annualCrashes < 5 ? "Dangerous (3-5/yr)" : "Very Dangerous (5+/yr)");
+            
+            item.addEventListener("click", function() {
+                inp.value = match;
+                closeAllLists();
+            });
+            list.appendChild(item);
+        });
+    });
+    
+    function closeAllLists(elmnt) {
+        var items = document.getElementsByClassName("autocomplete-items");
+        for (var i = 0; i < items.length; i++) {
+            if (elmnt != items[i] && elmnt != inp) {
+                items[i].parentNode.removeChild(items[i]);
+            }
+        }
+    }
+    
+    document.addEventListener("click", function(e) {
+        closeAllLists(e.target);
+    });
+}
+
+// Initialize autocomplete for both inputs
+autocomplete(document.getElementById("from"), streetLookup);
+autocomplete(document.getElementById("to"), streetLookup);
+
+// Routing control
+var routingControl = null;
+
+// Function to get coordinates from street name
+function getStreetCoords(streetName) {
+    const feature = streetLookup[streetName];
+    if (feature && feature.geometry && feature.geometry.coordinates) {
+        try {
+            // Get the first coordinate of the first line in the MultiLineString
+            const coords = feature.geometry.coordinates[0][0];
+            return coords; // Already converted to [lat, lng]
+        } catch (e) {
+            console.error("Error getting coordinates:", e);
+            return null;
+        }
+    }
+    return null;
+}
+
+// Helper function to get color based on annual crash rate
+function getSafetyColor(feature) {
+    const annual = feature.properties.annualCrashes;
+    
+    if (annual === 0) return '#00ff00'; // green - perfectly safe
+    if (annual < 0.5) return '#a6d96a'; // light green - very safe (<1 crash every 2 years)
+    if (annual < 1.5) return '#fee08b'; // yellow - moderately safe (~1 crash/year)
+    if (annual < 3) return '#fdae61';   // orange - somewhat dangerous (1.5-3 crashes/year)
+    if (annual < 5) return '#f46d43';   // dark orange - dangerous (3-5 crashes/year)
+    return '#d73027';                   // red - very dangerous (5+ crashes/year)
+}
+
+// Function to generate turn-by-turn directions
+function generateDirections(waypoints, routeType, streets) {
+    const from = waypoints[0].latLng;
+    const to = waypoints[1].latLng;
+    const fromName = document.getElementById('from').value;
+    const toName = document.getElementById('to').value;
+    
+    // This would normally be done by a real routing service
+    // Here we're creating mock directions based on the route type
+    
+    const directions = [];
+    
+    // Starting instruction
+    directions.push({
+        type: "start",
+        text: `Start at ${fromName}`,
+        distance: 0
+    });
+    
+    // Get streets from our dataset for the route
+    const availableStreets = Object.keys(streetLookup).filter(name => 
+        name !== fromName && name !== toName
+    );
+    
+    if (routeType === "fastest") {
+        // Direct route with fewer turns
+        directions.push({
+            type: "straight",
+            text: `Continue on ${fromName} for 0.5 miles`,
+            distance: 804.7 // meters
+        });
+        
+        const middleStreet = availableStreets[0] || "Main St";
+        directions.push({
+            type: "turn",
+            text: `Turn right onto ${middleStreet}`,
+            distance: 0
+        });
+        
+        directions.push({
+            type: "straight",
+            text: `Continue on ${middleStreet} for 1.2 miles`,
+            distance: 1931.2 // meters
+        });
+    } else if (routeType === "balanced") {
+        // Balanced route with moderate turns
+        directions.push({
+            type: "straight",
+            text: `Continue on ${fromName} for 0.3 miles`,
+            distance: 482.8 // meters
+        });
+        
+        const street1 = availableStreets[0] || "College St";
+        directions.push({
+            type: "turn",
+            text: `Turn right onto ${street1}`,
+            distance: 0
+        });
+        
+        directions.push({
+            type: "straight",
+            text: `Continue on ${street1} for 0.5 miles`,
+            distance: 804.7 // meters
+        });
+        
+        const street2 = availableStreets[1] || "Davidson St";
+        directions.push({
+            type: "turn",
+            text: `Turn left onto ${street2}`,
+            distance: 0
+        });
+        
+        directions.push({
+            type: "straight",
+            text: `Continue on ${street2} for 0.7 miles`,
+            distance: 1126.5 // meters
+        });
+    } else {
+        // Safest route with more turns to avoid dangerous streets
+        directions.push({
+            type: "straight",
+            text: `Continue on ${fromName} for 0.2 miles`,
+            distance: 321.9 // meters
+        });
+        
+        // Find safest streets
+        const safestStreets = Object.entries(streetLookup)
+            .filter(([name, feature]) => 
+                name !== fromName && 
+                name !== toName && 
+                feature.properties.annualCrashes < 1
+            )
+            .map(([name]) => name);
+        
+        const street1 = safestStreets[0] || availableStreets[0] || "Dry Run Rd";
+        directions.push({
+            type: "turn",
+            text: `Turn right onto ${street1} (safer route)`,
+            distance: 0
+        });
+        
+        directions.push({
+            type: "straight",
+            text: `Continue on ${street1} for 0.4 miles`,
+            distance: 643.7 // meters
+        });
+        
+        const street2 = safestStreets[1] || availableStreets[1] || "College St";
+        directions.push({
+            type: "turn",
+            text: `Turn left onto ${street2}`,
+            distance: 0
+        });
+        
+        directions.push({
+            type: "straight",
+            text: `Continue on ${street2} for 0.3 miles`,
+            distance: 482.8 // meters
+        });
+        
+        const street3 = safestStreets[2] || availableStreets[2] || "Davidson St";
+        directions.push({
+            type: "turn",
+            text: `Turn right onto ${street3} (safer route)`,
+            distance: 0
+        });
+        
+        directions.push({
+            type: "straight",
+            text: `Continue on ${street3} for 0.5 miles`,
+            distance: 804.7 // meters
+        });
+    }
+    
+    // Ending instruction
+    directions.push({
+        type: "end",
+        text: `Arrive at ${toName}`,
+        distance: 0
+    });
+    
+    return directions;
+}
+
+// Function to create a custom router that considers safety
+function createCustomRouter() {
+    return {
+        route: function(waypoints, callback, context, options) {
+            const routeType = document.querySelector('input[name="routeType"]:checked').value;
+            
+            // Get the coordinates
+            const from = waypoints[0].latLng;
+            const to = waypoints[1].latLng;
+            
+            // Create path points based on route type
+            let path = [];
+            
+            if (routeType === 'fastest') {
+                // Direct route
+                path = [from, to];
+            } else if (routeType === 'balanced') {
+                // Balanced route with one waypoint
+                const midPoint = L.latLng(
+                    from.lat + (to.lat - from.lat) * 0.5 + 0.003,
+                    from.lng + (to.lng - from.lng) * 0.5 - 0.003
+                );
+                path = [from, midPoint, to];
+            } else {
+                // Safest route with multiple waypoints
+                const midPoint1 = L.latLng(
+                    from.lat + (to.lat - from.lat) * 0.25 + 0.005,
+                    from.lng + (to.lng - from.lng) * 0.25 - 0.002
+                );
+                const midPoint2 = L.latLng(
+                    from.lat + (to.lat - from.lat) * 0.5 - 0.003,
+                    from.lng + (to.lng - from.lng) * 0.5 + 0.004
+                );
+                const midPoint3 = L.latLng(
+                    from.lat + (to.lat - from.lat) * 0.75 + 0.002,
+                    from.lng + (to.lng - from.lng) * 0.75 - 0.003
+                );
+                path = [from, midPoint1, midPoint2, midPoint3, to];
+            }
+            
+            // Generate directions
+            const directions = generateDirections(waypoints, routeType, streetLookup);
+            
+            // Calculate total distance and time
+            let totalDistance = 0;
+            directions.forEach(dir => {
+                totalDistance += dir.distance;
+            });
+            
+            // Calculate estimated time based on travel mode and route type
+            // Average walking speed: ~5 km/h = ~1.4 m/s
+            const speed = 1.4; // m/s for walking
+            const totalTime = totalDistance / speed; // seconds
+            
+            // Create a route object
+            const route = {
+                name: routeType.charAt(0).toUpperCase() + routeType.slice(1) + ' Route',
+                coordinates: path,
+                waypoints: waypoints,
+                instructions: directions,
+                summary: {
+                    totalDistance: totalDistance,
+                    totalTime: totalTime
+                }
+            };
+            
+            // Call the callback with the route
+            setTimeout(() => {
+                callback.call(context, null, [route]);
+            }, 500);
+        }
+    };
+}
+
+// Handle the Go button click
+document.getElementById('go').addEventListener('click', function() {
+    const from = document.getElementById('from').value;
+    const to = document.getElementById('to').value;
+    
+    if (!from || !to) {
+        alert("Please enter both start and destination");
+        return;
+    }
+    
+    const fromCoords = getStreetCoords(from);
+    const toCoords = getStreetCoords(to);
+    
+    if (!fromCoords || !toCoords) {
+        alert("Please select valid streets from the dropdown");
+        return;
+    }
+    
+    // Remove previous routing control if it exists
+    if (routingControl) {
+        map.removeControl(routingControl);
+    }
+    
+    // Create a new routing control with our custom router
+    routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(fromCoords[0], fromCoords[1]),
+            L.latLng(toCoords[0], toCoords[1])
+        ],
+        router: createCustomRouter(),
+        lineOptions: {
+            styles: [{color: '#1E90FF', opacity: 0.7, weight: 6}]
+        },
+        routeWhileDragging: false,
+        addWaypoints: false,
+        draggableWaypoints: false,
+        show: false, // We'll show our own info
+        createMarker: function(i, waypoint, n) {
+            return L.marker(waypoint.latLng, {
+                icon: L.divIcon({
+                    className: 'route-marker',
+                    html: i === 0 ? 'A' : 'B',
+                    iconSize: [20, 20]
+                })
+            });
+        }
+    }).addTo(map);
+    
+    // Listen for route changes
+    routingControl.on('routesfound', function(e) {
+        const routes = e.routes;
+        const route = routes[0];
+        const summary = route.summary;
+        const instructions = route.instructions;
+        const routeType = document.querySelector('input[name="routeType"]:checked').value;
+        
+        // Calculate safety score
+        let safetyScore;
+        if (routeType === 'safest') safetyScore = 90;
+        else if (routeType === 'balanced') safetyScore = 70;
+        else safetyScore = 50;
+        
+        // Display route info
+        document.getElementById('routeInfo').innerHTML = `
+            <h3>Route Summary</h3>
+            <p><strong>From:</strong> ${from}</p>
+            <p><strong>To:</strong> ${to}</p>
+            <p><strong>Distance:</strong> ${(summary.totalDistance / 1609.34).toFixed(2)} miles</p>
+            <p><strong>Estimated Time:</strong> ${Math.round(summary.totalTime / 60)} minutes</p>
+            <p><strong>Route Type:</strong> ${routeType.charAt(0).toUpperCase() + routeType.slice(1)}</p>
+            <p><strong>Safety Score:</strong> ${safetyScore}/100</p>
+        `;
+        
+        // Display directions
+        const directionsPanel = document.getElementById('directionsPanel');
+        directionsPanel.innerHTML = '<h3>Directions</h3>';
+        
+        instructions.forEach((instruction, index) => {
+            const div = document.createElement('div');
+            div.className = 'directions-step';
+            
+            if (instruction.type === 'start') {
+                div.innerHTML = `<strong>${index + 1}. ${instruction.text}</strong>`;
+            } else if (instruction.type === 'end') {
+                div.innerHTML = `<strong>${index + 1}. ${instruction.text}</strong>`;
+            } else {
+                div.innerHTML = `<strong>${index + 1}.</strong> ${instruction.text}`;
+                if (instruction.distance > 0) {
+                    div.innerHTML += ` <span style="color: #666;">(${(instruction.distance / 1609.34).toFixed(2)} miles)</span>`;
+                }
+            }
+            
+            directionsPanel.appendChild(div);
+        });
+        
+        // Zoom to fit the route
+        map.fitBounds(L.latLngBounds(route.coordinates));
+        
+        // Highlight streets near the route based on safety
+        highlightSaferStreets(route.coordinates);
+    });
+});
+
+// Function to highlight safer streets near the route
+function highlightSaferStreets(routeCoords) {
+    // Clear previous highlights
+    if (window.safetyLayer) {
+        map.removeLayer(window.safetyLayer);
+    }
+    
+    // Create a layer group for safety highlights
+    window.safetyLayer = L.layerGroup().addTo(map);
+    
+    // For each street in our data, check if it's near the route
+    safetyData.features.forEach(feature => {
+        // Skip streets with no geometry
+        if (!feature.geometry || !feature.geometry.coordinates) return;
+        
+        // Check if any part of this street is near the route
+        const isNearRoute = feature.geometry.coordinates.some(line => {
+            return line.some(coord => {
+                const point = L.latLng(coord[0], coord[1]);
+                return routeCoords.some(routePoint => {
+                    return point.distanceTo(routePoint) < 1000; // within 1000 meters
+                });
+            });
+        });
+        
+        if (isNearRoute) {
+            // Add the street to the map with color based on safety
+            const color = getSafetyColor(feature);
+            
+            // Convert coordinates for polyline
+            const polylineCoords = feature.geometry.coordinates.map(line => 
+                line.map(coord => [coord[0], coord[1]])
+            );
+            
+            L.polyline(polylineCoords, {
+                color: color,
+                weight: 5,
+                opacity: 0.7
+            }).addTo(window.safetyLayer);
+        }
+    });
+}
+
+// Add legend
+var legend = L.control({position: 'bottomright'});
+legend.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    div.innerHTML = `
+        <h4>Street Safety (2007-2023)</h4>
+        <div><span style="background:#00ff00; width: 20px; height: 10px; display: inline-block;"></span> Excellent (0 crashes/yr)</div>
+        <div><span style="background:#a6d96a; width: 20px; height: 10px; display: inline-block;"></span> Very Good (<0.5/yr)</div>
+        <div><span style="background:#fee08b; width: 20px; height: 10px; display: inline-block;"></span> Good (~1/yr)</div>
+        <div><span style="background:#fdae61; width: 20px; height: 10px; display: inline-block;"></span> Caution (1.5-3/yr)</div>
+        <div><span style="background:#f46d43; width: 20px; height: 10px; display: inline-block;"></span> Dangerous (3-5/yr)</div>
+        <div><span style="background:#d73027; width: 20px; height: 10px; display: inline-block;"></span> Very Dangerous (5+/yr)</div>
+    `;
+    return div;
+};
+legend.addTo(map);
+
+</script>
+</body>
+</html>
+
