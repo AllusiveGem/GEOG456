@@ -206,9 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
             units: 'imperial'
         }),
         router: L.Routing.osrmv1({
-            serviceUrl: 'https://routing.openstreetmap.de/routed-car/route/v1'
+            serviceUrl: 'https://router.project-osrm.org/route/v1'
         })
-        
     }).addTo(map);
 
     // Update instructions when route changes
@@ -454,26 +453,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Geocode a single address using a CORS proxy
     function geocodeAddress(address) {
         return new Promise((resolve, reject) => {
+            // Use a CORS proxy to avoid CORS issues with Nominatim
             var url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address + ', Charlotte, NC')}&limit=1`;
+            var proxyUrl = 'https://cors-anywhere.herokuapp.com/' + url;
             
-            // Use a different CORS proxy
-            var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-            
-            fetch(proxyUrl)
+            fetch(proxyUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(data => {
-                try {
-                    const result = JSON.parse(data.contents);
-                    if (result && result.length > 0) {
-                        resolve(result[0]);
-                    } else {
-                        reject('Location not found');
-                    }
-                } catch (e) {
-                    reject('Invalid response');
+                if (data && data.length > 0) {
+                    resolve(data[0]);
+                } else {
+                    reject('Location not found');
                 }
             })
             .catch(error => {
@@ -495,10 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
             [toCoords[0], toCoords[1]]
         ), {padding: [50, 50]});
     }
-    routingControl.on('routingerror', function(e) {
-        console.error('Routing error:', e.error);
-        alert('Failed to calculate route: ' + e.error.message);
-    });
+
     // =============================================
     // Initialize all functionality
     // =============================================

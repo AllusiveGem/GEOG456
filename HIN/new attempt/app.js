@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p><strong>Safety:</strong> ${getSafetyDescription(feature)}</p>
                     <p><strong>Annual Crashes:</strong> ${feature.properties.annualCrashes}</p>
                     <p><strong>Total Crashes (2007-2023):</strong> ${feature.properties.totalCrashes}</p>
+                    <p><strong>Safety Score:</strong> ${feature.properties.safetyScore.toFixed(2)}</p>
                 </div>`;
                 
                 layer.bindPopup(popupContent);
@@ -208,18 +209,21 @@ document.addEventListener('DOMContentLoaded', function() {
         router: L.Routing.osrmv1({
             serviceUrl: 'https://routing.openstreetmap.de/routed-car/route/v1'
         })
-        
     }).addTo(map);
 
     // Update instructions when route changes
     routingControl.on('routesfound', function(e) {
         var routes = e.routes;
         var summary = routes[0].summary;
+        var routeMode = document.querySelector('.route-option.active').dataset.route;
         
         // Format time display
         var totalMinutes = Math.floor(summary.totalTime / 60);
         var totalSeconds = summary.totalTime % 60;
         var timeString = totalMinutes + ' min' + (totalSeconds > 0 ? ' ' + totalSeconds + ' s' : '');
+        
+        // Calculate route safety score
+        var safetyScore = calculateRouteSafetyScore(routes[0].coordinates);
         
         // Update route summary
         document.getElementById('distance').textContent = 
@@ -227,6 +231,15 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('time').textContent = timeString;
         document.getElementById('route-type').textContent = 
             document.querySelector('.route-option.active').textContent.trim();
+        
+        // Show safety info if in safest mode
+        if (routeMode === 'safest') {
+            document.getElementById('safety-info').style.display = 'flex';
+            document.getElementById('safety-score').textContent = 
+                (safetyScore * 100).toFixed(0) + '% (' + getSafetyDescriptionFromScore(safetyScore) + ')';
+        } else {
+            document.getElementById('safety-info').style.display = 'none';
+        }
         
         document.getElementById('route-summary').style.display = 'block';
         
@@ -259,10 +272,48 @@ document.addEventListener('DOMContentLoaded', function() {
         instructionsContainer.style.display = 'block';
         
         // Highlight safer streets along the route if safest option selected
-        if (document.querySelector('.route-option.active').dataset.route === 'safest') {
+        if (routeMode === 'safest') {
             highlightSaferStreets(routes[0].coordinates);
+            
+            // Check for dangerous streets and potentially adjust route
+            checkDangerousStreets(routes[0].coordinates);
         }
     });
+
+    // Calculate a safety score for the route (0-1 scale)
+    function calculateRouteSafetyScore(routeCoords) {
+        let totalScore = 0;
+        let count = 0;
+        
+        safetyData.features.forEach(feature => {
+            if (!feature.geometry || !feature.geometry.coordinates) return;
+            
+            // Check if this road segment is near the route
+            const isNearRoute = feature.geometry.coordinates.some(line => {
+                return line.some(coord => {
+                    const point = L.latLng(coord[1], coord[0]);
+                    return routeCoords.some(routePoint => {
+                        return point.distanceTo(routePoint) < 50; // within 50 meters
+                    });
+                });
+            });
+            
+            if (isNearRoute) {
+                totalScore += feature.properties.safetyScore;
+                count++;
+            }
+        });
+        
+        return count > 0 ? totalScore / count : 0;
+    }
+
+    function getSafetyDescriptionFromScore(score) {
+        if (score >= 0.9) return 'Excellent';
+        if (score >= 0.7) return 'Very Good';
+        if (score >= 0.5) return 'Good';
+        if (score >= 0.3) return 'Caution';
+        return 'Dangerous';
+    }
 
     function highlightSaferStreets(routeCoords) {
         if (window.safetyLayer) {
@@ -297,6 +348,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).addTo(window.safetyLayer);
             }
         });
+    }
+
+    // Check for dangerous streets along the route and warn user
+    function checkDangerousStreets(routeCoords) {
+        const dangerThreshold = 3; // Annual crashes >3 per year considered dangerous
+        let dangerStreets = [];
+        
+        safetyData.features.forEach(feature => {
+            const annualCrashes = feature.properties.annualCrashes;
+            const coords = feature.geometry.coordinates;
+            
+            if (annualCrashes > dangerThreshold && coords) {
+                coords.forEach(line => {
+                    line.forEach(coord => {
+                        const point = L.latLng(coord[1], coord[0]);
+                        routeCoords.forEach(routePoint => {
+                            if (point.distanceTo(routePoint) < 50) { // 50m near route
+                                dangerStreets.push({
+                                    name: feature.properties.FULLNAME || 'Unnamed Road',
+                                    crashes: annualCrashes,
+                                    point: point
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+        });
+        
+        // Remove duplicates
+        dangerStreets = dangerStreets.filter((street, index, self) =>
+            index === self.findIndex(s => s.name === street.name)
+        );
+        
+        if (dangerStreets.length > 0) {
+            // Show warning with list of dangerous streets
+            let warningMsg = 'Warning: This route passes near dangerous streets:\n\n';
+            dangerStreets.forEach(street => {
+                warningMsg += `• ${street.name} (${street.crashes.toFixed(1)} crashes/year)\n`;
+            });
+            
+            warningMsg += '\nConsider adjusting your route for safety.';
+            alert(warningMsg);
+            
+            // Add markers for dangerous streets
+            dangerStreets.forEach(street => {
+                L.marker(street.point, {
+                    icon: L.divIcon({
+                        className: 'danger-marker',
+                        html: '<i class="fas fa-exclamation-triangle"></i>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30]
+                    })
+                }).addTo(map).bindPopup(`<b>${street.name}</b><br>${street.crashes.toFixed(1)} crashes/year`);
+            });
+        }
     }
 
     // =============================================
@@ -495,10 +602,12 @@ document.addEventListener('DOMContentLoaded', function() {
             [toCoords[0], toCoords[1]]
         ), {padding: [50, 50]});
     }
+    
     routingControl.on('routingerror', function(e) {
         console.error('Routing error:', e.error);
         alert('Failed to calculate route: ' + e.error.message);
     });
+    
     // =============================================
     // Initialize all functionality
     // =============================================

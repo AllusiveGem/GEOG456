@@ -8,15 +8,13 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.css" />
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
+        
     <style>
         * {
             margin: 0;
@@ -105,21 +103,7 @@
             transition: all 0.2s;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
-        .road-popup {
-        font-size: 14px;
-        padding: 8px;
-    }
-    .road-popup h3 {
-        margin: 0 0 5px 0;
-        font-size: 16px;
-    }
-    .road-popup p {
-        margin: 3px 0;
-    }
-    .sidebar-hidden .toggle-sidebar i {
-        transform: rotate(180deg);
-    }
-
+        
         .input-field:focus {
             outline: none;
             border-color: #4285F4;
@@ -195,6 +179,24 @@
             font-weight: 500;
             margin-bottom: 12px;
             color: #202124;
+        }
+        
+        .route-marker {
+            text-align: center;
+            color: white;
+            background: #4285F4;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .route-marker i {
+            font-size: 16px;
+            margin-top: 2px;
         }
         
         .route-info {
@@ -323,6 +325,61 @@
             border-radius: 3px;
         }
         
+        .suggestions-list {
+            position: absolute;
+            width: calc(100% - 2px);
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+            z-index: 1001;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .suggestions-list li {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        
+        .suggestions-list li:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .road-popup {
+            font-size: 14px;
+            padding: 8px;
+        }
+        
+        .road-popup h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #4285F4;
+        }
+        
+        .road-popup p {
+            margin: 3px 0;
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%) !important;
+        }
+        
+        .current-location-marker {
+            color: #4285F4;
+            font-size: 20px;
+            text-align: center;
+        }
+        
+        .instruction-time {
+            color: #5f6368;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        
         @media (max-width: 768px) {
             #sidebar {
                 width: 90%;
@@ -347,20 +404,18 @@
             <div class="input-container">
                 <div class="input-icon"><i class="fas fa-map-marker-alt"></i></div>
                 <input type="text" id="from" class="input-field" placeholder="Choose starting point">
+                <ul class="suggestions-list" id="from-suggestions" style="display: none;"></ul>
             </div>
             <div class="input-container">
                 <div class="input-icon"><i class="fas fa-flag"></i></div>
                 <input type="text" id="to" class="input-field" placeholder="Choose destination">
+                <ul class="suggestions-list" id="to-suggestions" style="display: none;"></ul>
             </div>
             
             <div class="route-options">
                 <button class="route-option active" data-route="safest">
                     <i class="fas fa-shield-alt"></i>
                     <span>Safest</span>
-                </button>
-                <button class="route-option" data-route="balanced">
-                    <i class="fas fa-balance-scale"></i>
-                    <span>Balanced</span>
                 </button>
                 <button class="route-option" data-route="fastest">
                     <i class="fas fa-tachometer-alt"></i>
@@ -402,7 +457,7 @@
     </div>
     
     <div class="legend">
-        <div class="legend-title">Street Safety (2007-2023)</div>
+        <div class="legend-title">Street Safety</div>
         <div class="legend-item">
             <div class="legend-color" style="background: #00ff00;"></div>
             <span>Excellent (0/yr)</span>
@@ -429,16 +484,509 @@
         </div>
     </div>
 
-    <!-- JavaScript Libraries -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.74.0/dist/L.Control.Locate.min.js"></script>
     
-    <!-- Your Data -->
-    <script src="count.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the map centered on Charlotte
+        var map = L.map('map').setView([35.2271, -80.8431], 13);
+
+        // Add base tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Sample road data (replace with your actual data)
+        var sampleRoadData = {
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {
+                        FULLNAME: "Trade St",
+                        CrashID_co: 5,
+                        safetyScore: 0.8,
+                        annualCrashes: 0.29,
+                        totalCrashes: 5
+                    },
+                    geometry: {
+                        type: "MultiLineString",
+                        coordinates: [
+                            [[-80.8431, 35.2271], [-80.8420, 35.2275], [-80.8405, 35.2280]]
+                        ]
+                    }
+                },
+                {
+                    type: "Feature",
+                    properties: {
+                        FULLNAME: "Tryon St",
+                        CrashID_co: 12,
+                        safetyScore: 0.6,
+                        annualCrashes: 0.71,
+                        totalCrashes: 12
+                    },
+                    geometry: {
+                        type: "MultiLineString",
+                        coordinates: [
+                            [[-80.8435, 35.2265], [-80.8425, 35.2270], [-80.8410, 35.2275]]
+                        ]
+                    }
+                },
+                {
+                    type: "Feature",
+                    properties: {
+                        FULLNAME: "College St",
+                        CrashID_co: 25,
+                        safetyScore: 0.4,
+                        annualCrashes: 1.47,
+                        totalCrashes: 25
+                    },
+                    geometry: {
+                        type: "MultiLineString",
+                        coordinates: [
+                            [[-80.8425, 35.2285], [-80.8415, 35.2290], [-80.8400, 35.2295]]
+                        ]
+                    }
+                }
+            ]
+        };
+
+        // Create a road network layer with clickable popups
+        var roadNetwork = L.geoJSON(sampleRoadData, {
+            style: function(feature) {
+                return {
+                    color: getSafetyColor(feature),
+                    weight: 4,
+                    opacity: 0.7
+                };
+            },
+            onEachFeature: function(feature, layer) {
+                if (feature.properties) {
+                    var popupContent = `<div class="road-popup">
+                        <h3>${feature.properties.FULLNAME || 'Unnamed Road'}</h3>
+                        <p><strong>Safety:</strong> ${getSafetyDescription(feature)}</p>
+                        <p><strong>Annual Crashes:</strong> ${feature.properties.annualCrashes}</p>
+                        <p><strong>Total Crashes:</strong> ${feature.properties.totalCrashes}</p>
+                    </div>`;
+                    
+                    layer.bindPopup(popupContent);
+                }
+            }
+        }).addTo(map);
+
+        function getSafetyDescription(feature) {
+            const annual = feature.properties.annualCrashes;
+            
+            if (annual === 0) return "Excellent (0 crashes/year)";
+            if (annual < 0.5) return "Very Good (<0.5 crashes/year)";
+            if (annual < 1.5) return "Good (~1 crash/year)";
+            if (annual < 3) return "Caution (1.5-3 crashes/year)";
+            if (annual < 5) return "Dangerous (3-5 crashes/year)";
+            return "Very Dangerous (5+ crashes/year)";
+        }
+
+        function getSafetyColor(feature) {
+            const annual = feature.properties.annualCrashes;
+            
+            if (annual === 0) return '#00ff00'; // green - perfectly safe
+            if (annual < 0.5) return '#a6d96a'; // light green
+            if (annual < 1.5) return '#fee08b'; // yellow
+            if (annual < 3) return '#fdae61';   // orange
+            if (annual < 5) return '#f46d43';   // dark orange
+            return '#d73027';                   // red
+        }
+
+        // Common Charlotte addresses
+        var charlotteAddresses = [
+            "201 E Trade St, Charlotte, NC",  // Spectrum Center
+            "550 S Caldwell St, Charlotte, NC",  // Bank of America Stadium
+            "1000 NC Music Factory Blvd, Charlotte, NC",  // Music Factory
+            "300 E 7th St, Charlotte, NC",  // 7th Street Public Market
+            "400 S Tryon St, Charlotte, NC",  // Charlotte City Hall
+            "500 S Tryon St, Charlotte, NC",  // Main Library
+            "600 S College St, Charlotte, NC",  // NASCAR Hall of Fame
+            "101 S Tryon St, Charlotte, NC",  // Duke Energy Center
+            "200 E Stonewall St, Charlotte, NC",  // Convention Center
+            "1300 S Blvd, Charlotte, NC"  // Freedom Park
+        ];
+
+        // Initialize routing control with Mapbox
+        var routingControl = L.Routing.control({
+            waypoints: [],
+            routeWhileDragging: true,
+            showAlternatives: false,
+            altLineOptions: {
+                styles: [
+                    {color: 'black', opacity: 0.15, weight: 9},
+                    {color: 'white', opacity: 0.8, weight: 6},
+                    {color: '#4285F4', opacity: 1, weight: 4}
+                ]
+            },
+            createMarker: function(i, wp) {
+                return L.marker(wp.latLng, {
+                    icon: L.divIcon({
+                        className: 'route-marker',
+                        html: i === 0 ? '<i class="fas fa-map-marker-alt"></i>' : '<i class="fas fa-flag"></i>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30]
+                    }),
+                    draggable: true
+                });
+            },
+            formatter: new L.Routing.Formatter({
+                language: 'en',
+                units: 'imperial'
+            }),
+            router: L.Routing.mapbox('pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw')
+        }).addTo(map);
+
+        // Update instructions when route changes
+        routingControl.on('routesfound', function(e) {
+            var routes = e.routes;
+            var summary = routes[0].summary;
+            
+            // Format time display
+            var totalMinutes = Math.floor(summary.totalTime / 60);
+            var totalSeconds = summary.totalTime % 60;
+            var timeString = totalMinutes + ' min' + (totalSeconds > 0 ? ' ' + totalSeconds + ' s' : '');
+            
+            // Update route summary
+            document.getElementById('distance').textContent = 
+                (summary.totalDistance * 0.000621371).toFixed(1) + ' mi';
+            document.getElementById('time').textContent = timeString;
+            document.getElementById('route-type').textContent = 
+                document.querySelector('.route-option.active').textContent.trim();
+            
+            document.getElementById('route-summary').style.display = 'block';
+            
+            // Display turn-by-turn instructions
+            var instructionsContainer = document.getElementById('instructions-panel');
+            instructionsContainer.innerHTML = '<div class="instructions-title">Directions</div>';
+            routes[0].instructions.forEach(function(instruction, i) {
+                var div = document.createElement('div');
+                div.className = 'instruction';
+                
+                // Format instruction time
+                var timeMinutes = Math.floor(instruction.time / 60);
+                var timeSeconds = instruction.time % 60;
+                var instructionTime = timeMinutes > 0 ? 
+                    timeMinutes + ' min ' + (timeSeconds > 0 ? timeSeconds + ' s' : '') : 
+                    timeSeconds + ' s';
+                
+                div.innerHTML = `
+                    <div class="instruction-icon">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="instruction-content">
+                        <div class="instruction-distance">${instruction.distance} ${instruction.unit}</div>
+                        <div class="instruction-text">${instruction.text}</div>
+                        <div class="instruction-time">${instructionTime}</div>
+                    </div>`;
+                instructionsContainer.appendChild(div);
+            });
+            
+            instructionsContainer.style.display = 'block';
+            
+            // Highlight safer streets along the route if safest option selected
+            if (document.querySelector('.route-option.active').dataset.route === 'safest') {
+                highlightSaferStreets(routes[0].coordinates);
+            }
+        });
+
+        function highlightSaferStreets(routeCoords) {
+    if (window.safetyLayer) {
+        map.removeLayer(window.safetyLayer);
+    }
     
-    <!-- Main Application Script -->
-    <script src="app.js"></script>
+    window.safetyLayer = L.layerGroup().addTo(map);
+    
+    sampleRoadData.features.forEach(feature => {
+        if (!feature.geometry || !feature.geometry.coordinates) return;
+        
+        // Only highlight roads with low crash counts for safest route
+        const isSafe = feature.properties.annualCrashes < 1.5;
+        const isNearRoute = feature.geometry.coordinates.some(line => {
+            return line.some(coord => {
+                const point = L.latLng(coord[1], coord[0]);
+                return routeCoords.some(routePoint => {
+                    return point.distanceTo(routePoint) < 100; // within 100 meters
+                });
+            });
+        });
+        
+        if (isNearRoute && isSafe) {
+            const color = getSafetyColor(feature);
+            
+            L.polyline(feature.geometry.coordinates.map(line => 
+                line.map(coord => [coord[1], coord[0]])
+            ), {
+                color: color,
+                weight: 8, // Make safer roads more prominent
+                opacity: 0.9
+            }).addTo(window.safetyLayer);
+        }
+    });
+}
+
+        // Initialize autocomplete for address inputs
+        function initAutocomplete() {
+            var fromInput = document.getElementById('from');
+            var toInput = document.getElementById('to');
+            var fromSuggestions = document.getElementById('from-suggestions');
+            var toSuggestions = document.getElementById('to-suggestions');
+            
+            // Extract road names from sample data
+            var roadNames = sampleRoadData.features
+                .map(feature => feature.properties.FULLNAME)
+                .filter(name => name && name.trim() !== '');
+            
+            // Add event listeners to show suggestions
+            fromInput.addEventListener('input', function() {
+                showSuggestions(this, fromSuggestions, roadNames);
+            });
+            
+            toInput.addEventListener('input', function() {
+                showSuggestions(this, toSuggestions, roadNames);
+            });
+            
+            // Close suggestions when clicking elsewhere
+            document.addEventListener('click', function(e) {
+                if (e.target !== fromInput && e.target !== toInput) {
+                    fromSuggestions.style.display = 'none';
+                    toSuggestions.style.display = 'none';
+                }
+            });
+        }
+
+        // Show suggestions based on input
+        function showSuggestions(input, suggestionsList, roadNames) {
+            var query = input.value.trim();
+            suggestionsList.innerHTML = '';
+            
+            if (!query || query.length < 2) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+            
+            // First show local suggestions
+            var localSuggestions = roadNames.concat(charlotteAddresses)
+                .filter(item => item.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 5);
+            
+            localSuggestions.forEach(item => {
+                var li = document.createElement('li');
+                li.textContent = item;
+                li.addEventListener('click', function() {
+                    input.value = item;
+                    suggestionsList.style.display = 'none';
+                });
+                suggestionsList.appendChild(li);
+            });
+            
+            if (localSuggestions.length > 0) {
+                suggestionsList.style.display = 'block';
+            } else {
+                suggestionsList.style.display = 'none';
+            }
+        }
+
+        // Setup all buttons
+        function setupButtons() {
+            // Zoom buttons
+            document.getElementById('zoom-in').addEventListener('click', function() {
+                map.zoomIn();
+            });
+            
+            document.getElementById('zoom-out').addEventListener('click', function() {
+                map.zoomOut();
+            });
+            
+            // Current location button
+            document.getElementById('current-location').addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        map.flyTo([position.coords.latitude, position.coords.longitude], 15);
+                        
+                        // Add a marker at current location
+                        if (window.currentLocationMarker) {
+                            map.removeLayer(window.currentLocationMarker);
+                        }
+                        
+                        window.currentLocationMarker = L.marker([position.coords.latitude, position.coords.longitude], {
+                            icon: L.divIcon({
+                                className: 'current-location-marker',
+                                html: '<i class="fas fa-location-dot"></i>',
+                                iconSize: [30, 30]
+                            })
+                        }).addTo(map);
+                        
+                        // Add circle for accuracy
+                        L.circle([position.coords.latitude, position.coords.longitude], {
+                            radius: position.coords.accuracy,
+                            color: '#4285F4',
+                            fillColor: '#4285F4',
+                            fillOpacity: 0.2
+                        }).addTo(map);
+                    }, function(error) {
+                        alert('Error getting location: ' + error.message);
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    });
+                } else {
+                    alert('Geolocation is not supported by your browser');
+                }
+            });
+            
+            // Route type buttons
+            document.querySelectorAll('.route-option').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.route-option').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // If there's an existing route, recalculate with new preferences
+                    if (routingControl.getWaypoints().length > 0) {
+                        routingControl.route();
+                    }
+                });
+            });
+            
+            // Sidebar toggle button
+            document.getElementById('toggle-sidebar').addEventListener('click', function() {
+                var sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('sidebar-hidden');
+                
+                var icon = this.querySelector('i');
+                if (sidebar.classList.contains('sidebar-hidden')) {
+                    icon.classList.remove('fa-chevron-left');
+                    icon.classList.add('fa-chevron-right');
+                } else {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-left');
+                }
+            });
+            
+            // Go button
+            document.getElementById('go-button').addEventListener('click', function() {
+                var from = document.getElementById('from').value;
+                var to = document.getElementById('to').value;
+                
+                if (!from || !to) {
+                    alert("Please enter both starting point and destination");
+                    return;
+                }
+                
+                // Clear previous instructions
+                var instructionsContainer = document.getElementById('instructions-panel');
+                instructionsContainer.innerHTML = '';
+                instructionsContainer.style.display = 'none';
+                
+                // Try to find coordinates from road names first
+                var fromCoords = findRoadCoordinates(from);
+                var toCoords = findRoadCoordinates(to);
+                
+                if (fromCoords && toCoords) {
+                    // Both locations found in our road data
+                    setRoute(fromCoords, toCoords);
+                } else {
+                    // Use geocoding for addresses not in our road data
+                    geocodeAddresses(from, to);
+                }
+            });
+        }
+
+        // Find coordinates for a road name in our data
+        function findRoadCoordinates(roadName) {
+            if (!roadName) return null;
+            
+            // Find the feature with this road name
+            var feature = sampleRoadData.features.find(f => 
+                f.properties.FULLNAME && 
+                f.properties.FULLNAME.toLowerCase() === roadName.toLowerCase()
+            );
+            
+            if (feature && feature.geometry && feature.geometry.coordinates) {
+                // Get the first coordinate of the first line in the MultiLineString
+                const coords = feature.geometry.coordinates[0][0];
+                // Return as [lat, lng]
+                return [coords[1], coords[0]];
+            }
+            
+            return null;
+        }
+
+        // Geocode addresses using Mapbox
+        function geocodeAddresses(from, to) {
+            Promise.all([
+                geocodeAddress(from),
+                geocodeAddress(to)
+            ]).then(function(results) {
+                var fromLoc = results[0];
+                var toLoc = results[1];
+                
+                if (!fromLoc || !toLoc) {
+                    alert("Could not find one or both locations");
+                    return;
+                }
+                
+                setRoute([fromLoc.center[1], fromLoc.center[0]], [toLoc.center[1], toLoc.center[0]]);
+            }).catch(function(error) {
+                console.error('Geocoding error:', error);
+                alert("Error finding locations. Please try different addresses.");
+            });
+        }
+
+        // Geocode a single address using Mapbox
+        function geocodeAddress(address) {
+            return new Promise((resolve, reject) => {
+                var url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address + ', Charlotte, NC')}.json?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw&limit=1`;
+                
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        resolve(data.features[0]);
+                    } else {
+                        reject('Location not found');
+                    }
+                })
+                .catch(error => {
+                    reject(error);
+                });
+            });
+        }
+
+        // Set the route with given coordinates
+        function setRoute(fromCoords, toCoords) {
+            routingControl.setWaypoints([
+                L.latLng(fromCoords[0], fromCoords[1]),
+                L.latLng(toCoords[0], toCoords[1])
+            ]);
+            
+            // Zoom to the route
+            map.fitBounds(L.latLngBounds(
+                [fromCoords[0], fromCoords[1]],
+                [toCoords[0], toCoords[1]]
+            ), {padding: [50, 50]});
+        }
+
+        // Error handling for routing
+        routingControl.on('routingerror', function(e) {
+            console.error('Routing error:', e.error);
+            alert('Failed to calculate route: ' + (e.error.message || 'Please try different locations'));
+        });
+
+        // Initialize all functionality
+        initAutocomplete();
+        setupButtons();
+    });
+    </script>
 </body>
 </html>
