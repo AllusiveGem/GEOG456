@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Savannah Urban Planning Projects - Showcasing sustainable designs, transportation systems, and community development projects.">
+    <meta name="keywords" content="Savannah, urban planning, sustainable design, transportation systems, community development">
+    <meta name="author" content="Corey Reichert">
+    <meta name="robots" content="index, follow">
+    <title>Savannah Urban Planning Projects | Corey Reichert</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2A5C82;
+            --secondary-color: #5C8374;
+            --accent-color: #D4A373;
+            --text-color: #333;
+            --light-bg: #f4f4f4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Navigation styles */
+        .nav {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .nav.hide {
+            transform: translateY(-100%);
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Dropdown styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 1001;
+            top: 100%;
+            left: 0;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content li {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--light-bg);
+            color: var(--accent-color);
+        }
+
+        /* Video Hero Section */
+        .video-hero {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            margin-top: -76px;
+            z-index: 0;
+        }
+
+        .video-hero video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        /* Gallery Section */
+        .gallery {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .gallery-item img {
+            width: 50%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .gallery-item .description {
+            width: 50%;
+            padding: 2rem;
+        }
+
+        .gallery-item .description h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .gallery-item .description p {
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        /* Quote Section */
+        .quote {
+            padding: 5rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        .quote blockquote {
+            font-size: 1.5rem;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .quote cite {
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Footer styles */
+        footer {
+        position: relative;
+        height: 200px;
+        background: #2A5C82;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        flex-direction: column;
+        color: white;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.5rem 1rem;
+            }
+
+            .nav-brand {
+                font-size: 1.5rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+                margin-top: 0.5rem;
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                font-size: 0.9rem;
+            }
+
+            .dropdown-content {
+                position: static;
+                box-shadow: none;
+                background-color: transparent;
+                min-width: unset;
+                padding: 0.5rem;
+            }
+
+            .dropdown-content a {
+                padding: 8px 12px;
+                padding-left: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .gallery-item {
+                flex-direction: column;
+            }
+
+            .gallery-item img {
+                width: 100%;
+                height: 200px;
+            }
+
+            .gallery-item .description {
+                width: 100%;
+                padding: 1rem;
+            }
+        }
+
+        /* Quote Section Styles */
+        .quote-section {
+            padding: 6rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            margin: 2rem 0;
+        }
+
+        .quote-section blockquote {
+            max-width: 900px;
+            margin: 0 auto;
+            font-size: 2rem;
+            font-family: 'Playfair Display', serif;
+            line-height: 1.6;
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .quote-section blockquote::before,
+        .quote-section blockquote::after {
+            content: '"';
+            font-size: 4rem;
+            position: absolute;
+            opacity: 0.3;
+        }
+
+        .quote-section blockquote::before {
+            top: -20px;
+            left: -20px;
+        }
+
+        .quote-section blockquote::after {
+            bottom: -40px;
+            right: -20px;
+        }
+
+        /* Gallery Styles */
+        .gallery-container {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .gallery-item {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            margin-bottom: 6rem;
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item.reverse {
+            flex-direction: row-reverse;
+        }
+
+        .gallery-image {
+            flex: 1;
+            max-width: 50%;
+        }
+
+        .gallery-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .gallery-text {
+            flex: 1;
+        }
+
+        .gallery-text h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .gallery-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .gallery-item,
+            .gallery-item.reverse {
+                flex-direction: column;
+                padding: 2rem;
+                gap: 2rem;
+            }
+
+            .gallery-image {
+                max-width: 100%;
+            }
+
+            .gallery-text h2 {
+                font-size: 2rem;
+            }
+
+            .quote-section blockquote {
+                font-size: 1.5rem;
+                padding: 1rem;
+            }
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .area-label {
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .category-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+    
+
+.cube {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    transform-style: preserve-3d;
+    transform: rotateX(45deg) rotateY(45deg);
+    animation: spin 5s infinite linear;
+    margin-top: 20px;
+}
+
+.side {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+    overflow: hidden;
+}
+
+.front  { transform: translateZ(30px); }
+.back   { transform: rotateY(180deg) translateZ(30px); }
+.left   { transform: rotateY(-90deg) translateZ(30px); }
+.right  { transform: rotateY(90deg) translateZ(30px); }
+.top    { transform: rotateX(90deg) translateZ(30px); }
+.bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+@keyframes spin {
+    0%   { transform: rotateX(0) rotateY(0); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+/* Navigation styles */
+.nav-toggle {
+    display: none;
+}
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+    .nav {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        padding: 1rem;
+        align-items: center;
+    }
+
+    .nav-brand {
+        font-size: 1.5rem;  /* Keep the same size on mobile */
+        grid-column: 1;
+        margin-right: auto;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    .nav-toggle {
+        display: flex;
+        grid-column: 3;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--primary-color);
+        padding: 0.5rem;
+        margin-left: auto;
+        align-items: center;
+        height: 100%;
+    }
+
+    .nav-links {
+        display: none;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .nav-links.show {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;  /* Reduced from default gap */
+    }
+
+    .nav-links a {
+        padding: 0.5rem 0;  /* Reduced padding */
+    }
+
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+        padding-left: 1.5rem;  /* Standardize dropdown indent */
+        margin-top: 0;
+        background: transparent;
+        width: 100%;
+    }
+
+    .dropdown-content a {
+        padding: 0.5rem 0;  /* Standardize dropdown item padding */
+        font-size: 1rem;  /* Standardize dropdown font size */
+    }
+
+    .dropdown-content li {
+        margin: 0;  /* Remove any margin */
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">Corey Reichert</a>
+        <button class="nav-toggle" id="nav-toggle">☰</button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="TestingGround.html">Home</a></li>
+            <li><a href="TestingGround.html#resume">Resume</a></li>
+            <li class="dropdown">
+                <a href="TestingGround.html#portfolio">Portfolio ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="block-island-map.html">Block Island</a></li>
+                    <li><a href="savannah-map.html">Savannah Georgia</a></li>
+                    <li><a href="3D-Prints.html">3D Prints</a></li>
+                    <li><a href="Photography.html">Art Gallery</a></li>
+                    <li><a href="QGIS.html">QGIS Maps + Graphs</a></li>
+                    <li><a href="publications.html">Publications</a></li>
+                </ul>
+            </li>
+            <li><a href="#map">Interactive Maps</a></li>
+            <li class="dropdown">
+                <a href="#contact">Contact ▼</a>
+                <ul class="dropdown-content">
+                    <li><a href="https://www.linkedin.com/in/corey-reichert-47837a2aa/">LinkedIn</a></li>
+                    <li><a href="https://github.com/AllusiveGem">GitHub</a></li>
+                    <li><a href="mailto:reichertcorey08@gmail.com">Email</a></li>
+                    <li><a href="https://x.com/jon_bois">Twitter</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Video Hero Section -->
+    <section class="video-hero">
+        <video autoplay muted loop playsinline>
+            <source src="assets/videos/savannah.mp4" type="video/mp4">
+            <!-- Fallback sources for different formats -->
+            <source src="assets/videos/savannah.webm" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay">
+            <div class="hero-content">
+                <h1>Savannah Urban Planning</h1>
+                <p class="hero-subtitle">Sustainable Development and Community Projects</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote Section -->
+    <section class="quote-section">
+        <blockquote>
+            "Savannah's historic squares represent one of America's finest achievements in city planning — a testament to how thoughtful urban design can create enduring, vibrant communities that stand the test of time."
+        </blockquote>
+    </section>
+
+    <!-- Gallery Section -->
+    <div class="gallery-container">
+        <!-- Project 1 -->
+        <div class="gallery-item">
+            <div class="gallery-image">
+                <img src="https://visitsavannah.com/sites/default/files/styles/large_horizontal_wide/public/forsyth-park-savannah-ga.jpeg?h=3b817160&itok=8Hehzg98" alt="Forsyth Park in Savannah, GA">
+            </div>
+            <div class="gallery-text">
+                <h2>The Oglethorpe Plan</h2>
+                <p>The Oglethorpe Plan, conceived in 1733, represents a masterpiece of urban planning. Its system of squares, each surrounded by civic buildings and residences, created intimate public spaces that continue to define Savannah's character. The plan's genius lies in its scalability and its integration of public spaces with private development.</p>
+                <p>Each square serves as a small park, a social gathering space, and a focal point for surrounding buildings. This creates a rhythm of open and built spaces that makes Savannah one of the most walkable cities in America.</p>
+            </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="gallery-item reverse">
+            <div class="gallery-image">
+                <img src="https://visitsavannah.com/sites/default/files/styles/large_horizontal_wide/public/river-street-savannah_0.jpeg?h=48212d01&itok=Lp9H4umU" alt="River Street in Savannah, GA">
+            </div>
+            <div class="gallery-text">
+                <h2>Architectural Evolution</h2>
+                <p>Savannah's architectural heritage spans three centuries, showcasing styles from Georgian to Greek Revival and Victorian. Each building tells a story of the city's evolution, while maintaining a harmonious relationship with its neighbors and the urban fabric.</p>
+                <p>The preservation of these architectural treasures, combined with sensitive new development, ensures that Savannah remains a living museum of American urban design.</p>
+            </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="gallery-item">
+            <div class="gallery-image">
+                <img src="https://media.istockphoto.com/id/97501853/photo/savannah-georgia.jpg?s=612x612&w=0&k=20&c=9M-Oa1CYl6OwGy9RBHG3t2JNgmow1lVGopjP8rURE9Q=" alt="Modern Development">
+            </div>
+            <div class="gallery-text">
+                <h2>Contemporary Integration</h2>
+                <p>Modern development in Savannah demonstrates how new construction can respect historical context while meeting contemporary needs. Projects focus on sustainable design principles and maintaining the human scale that makes Savannah unique.</p>
+                <p>These developments show how historical preservation and modern innovation can work together to create vibrant urban spaces.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Maps Section -->
+    <section id="maps" class="portfolio">
+        <div class="category-header">
+            <h2>Interactive Map of Savannah</h2>
+            <p>Explore historic districts and urban planning features</p>
+        </div>
+        <div id="map"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Corey Reichert. All rights reserved.</p>
+
+        <div class="cube">
+            <div class="side front" onclick="window.location.href='3D-Prints.html'" style="cursor: pointer;"><img src="https://www.newark.com/wcsstore/ExtendedSitesCatalogAssetStore/cms/asset/images/common/campaign/3d-printing-18/3D-Homepage-Header.png?v=4" alt="back" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side back" onclick="window.location.href='Block-Island-Map.html'" style="cursor: pointer;"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0xiSaPGIr7yXkNl9n9qanEGoSNITRqgnslw&s" alt="back" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side left" onclick="window.location.href='Photography.html'" style="cursor: pointer;"><img src="https://amateurphotographer.com/wp-content/uploads/sites/7/2022/08/fujifilm-x-pro3.jpg" alt="left" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side right" onclick="window.location.href='publications.html'" style="cursor: pointer;"><img src="https://www.cjr.org/wp-content/uploads/2019/01/AdobeStock_46790787-scaled.jpeg" alt="right" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side top" onclick="window.location.href='savannah-map.html'" style="cursor: pointer;"><img src="https://images.squarespace-cdn.com/content/v1/5f825f6001f5227645324800/9fa1e251-fd9a-4c91-8da9-bb53a02f9bb6/Savannah%2BGeorgia%2BDrone%2B%2BServices.jpeg?format=2500w" alt="top" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side bottom" onclick="window.location.href='TestingGround.html'" style="cursor: pointer;"><img src="https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4426338.png" alt="bottom" style="width:100%; height:100%; object-fit:cover;"></div>
+        </div>
+
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/8.4.5/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let lastScroll = 0;
+
+        window.addEventListener("scroll", () => {
+            const currentScroll = window.scrollY;
+            const nav = document.querySelector(".nav");
+
+            if (currentScroll <= 0) {
+                nav.classList.remove("hide");
+            } else if (currentScroll > lastScroll) {
+                nav.classList.add("hide");
+            } else {
+                nav.classList.remove("hide");
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        // Initialize the map centered on Savannah
+        const map = L.map('map').setView([32.0809, -81.0912], 14);
+
+        // Base map layers
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        const terrainLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+        });
+
+        const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        });
+
+        // Points of interest in Savannah
+        const locations = [
+            {
+                name: "Forsyth Park",
+                location: [32.0697, -81.0954],
+                description: "30-acre park and iconic fountain"
+            },
+            {
+                name: "City Market",
+                location: [32.0807, -81.0910],
+                description: "Historic market and entertainment district"
+            },
+            {
+                name: "River Street",
+                location: [32.0814, -81.0912],
+                description: "Historic waterfront promenade"
+            },
+            {
+                name: "Bonaventure Cemetery",
+                location: [32.0452, -81.0488],
+                description: "Historic cemetery with Southern Gothic architecture"
+            },
+            {
+                name: "SCAD Museum of Art",
+                location: [32.0773, -81.0957],
+                description: "Contemporary art museum in historic railroad depot"
+            }
+        ];
+
+        // Create feature group for all markers
+        const markersGroup = L.featureGroup();
+
+        // Add markers for each location
+        locations.forEach(loc => {
+            const marker = L.circleMarker(loc.location, {
+                radius: 10,
+                fillColor: "#ff7800",
+                color: "#000",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+
+            marker.bindPopup(`<b>${loc.name}</b><br>${loc.description}`);
+            
+            // Bind tooltip and open it automatically
+            marker.bindTooltip(loc.name, {
+                permanent: true,
+                direction: 'top',
+                className: 'area-label'
+            }).openTooltip();
+
+            markersGroup.addLayer(marker);
+        });
+
+        // Add markers group to map
+        markersGroup.addTo(map);
+
+        // Fit map bounds to show all markers
+        map.fitBounds(markersGroup.getBounds());
+
+        // Add base maps to layer control
+        const baseMaps = {
+            "OpenStreetMap": osmLayer,
+            "Satellite": satelliteLayer,
+            "Structure": terrainLayer,
+            "Dark Mode": darkLayer
+        };
+
+        // Add layer control to map
+        L.control.layers(baseMaps).addTo(map);
+
+        // Add default base map
+        osmLayer.addTo(map);
+
+        // Mobile navigation toggle
+        document.getElementById('nav-toggle').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('show');
+        });
+    </script>
+</body>
+</html>

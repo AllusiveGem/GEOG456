@@ -496,14 +496,14 @@
                 <a href="TestingGround.html#portfolio">Portfolio ▼</a>
                 <ul class="dropdown-content">
                     <li><a href="block-island-map.html">Block Island</a></li>
-                    <li><a href="savannah-map.html">Savannah Georgia</a></li>
+                    <li><a href="savannah-map.html">Charlotte NC</a></li>
                     <li><a href="3d-Prints.html">3D Prints</a></li>
                     <li><a href="Photography.html">Art Gallery</a></li>
                     <li><a href="QGIS.html">QGIS Maps + Graphs</a></li>
                     <li><a href="publications.html">Publications</a></li>
                 </ul>
             </li>
-            <li><a href="#map">Interactive Maps</a></li>
+            <li><a href="#graphs">Graphs</a></li>
             <li class="dropdown">
                 <a href="#contact">Contact ▼</a>
                 <ul class="dropdown-content">
@@ -526,227 +526,572 @@
     <!-- Tabbed Interface -->
     <section class="section">
         <div class="tabs">
-            <button class="tab-button active" data-tab="maps">Maps</button>
-            <button class="tab-button" data-tab="graphs">Graphs</button>
+            <button class="tab-button active" data-tab="graphs">Graphs</button>
             <button class="tab-button" data-tab="images">Images</button>
             <button class="tab-button" data-tab="links">HTML Links</button>
         </div>
 
-        <!-- Maps Tab -->
-        <div class="tab-content active" id="maps">
-            <h2>Interactive Maps</h2>
+        <!-- Graphs Tab -->
+        <div class="tab-content active" id="graphs">
+            <h2>Graphs</h2>
             <div class="chart-container">
-                <div id="map1" class="map"></div>
+                <img src="assets/images/logistic_model_summary.png" alt="Graph 1" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
                 <div class="chart-description">
-                    <h3>Charlotte Urban Growth Analysis</h3>
-                    <p>This map showcases urban growth in Charlotte, NC, over the past decade. The data highlights key areas of development and population density changes.</p>
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>This comprehensive analysis that showcases a logisitic Regresion Model which measures the lethality probability of specific factors that will be seen when Biking.</p>
                     <div class="key-findings">
-                        <h4>Key Features:</h4>
+                        <h4>Key Findings:</h4>
                         <ul>
-                            <li>High-growth development zones</li>
-                            <li>Population density hotspots</li>
-                            <li>Infrastructure expansion areas</li>
-                            <li>New residential districts</li>
+                            <li>Sidewalks cut severe crash odds by 69% (OR = 0.31), the strongest protective effect.</li>
+                            <li>Unlit roads double severe crash risk (OR = 2.19), emphasizing lighting investments.</li>
+                            <li>Fog increases severity 2.5×, but rare occurrences limit generalizability.</li>
+                            <li>Coarse asphalt raises severity 18%, highlighting pavement quality as a modifiable factor.</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
             <div class="chart-container">
-                <div id="map2" class="map"></div>
+                <img src="assets/images/crash_rate_per_mile.png" alt="Graph 2" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
                 <div class="chart-description">
-                    <h3>Los Angeles Traffic Patterns</h3>
-                    <p>This map illustrates traffic patterns in Los Angeles, CA, focusing on peak hours and congestion hotspots.</p>
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>Crash Rate Per Mile by Infrastructure Type</p>
                     <div class="key-findings">
-                        <h4>Key Features:</h4>
+                        <h4>Key Findings:</h4>
                         <ul>
-                            <li>Major traffic corridors</li>
-                            <li>Peak hour congestion zones</li>
-                            <li>Alternative route suggestions</li>
-                            <li>Public transit integration</li>
+                            <li>Travel lanes account for 61.7% of crashes, reflecting their prevalence and higher exposure.</li>
+                            <li>Multi-use paths have highest crash rate (1.84/mile), but PBIN underreporting may skew results.</li>
+                            <li>Sidewalks safest per mile (0.16 crashes), yet urban bias in data may overstate their efficacy.</li>
+                            <li>Bike lanes (0.4/mile) are middling, supporting their role as a compromise between safety and utility.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <img src="assets/images/crash_frequency.png" alt="Graph 1" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>Proportion of Total Crashes by Infrastructure.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Travel lanes account for 61.7% of crashes, reflecting their prevalence and higher exposure.</li>
+                            <li>Multi-use paths have highest crash rate (1.84/mile), but PBIN underreporting may skew results.</li>
+                            <li>Sidewalks safest per mile (0.16 crashes), yet urban bias in data may overstate their efficacy.</li>
+                            <li>Bike lanes (0.4/mile) are middling, supporting their role as a compromise between safety and utility.</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
             <div class="chart-container">
-                <div id="map3" class="map"></div>
+                <img src="assets/images/logistic_model_results.png" alt="Graph 2" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
                 <div class="chart-description">
-                    <h3>New York Zoning Changes</h3>
-                    <p>This map displays zoning changes in New York, NY, over the last 20 years, emphasizing shifts in residential and commercial areas.</p>
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>Binary Logistic Model: Severe Crash Probability by Infrastructure.</p>
                     <div class="key-findings">
-                        <h4>Key Features:</h4>
+                        <h4>Key Findings:</h4>
                         <ul>
-                            <li>Rezoned districts</li>
-                            <li>Commercial development zones</li>
-                            <li>Residential expansion areas</li>
-                            <li>Mixed-use developments</li>
+                            <li>Travel lanes have the highest severe crash probability (7.3% under ideal conditions), reinforcing their danger to cyclists.</li>
+                            <li>Sidewalks/crosswalks are safest (2.4% severe crash probability), supporting their protective role despite higher crash frequency in urban areas.</li>
+                            <li>Bike lanes/paved shoulders show intermediate risk (~5%), suggesting they mitigate but don’t eliminate severe outcomes.</li>
+                            <li>Ideal conditions (daylight, clear weather, etc) reduce severity gaps but don’t eliminate disparities between infrastructure types.</li>
                         </ul>
                     </div>
                 </div>
             </div>
+            <div class="chart-container">
+                <img src="assets/images/infra_surface_interaction.png" alt="Graph 1" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>Interaction: Infrastructure × Road Surface.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Coarse asphalt increases severe crash risk across all infrastructure types, peaking on travel lanes (8% vs. 6% for smooth asphalt).</li>
+                            <li>Sidewalks remain safest even on poor surfaces (3% severe crashes on coarse asphalt vs. 2% on smooth).</li>
+                            <li>Bike lanes on coarse asphalt lose their advantage, nearly matching travel lanes in severity (~6%).</li>
+                            <li>Road surface quality is a modifiable factor—smoother pavements could reduce severity, especially on high-risk roads.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img src="assets/images/infra_light_interaction.png" alt="Graph 2" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>Interaction: Infrastructure × Lighting.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Unlit roads at night triple severe crash risk (10% probability on travel lanes vs. 3% in daylight).</li>
+                            <li>Sidewalks are least affected by lighting (severe crashes rise only 1–2% in darkness), likely due to lower vehicle interactions.</li>
+                            <li>Bike lanes under lighting perform similarly to sidewalks, but unlit bike lanes revert to travel-lane risk levels.</li>
+                            <li>Dusk poses unique risks, with severity spikes suggesting transitional lighting conditions are critical intervention points.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+                        <div class="chart-container">
+                <img src="assets/images/infra_roadclass_interaction.png" alt="Graph 2" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>Interaction: Infrastructure × Road Classification.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>NC/US routes are deadliest for all infrastructure (e.g., 16% severe crashes on travel lanes), emphasizing speed/design risks.</li>
+                            <li>Local streets + sidewalks = safest combo (2% severe), validating low-speed urban corridors.</li>
+                            <li>Secondary routes are universally hazardous, even with bike lanes (9% severe crashes).</li>
+                            <li>Infrastructure benefits diminish on high-order roads, urging redesign (e.g., lowered speed limits, protected lanes).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+                        <div class="chart-container">
+                <img src="assets/images/infra_weather_interaction.png" alt="Graph 2" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Lethality Assessment for North Carolina Bicycle Infrastructure</h3>
+                    <p>Interaction: Infrastructure × Weather.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Fog is the most dangerous condition, doubling severe crash risk on travel lanes (14% vs. 7% in clear weather).</li>
+                            <li>Sidewalks remain resilient in bad weather, with only a 1–2% severity increase during fog/rain.</li>
+                            <li>Rain’s impact is negligible after controlling for other factors, contradicting anecdotal assumptions.</li>
+                            <li>Weather-infrastructure interactions are asymmetric: Fog harms bike lanes more than sidewalks, highlighting design trade-offs.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img src="assets/images/NIMBY1.JPG" alt="Graph 3" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>NIMBY Factors in Charlotte Analysis</h3>
+                    <p>Analysis of the phrasings and messaging of Charlotte's NIMBY movement and its relationship with property</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>"Traffic" dominates mentions, peaking in 2022, reflecting its centrality in NIMBY opposition to development.</li>
+                            <li>"Density" shows significant spikes, aligning with debates over high-density vs. low-density housing proposals.</li>
+                            <li>"Property value" is the least mentioned term, suggesting economic self-interest may be downplayed in public discourse.</li>
+                            <li>Opposition to development increasingly relies on strategically framed terms like “character” and “density” over “property value” to signal collective concern, with “traffic” serving as a versatile but less targeted critique, and a notable spike in such language in 2022 suggesting responses to post-pandemic pressures or key policy shifts.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img src="assets/images/NIMBY2.JPG" alt="Graph 4" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>NIMBY Factors in Charlotte Analysis</h3>
+                    <p>Analysis of the phrasings and messaging of Charlotte's NIMBY movement and its relationship with property.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>"Character" has the strongest NIMBY link: 85.2% of mentions tied to opposing development to preserve neighborhood aesthetics.</li>
+                            <li>"Property value" is highly targeted (second-highest housing association) but rarely used, hinting at strategic avoidance of overt self-interest.</li>
+                            <li>"Noise" is least related to housing, often referencing complaints about events or microphone feedback in meetings.</li>
+                            <li>Policymakers should explicitly address concerns about “character” and “density” in housing proposals, distinguish true development-related traffic issues from general municipal complaints, conduct regional comparisons to account for local framing differences (e.g., Charlotte vs. San Francisco), and improve data granularity by tracking exact phrases and linking them to project outcomes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img src="assets/images/Linear_Charlotte.JPG" alt="Graph 5" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Charlotte Transportation Study</h3>
+                    <p>Using a Regression to find the relationship between Transportation and Property Value.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Figure 1: Scatter Plot - Visual shows a weak inverse trend—properties closer to transit hubs tend to have slightly higher values, but with heavy dispersion.</li>
+                            <li>Figure 2: Simple Linear Regression - R² = 0.0193, indicating a very weak explanatory power. Highly significant p-value (2.2e-16) due to large sample size (n = 344,690), but low practical relevance.</li>
+                            <li>Figure 3: Multiple Linear Regression - Adjusted R² = 0.1028, showing an improvement but still a weak model.</li>
+                            <li>Weak correlation between distance to public transportation and normalized property value. Multiple regression improved the model but still failed to show strong predictive power. Results suggest other factors are likely more important determinants of property value.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+                        <div class="chart-container">
+                <img src="assets/images/Mean change.JPG" alt="Graph 6" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Charlotte Transportation Study</h3>
+                    <p>Mean Change in Property Tax / Value based on Distance. Full=Full Dataset, Half = Half Mile, Quarter = Quarter Mile, Rest = Outside Half Mile.</p>
+                    <div class="key-findings">
+                        <h4>Key Findings:</h4>
+                        <ul>
+                            <li>Proximity to transit (within 0.25 miles) correlates with ~5% higher property tax growth compared to areas farther away, indicating a positive but modest impact.</li>
+                            <li>Suburban areas outside transit buffers also saw significant growth, driven by rising single-family home demand, suggesting transit is not the sole factor in value appreciation.</li>
+                            <li>Economic events (2008 crash, COVID-19) had muted effects on transit-adjacent properties, highlighting their resilience compared to broader market trends.</li>
+                            <li>Regression analysis found no strong direct link between distance to transit and property values, implying other urban factors (schools, zoning, amenities) play a larger role.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
 
-        <!-- Images Tab (formerly Charts) -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Images Tab -->
         <div class="tab-content" id="images">
             <h2>Project Images</h2>
             <div class="chart-container">
-                <img src="https://cdn.pixabay.com/photo/2015/10/01/17/17/car-967387_1280.png" alt="Urban Development Project" style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
+                <img src="assets/images/BikeCrashDensity.png" alt="Urban Development Project" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
                 <div class="chart-description">
-                    <h3>Urban Development Visualization</h3>
-                    <p>Comprehensive visualization of urban development patterns in major metropolitan areas, highlighting key growth indicators and planning strategies.</p>
+                    <h3>Bike Crash Density</h3>
+                    <p>An ArcGIS Kernel Density <Map></Map>.</p>
                     <div class="key-findings">
                         <h4>Image Highlights:</h4>
                         <ul>
-                            <li>3D city modeling techniques</li>
-                            <li>Infrastructure integration</li>
-                            <li>Sustainable development zones</li>
-                            <li>Green space preservation</li>
+                            <li>Urban clusters dominate - Highest crash density in Charlotte, Raleigh, and Durham metro areas</li>
+                            <li>University hotspots visible - Distinct clusters near Chapel Hill (UNC) and Boone (App State) campuses</li>
+                            <li>Density ≠ severity - Urban areas show more crashes but fewer severe injuries </li>
+                            <li>Rural blind spot - Low crash density masks high severity risks on rural roads</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
             <div class="chart-container">
-                <img src="https://cdn.pixabay.com/photo/2015/10/01/17/17/car-967387_1280.png" alt="Environmental Impact Study" style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
+                <img src="assets/images/BicycleFacilities FINAL.png" alt="Environmental Impact Study" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
                 <div class="chart-description">
-                    <h3>Environmental Impact Analysis</h3>
-                    <p>Visual representation of environmental impact studies, showing the relationship between urban development and ecological preservation.</p>
+                    <h3>Bike Facility Density</h3>
+                    <p>An ArcGIS Kernel Density</p>
                     <div class="key-findings">
                         <h4>Image Highlights:</h4>
                         <ul>
-                            <li>Ecological corridor mapping</li>
-                            <li>Wildlife habitat preservation</li>
-                            <li>Water resource management</li>
-                            <li>Green infrastructure planning</li>
+                            <li>Facilities cluster in mid-sized cities (Goldsboro, Kinston) rather than largest metros, suggesting historical planning priorities over demand-driven allocation.</li>
+                            <li>Density-Crash Paradox: Urban cores  have high crash density but low severity, implying more cyclists + infrastructure = more minor incidents but fewer fatalities.</li>
+                            <li>Rural "deserts" evident: 78% of PBIN mileage is in urban counties, leaving rural cyclists vulnerable - consistent with 20% severe crash rates on rural NC routes</li>
+                            <li>Data caveat: Crowdsourced PBIN likely undercounts informal paths (e.g., farm roads), skewing rural facility estimates downward.</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
             <div class="chart-container">
-                <img src="https://cdn.pixabay.com/photo/2015/10/01/17/17/car-967387_1280.png" alt="Transportation Network Analysis" style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;">
+                <img src="assets/images/BikeSeverityHotspotall.png" alt="Transportation Network Analysis" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
                 <div class="chart-description">
-                    <h3>Transportation Network Analysis</h3>
-                    <p>Detailed analysis of transportation networks and their impact on urban mobility and accessibility.</p>
+                    <h3>Hot Spot Analysis: All Injuries</h3>
+                    <p>An ArcGIS Hotspot Analysis.</p>
                     <div class="key-findings">
                         <h4>Image Highlights:</h4>
                         <ul>
-                            <li>Public transit coverage</li>
-                            <li>Pedestrian accessibility</li>
-                            <li>Bike lane networks</li>
-                            <li>Multi-modal integration</li>
+                            <li>Expanded hotspots include urban periphery counties (e.g., Cabarrus, Union), revealing that moderate/low-severity crashes concentrate where suburban sprawl meets inadequate infrastructure.</li>
+                            <li>Robeson County remains a hotspot, confirming its outlier status for both crash frequency and severity - likely tied to its high poverty rate (27.9%) and underinvestment in bike/ped facilities.</li>
+                            <li>Urban cores show neutral/no significance, reflecting the protective effect of traffic-calming measures and grid networks common in cities like Charlotte.</li>
+                            <li>Data limitation: Police underreporting of minor crashes may artificially suppress urban hotspot detection.</li>
                         </ul>
                     </div>
                 </div>
             </div>
+
+            <div class="chart-container">
+                <img src="assets/images/HotspotSevere.png" alt="Architectural Renderings" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Hot Spot Analysis: Severe Injuries Only</h3>
+                    <p>An ArcGIS Hotspot Analysis.</p>
+                    <div class="key-findings">
+                        <h4>Image Highlights:</h4>
+                        <ul>
+                            <li>Rural counties dominate severe crash hotspots, with Robeson, Johnston, and Gates counties showing statistically significant clustering (99% confidence) - aligning with findings that high-speed rural roads (e.g., NC/US Routes) have 2.6× higher severe crash odds.</li>
+                            <li>Urban "cold spots" (Charlotte/Raleigh) correlate with dense sidewalk/bike lane networks (Fig. 4), supporting regression results where sidewalks reduce severe crash risk by 69%.</li>
+                            <li>Spatial mismatch with crash density: Rural areas have fewer total crashes but higher severity, suggesting infrastructure gaps (e.g., lack of lighting, paved shoulders) exacerbate outcomes.</li>
+                            <li>Policy implication: Targeted infrastructure upgrades (e.g., rumble strips, lighting) on rural highways could mitigate severity disparities.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <img src="assets/images/CharlotteMap.JPG" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Charlotte (Mecklenburg County) Tax Values.</p>
+                    <div class="key-findings">
+                        <h4>Image Highlights:</h4>
+                        <ul>
+                            <li>Property Tax Value (On right)</li>
+                            <li>Euclidean Value of Distance</li>
+                            <li>Transportation Lines</li>
+                            <li>High Property Areas (University, Uptown, Etc)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/hospitalroutes.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Hospital Optimization Routes, Chapel Hill. (Network Analysis)</p>
+                    </div>
+                </div>
+            
+
+
+             <div class="chart-container">
+                <img src="assets/images/cityofdurham.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>TIFF Map Data of Durham North Carolina.</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/RMI.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Ranked Mobility Index of Population Change (Chicago 1990s).</p> 
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/MexicoCity.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Predicted Informal Settlements in Mexico City Based on Irregular population.</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/CommutingStat.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Springfield, MO, Commuting to Work Statistics between Central and Outlying Counties.</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/mexicocity.jpg" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>Google Maps Image</h3>
+                    <p>Mexico City Population Density.</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/tifstreamriver.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>DEM elevation Map along with Stream Network (Hydrography Analysis of Durham / Orange County).</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/flowstreamriver.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Flow Map that Created Watershed Boundaries and Stream Network.</p>
+                    
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/Majority2000.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>2000 Census Tract Majority Race in Chicago.</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/overlap.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Durham and Orange County Pharmacy Network Analysis: Overlap Coverage (Network Analysis).</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/2000DiversityIndex.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>2000 Diversity Index at Census Tract Level in Chicago.</p>
+                </div>
+            </div>
+
+             <div class="chart-container">
+                <img src="assets/images/pharmacyfinal2.png" alt="Aerial Photography" style="width: 100%; height: 400px; object-fit: contain; border-radius: 10px;">
+                <div class="chart-description">
+                    <h3>GIS Map</h3>
+                    <p>Pharmacy Accessibility in Durham NC by Minutes.</p>
+                </div>
+            </div>
+
+
+            
         </div>
 
-        <!-- Graphs Tab -->
-        <div class="tab-content" id="graphs">
-            <h2>Graphs</h2>
-            <div class="chart-container">
-                <div class="chart-wrapper">
-                    <canvas id="graph1"></canvas>
-                </div>
-                <div class="chart-description">
-                    <h3>Urban Growth Trends in Charlotte</h3>
-                    <p>This comprehensive analysis tracks Charlotte's urban development from 2010 to 2023, revealing significant patterns in city expansion and population growth.</p>
-                    <div class="key-findings">
-                        <h4>Key Findings:</h4>
-                        <ul>
-                            <li>50% increase in urban development since 2010</li>
-                            <li>Highest growth rate observed in the South End district</li>
-                            <li>Consistent 3.5% annual growth in residential areas</li>
-                            <li>Notable spike in development during 2018-2020</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
 
-            <div class="chart-container">
-                <div class="chart-wrapper">
-                    <canvas id="graph2"></canvas>
-                </div>
-                <div class="chart-description">
-                    <h3>Los Angeles Population Density Analysis</h3>
-                    <p>A detailed examination of population distribution across Los Angeles neighborhoods, highlighting demographic shifts and urbanization patterns.</p>
-                    <div class="key-findings">
-                        <h4>Key Findings:</h4>
-                        <ul>
-                            <li>Downtown LA shows highest density at 25,000 people/sq mile</li>
-                            <li>Suburban areas experiencing 15% growth rate</li>
-                            <li>Emerging high-density clusters in transit corridors</li>
-                            <li>Significant variation between coastal and inland regions</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
 
-            <div class="chart-container">
-                <div class="chart-wrapper">
-                    <canvas id="graph3"></canvas>
-                </div>
-                <div class="chart-description">
-                    <h3>New York Transportation Modal Split</h3>
-                    <p>Analysis of New York City's transportation preferences, showing the distribution between different modes of transit and their evolution over time.</p>
-                    <div class="key-findings">
-                        <h4>Key Findings:</h4>
-                        <ul>
-                            <li>Public transit accounts for 40% of all trips</li>
-                            <li>Walking shows increasing trend in Manhattan</li>
-                            <li>Bicycle usage doubled since 2015</li>
-                            <li>Reduced private vehicle usage in central business districts</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <!-- HTML Links Tab -->
         <div class="tab-content" id="links">
             <h2>HTML Links</h2>
             <div class="links-grid">
                 <div class="link-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Block Island Map">
+                    <img src="https://www.onestopmap.com/wp-content/uploads/2015/02/351-map-norh-carolina-political.jpg" alt="Block Island Map">
                     <div class="link-content">
-                        <a href="block-island-map.html">Block Island Map</a>
-                        <p>An interactive map showcasing the beautiful Block Island region, highlighting key landmarks, trails, and points of interest for visitors and researchers.</p>
+                        <a href="https://allusivegem.github.io/GEOG456/work/data/13_vector_map_table_highlight.html
+">North Carolina Counties Map</a>
+                        <p>A HTML File which showcases a map of North Carolina Counties with a hover feature that shows the county name and population.</p>
                     </div>
                 </div>
                 <div class="link-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Savannah Georgia Map">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Car_crash.jpg/960px-Car_crash.jpg" alt="Savannah Georgia Map">
                     <div class="link-content">
-                        <a href="savannah-map.html">Savannah Georgia Map</a>
-                        <p>Explore the historic city of Savannah through this detailed map, featuring historical sites, cultural landmarks, and urban development patterns.</p>
+                        <a href="https://allusivegem.github.io/GEOG456/HIN/map2.html">Charlotte High Injury Network for Bicyclist and Pedestrians (WIP)</a>
+                        <p>This HTML file allows users to input a location and find potentially dangerous roads. Main issue with the file is the network API I am using, which is free and slow causing the file to occassionally fail. With a paid API this would work much better.</p>
+                    </div>
+                </div>
+                                <div class="link-card">
+                    <img src="https://1000logos.net/wp-content/uploads/2016/10/Carolina-Panthers-logo.jpg" alt="Block Island Map">
+                    <div class="link-content">
+                        <a href="https://allusivegem.github.io/GEOG456/HomeWork3/NorthCarolinaTeamsStadium.html">North Carolina Teams and their Stadiums</a>
+                        <p>An interactive map showcasing North Carolina's Professonal Sports.</p>
                     </div>
                 </div>
                 <div class="link-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="3D Prints">
+                    <img src="https://i.pinimg.com/564x/e5/09/4f/e5094fb4deb3bb76e155c52b3c96ad8b.jpg" alt="Savannah Georgia Map">
                     <div class="link-content">
-                        <a href="3d-Prints.html">3D Prints</a>
-                        <p>A collection of 3D printed models and prototypes, demonstrating innovative applications in urban planning and architectural visualization.</p>
+                        <a href="https://allusivegem.github.io/GEOG456/Portfolio/resumecheck/jobs.html">Job Tracker Webpage</a>
+                        <p>A Little HTML file that I Made to help users keep track of the jobs they applied for and their progress.</p>
+                    </div>
+                </div>
+                                <div class="link-card">
+                    <img src="https://homeofheroes.com/wp-content/uploads/2019/12/Civil-War.jpg" alt="Block Island Map">
+                    <div class="link-content">
+                        <a href="https://allusivegem.github.io/GEOG456/HW4/HW4B_CR.html">Table of Train Lines</a>
+                        <p>HTML Table that showcases the time that US railroads became operational in relation to the U.S. Civil War.</p>
                     </div>
                 </div>
                 <div class="link-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Photography">
+                    <img src="https://www.bbh.com/us/en/bbh-who-we-are/office-locations/charlotte-office/_jcr_content/root/container/container/teaser.dnaimg.90.1440.jpeg/1612284738868/gettyimages-493594092-charlotte.jpeg" alt="3D Prints">
                     <div class="link-content">
-                        <a href="Photography.html">Art Gallery</a>
-                        <p>A visual journey through urban landscapes and architectural photography, capturing the essence of cities and their development.</p>
+                        <a href="https://allusivegem.github.io/GEOG456/HW5/HW5_CR_annex.html">Charlotte Annexation</a>
+                        <p>A HTML Map showing the growth of Charlotte through annexations .</p>
                     </div>
                 </div>
                 <div class="link-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="QGIS Maps">
+                    <img src="https://media.npr.org/assets/img/2021/04/05/proposed_amtrak_routes_april_2_2021_v4_custom-c484d08facfb9486955d38a50c9088735df5039d.jpg?s=1100&c=50&f=jpeg" alt="Photography">
                     <div class="link-content">
-                        <a href="QGIS.html">QGIS Maps + Graphs</a>
-                        <p>Advanced spatial analysis and data visualization using QGIS, featuring custom maps and analytical graphs for urban studies.</p>
+                        <a href="https://allusivegem.github.io/GEOG456/HW5/HW5_CR.html">Train Map (BETA)</a>
+                        <p>A HTML Map showing the growth of US Rail from 1820-1920.</p>
                     </div>
                 </div>
                 <div class="link-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png" alt="Publications">
+                    <img src="https://images.pexels.com/photos/1793503/pexels-photo-1793503.jpeg?cs=srgb&dl=pexels-brett-sayles-1793503.jpg&fm=jpg" alt="QGIS Maps">
                     <div class="link-content">
-                        <a href="publications.html">Publications</a>
-                        <p>A comprehensive collection of research papers, articles, and academic publications in urban planning and development.</p>
+                        <a href="https://allusivegem.github.io/GEOG456/HW5/work/Transportation-Light.html">1800s Transportation Interactive Map (Light Version)</a>
+                        <p>A HTML Map with AI integration and population data to show the growth and expansion of the United States and explain population Growth / Decline.</p>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <img src="https://images.pexels.com/photos/1793503/pexels-photo-1793503.jpeg?cs=srgb&dl=pexels-brett-sayles-1793503.jpg&fm=jpg" alt="Publications">
+                    <div class="link-content">
+                        <a href="https://allusivegem.github.io/GEOG456/HW5/work/Transportation-Dark.html">1800s Transportation Interactive Map (Dark Version)</a>
+                        <p>A HTML Map with AI integration and population data to show the growth and expansion of the United States and explain population Growth / Decline.</p>
                     </div>
                 </div>
             </div>
@@ -763,7 +1108,7 @@
             <div class="side left" onclick="window.location.href='Photography.html'" style="cursor: pointer;"><img src="https://amateurphotographer.com/wp-content/uploads/sites/7/2022/08/fujifilm-x-pro3.jpg" alt="left" style="width:100%; height:100%; object-fit:cover;"></div>
             <div class="side right" onclick="window.location.href='publications.html'" style="cursor: pointer;"><img src="https://www.cjr.org/wp-content/uploads/2019/01/AdobeStock_46790787-scaled.jpeg" alt="right" style="width:100%; height:100%; object-fit:cover;"></div>
             <div class="side top" onclick="window.location.href='savannah-map.html'" style="cursor: pointer;"><img src="https://images.squarespace-cdn.com/content/v1/5f825f6001f5227645324800/9fa1e251-fd9a-4c91-8da9-bb53a02f9bb6/Savannah%2BGeorgia%2BDrone%2B%2BServices.jpeg?format=2500w" alt="top" style="width:100%; height:100%; object-fit:cover;"></div>
-            <div class="side bottom" onclick="window.location.href='TestingGround.html'" style="cursor: pointer;"><img src="https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/4426338.png" alt="bottom" style="width:100%; height:100%; object-fit:cover;"></div>
+            <div class="side bottom" onclick="window.location.href='TestingGround.html'" style="cursor: pointer;"><img src="assets/images/home.png" alt="bottom" style="width:100%; height:100%; object-fit:cover;"></div>
         </div>
     </footer>
 
@@ -772,145 +1117,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <script>
-        // Base map layers for all maps
-        const osmLayer = {
-            standard: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }),
-            humanitarian: L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team'
-            }),
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-            }),
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap contributors © CARTO',
-                subdomains: 'abcd',
-                maxZoom: 20
-            })
-        };
-
-        // Create separate layers for each map to avoid sharing issues
-        const createBaseMaps = () => ({
-            'Standard': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }),
-            'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-            }),
-            'Dark Mode': L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap contributors © CARTO',
-                subdomains: 'abcd',
-                maxZoom: 20
-            })
-        });
-
-        // Charlotte Map (map1)
-        const charlotteBaseMaps = createBaseMaps();
-        const map1 = L.map('map1', {
-            center: [35.2271, -80.8431],
-            zoom: 10,
-            layers: [charlotteBaseMaps['Standard']]
-        });
-
-        const charlotteOverlays = {
-            'Population Density': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png', {
-                opacity: 0.5
-            }),
-            'Development Zones': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
-                opacity: 0.5
-            })
-        };
-
-        L.control.layers(charlotteBaseMaps, charlotteOverlays, {collapsed: false}).addTo(map1);
-
-        // Los Angeles Map (map2)
-        const laBaseMaps = createBaseMaps();
-        const map2 = L.map('map2', {
-            center: [34.0522, -118.2437],
-            zoom: 10,
-            layers: [laBaseMaps['Standard']]
-        });
-
-        const laOverlays = {
-            'Traffic Patterns': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-hybrid/{z}/{x}/{y}.png', {
-                opacity: 0.5
-            }),
-            'Transit Routes': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
-                opacity: 0.5
-            })
-        };
-
-        L.control.layers(laBaseMaps, laOverlays, {collapsed: false}).addTo(map2);
-
-        // New York Map (map3)
-        const nyBaseMaps = createBaseMaps();
-        const map3 = L.map('map3', {
-            center: [40.7128, -74.0060],
-            zoom: 10,
-            layers: [nyBaseMaps['Dark Mode']]
-        });
-
-        const nyOverlays = {
-            'Zoning Areas': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner-lines/{z}/{x}/{y}.png', {
-                opacity: 0.5
-            }),
-            'Historic Districts': L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
-                opacity: 0.5
-            })
-        };
-
-        L.control.layers(nyBaseMaps, nyOverlays, {collapsed: false}).addTo(map3);
-
-        // Initialize Chart.js Graphs
-        const graph1 = new Chart(document.getElementById('graph1'), {
-            type: 'line',
-            data: {
-                labels: ['2010', '2015', '2020', '2023'],
-                datasets: [{
-                    label: 'Urban Growth (%)',
-                    data: [10, 12, 14, 15],
-                    borderColor: 'rgba(42, 92, 130, 1)',
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
-        const graph2 = new Chart(document.getElementById('graph2'), {
-            type: 'bar',
-            data: {
-                labels: ['2010', '2015', '2020', '2023'],
-                datasets: [{
-                    label: 'Population Density',
-                    data: [2000, 2200, 2400, 2500],
-                    backgroundColor: 'rgba(92, 131, 116, 0.8)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
-        const graph3 = new Chart(document.getElementById('graph3'), {
-            type: 'pie',
-            data: {
-                labels: ['Public Transport', 'Private Vehicles', 'Walking'],
-                datasets: [{
-                    data: [40, 50, 10],
-                    backgroundColor: ['#2A5C82', '#5C8374', '#D4A373']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-
         // Tabbed Interface Logic
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');

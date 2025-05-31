@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Journal App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Weather Journal</h1>
+            <div class="api-section">
+                <div class="api-key-input">
+                    <label for="api-key">Point Forecast API Key:</label>
+                    <input type="text" id="api-key" placeholder="Enter Windy API Key" value="91KqDsPvoyJwbks9Hli97KlS3PevGgLw">
+                </div>
+                <div class="api-key-input">
+                    <label for="map-api-key">Map Forecast API Key:</label>
+                    <input type="text" id="map-api-key" placeholder="Enter Windy Map API Key" value="pjKBJnhex4H4UXm4bfM8cQO3jXWwJU4I">
+                </div>
+                <button id="save-key">Save Keys</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="weather-section">
+                <div class="location-controls">
+                    <input type="text" id="location-input" placeholder="Enter location or use map">
+                    <button id="get-weather">Get Weather</button>
+                    <button id="use-location">Use My Location</button>
+                </div>
+                
+                <div id="weather-display">
+                    <div class="current-weather">
+                        <h2>Current Weather</h2>
+                        <div id="weather-data"></div>
+                    </div>
+                    
+                    <div class="weather-journal">
+                        <h2>Weather Journal</h2>
+                        <textarea id="journal-entry" placeholder="Write your notes about today's weather..."></textarea>
+                        <button id="save-entry">Save Entry</button>
+                        <div id="saved-entries"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="map-section">
+                <div id="map"></div>
+                <div id="coordinates">Lat: 0, Lng: 0</div>
+                <div id="windy-map" style="height: 300px; margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
