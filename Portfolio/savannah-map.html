@@ -773,22 +773,22 @@
                     </p>
                     <div class="insight-card">
                         <div class="insight-card-header" onclick="toggleInsightCard(this)">
-                            <h4>Top 3 Crash Locations (In Charlotte)</h4>
+                            <h4>Methodology</h4>
                             <i class="fas fa-chevron-down insight-card-toggle"></i>
                         </div>
                         <div class="insight-card-content">
                             <ol>
-                                <li><strong>Tryon St & Trade St:</strong> 28 crashes (17% severe) – Mitigation: Protected bike lanes installed 2021 reduced crashes by 22%</li>
-                                <li><strong>South Blvd & Remount Rd:</strong> 24 crashes (12% severe) – Mitigation: Added traffic calming measures in 2022</li>
-                                <li><strong>Central Ave & Louise Ave:</strong> 21 crashes (9% severe) – Mitigation: Proposed bike signal in 2024 budget</li>
+                                <li><strong>ArcGIS Mapping:</strong> This included basic data manipulation to find crashes per mile as well as spatial analysis to see crash hotspots within the State.</li>
+                                <li><strong>Multinomial Logistic Regression:</strong> This used R and helped showcase the changes in types of accident between different types of infrastructure.</li>
+                                <li><strong>Binomial Logistic Regression:</strong> Was created within R and helped showcase what variables increase the probability of the severity of a crash if one did occur.</li>
                             </ol>
                             <p><em>Data source: NCDOT Crash Database 2007-2023</em></p>
                         </div>
                     </div>
                     <div class="findings-grid">
                         <div class="finding-card">
-                            <h4>Sidewalks Safest</h4>
-                            <p>Crashes on sidewalks/crosswalks had the lowest probability of high-severity outcomes (2.5%) compared to travel lanes (7.6%).</p>
+                            <h4>Biking Facilities Differences</h4>
+                            <p>Sidewalks and crosswalks were the most effective at reducing risk, cutting the chances of a severe injury by about 69% compared to travel lanes (OR = 0.31, 95% CI [0.24, 0.40], p < 0.001). Bike lanes and paved shoulders also reduced risk, though to a lesser extent, with a 26% decrease in severe crash odds (OR = 0.74, 95% CI [0.58, 0.94], p = 0.016).</p>
                         </div>
                         <div class="finding-card">
                             <h4>Rural Hotspots</h4>
@@ -805,26 +805,20 @@
                     </div>
                     <h3>Key Insights</h3>
                     <ul class="key-insights">
-                        <li>Dedicated bicycle infrastructure generally enhances safety, but effectiveness varies by context.</li>
-                        <li>Sidewalks and crosswalks offer the most protection; bike lanes and paved shoulders provide moderate protection.</li>
+                        <li>All bicycle infrastructure enhances safety in comparison to travel roads, but effectiveness varies by context.</li>
+                        <li>Sidewalks and crosswalks offer the most protection against severe crashes; bike lanes and paved shoulders provide moderate protection. This is likely due to the lack of vehicles on sidewalks, limiting their severity.</li>
                         <li>Multi-use paths showed the highest crash rate per mile (1.84), possibly due to data limitations.</li>
                     </ul>
                     <div class="scenario-switcher">
-                        <h4>Infrastructure Impact Scenarios</h4>
-                        <div class="scenario-options">
-                            <button class="scenario-btn active" onclick="showScenario('current')">Current</button>
-                            <button class="scenario-btn" onclick="showScenario('protected')">Protected Lanes</button>
-                            <button class="scenario-btn" onclick="showScenario('none')">No Infrastructure</button>
-                        </div>
-                        <div class="scenario-content active" id="current-scenario">
-                            <p>Current infrastructure shows a 7.6% severe crash rate in travel lanes and 2.5% on sidewalks.</p>
-                        </div>
-                        <div class="scenario-content" id="protected-scenario">
-                            <p>If protected bike lanes were added to high-crash corridors, models predict a 22% reduction in severe crashes.</p>
-                        </div>
-                        <div class="scenario-content" id="none-scenario">
-                            <p>Without existing bike infrastructure, models estimate severe crashes would increase by 35% in urban areas.</p>
-                        </div>
+<h4>Test Your Knowledge: Bike Infrastructure Safety</h4>
+<div class="quiz-question">
+    <p>According to the North Carolina bicycle crash study, which infrastructure type showed the LOWEST probability of high-severity crashes (2.5%) when adjusted for ideal conditions?</p>
+</div>
+<div class="quiz-options">
+    <button class="quiz-btn" onclick="checkAnswer(this, 'correct')">Sidewalks/Crosswalks</button>
+    <button class="quiz-btn" onclick="checkAnswer(this, 'incorrect')">Bike Lanes/Paved Shoulders</button>
+</div>
+<div class="quiz-feedback" id="feedback"></div>
                     </div>
                     <div class="policy-recommendations">
                         <h3>Policy Recommendations</h3>
@@ -876,29 +870,30 @@
                 <div class="study-text">
                     <h3>Research Overview</h3>
                     <p>
-                        This study analyzed 307 City Hall meetings in Charlotte to understand the messaging strategies of the NIMBY (Not In My Backyard) movement. Contrary to expectations, concerns about property values (25 mentions) were less prominent than issues like traffic (482 mentions), density (187 mentions), and neighborhood character (122 mentions).
+                        This study analyzed 307 City Hall meetings in Charlotte to understand the messaging strategies of the NIMBY (Not In My Backyard) movement. Contrary to expectations, concerns about property values (25 mentions) were less prominent than issues like traffic (885 mentions), density (415 mentions), and neighborhood character (176 mentions).
                     </p>
                     <p>
-                        Key findings show that <span class="tooltip-trigger" data-tippy-content="Not In My Backyard - opposition by residents to proposed developments in their local area">NIMBY</span> opponents primarily framed arguments around <span class="tooltip-trigger" data-tippy-content="The physical and social characteristics that give a neighborhood its distinct identity">neighborhood character</span> (85.2% of mentions tied to preservation) rather than direct economic self-interest.
+                        Key findings show that <span class="tooltip-trigger" data-tippy-content="Not In My Backyard - opposition by residents to proposed developments in their local area">NIMBY</span> opponents primarily framed arguments around <span class="tooltip-trigger" data-tippy-content="The physical and social characteristics that give a neighborhood its distinct identity">neighborhood character</span> (85.2% of mentions tied to preservation against development) rather than direct economic self-interest.
                     </p>
-                    <div class="insight-card">
-                        <div class="insight-card-header" onclick="toggleInsightCard(this)">
-                            <h4>Top 3 Annexation Effects</h4>
-                            <i class="fas fa-chevron-down insight-card-toggle"></i>
-                        </div>
-                        <div class="insight-card-content">
-                            <ol>
-                                <li><strong>Service Expansion:</strong> Annexed areas gained city services (police, fire, water) within 2 years</li>
-                                <li><strong>Tax Impact:</strong> Property taxes increased by average of 18% post-annexation</li>
-                                <li><strong>Development:</strong> Commercial development increased 42% in first 5 years after annexation</li>
-                            </ol>
-                            <p><em>Data source: Charlotte City Records 1855-2023</em></p>
-                        </div>
-                    </div>
+<div class="insight-card">
+    <div class="insight-card-header" onclick="toggleInsightCard(this)">
+        <h4>Limitations and Recommendations</h4>
+        <i class="fas fa-chevron-down insight-card-toggle"></i>
+    </div>
+    <div class="insight-card-content">
+        <ol>
+            <li><strong>Limited Data Scope:</strong> Analysis restricted to 307 Charlotte meetings (2019-2023) with incomplete historical context.</li>
+            <li><strong>Transcription Errors:</strong> Automated YouTube captions frequently misidentified key terms like "property values."</li>
+            <li><strong>Regional Comparison:</strong> Expand research to other high-growth Sunbelt cities like Raleigh and Austin.</li>
+            <li><strong>Neighborhood Mapping:</strong> Geotag opposition patterns to correlate with income and homeownership data.</li>
+        </ol>
+        <p><em>Source: Reichert (2024), LocalView database analysis</em></p>
+    </div>
+</div>
                     <div class="findings-grid">
                         <div class="finding-card">
                             <h4>Dominant Concerns</h4>
-                            <p>"Traffic" was the most frequently used term (482 mentions), followed by "density" (187) and "character" (122).</p>
+                            <p>"Traffic" was the most frequently used term (855 mentions with 45.5% being housing related), followed by "density" (415 and 68.9% housing related) and "character" (176 and 85.2% housing related).</p>
                         </div>
                         <div class="finding-card">
                             <h4>Property Values Less Cited</h4>
@@ -906,38 +901,38 @@
                         </div>
                         <div class="finding-card">
                             <h4>Neighborhood Character</h4>
-                            <p>85.2% of "character" mentions were tied to preserving neighborhood character against development.</p>
+                            <p>Of the 176 mentions of 'character' 85.2% of those mentions were tied to preserving neighborhood character against development.</p>
                         </div>
                         <div class="finding-card">
                             <h4>Concentrated Opposition</h4>
-                            <p>Term usage peaked in 2022 despite fewer meetings, suggesting more intense opposition during that period.</p>
+                            <p>Term usage peaked in 2022 despite fewer meetings, suggesting more intense opposition during that period. Additionally, when terms are used they occur in spikes, meaning that specific developments causes specific responses.</p>
                         </div>
                     </div>
                     <h3>Key Insights</h3>
                     <ul class="key-insights">
                         <li>NIMBY arguments focus on community impacts, not just financial self-interest.</li>
                         <li>"Character" and "density" are most associated with housing debates.</li>
-                        <li>"Property value" is rarely cited directly, suggesting indirect framing of concerns.</li>
+                        <li>Among the analyzed terms, traffic and density stand out with the highest number of spikes as well as the most significant individual spikes. This suggests that these terms, while not used consistently across all discussions, are employed heavily at critical moments when they are strategically leveraged to question or influence development decisions.</li>
                     </ul>
-                    <div class="scenario-switcher">
-                        <h4>Annexation Impact Scenarios</h4>
-                        <div class="scenario-options">
-                            <button class="scenario-btn active" onclick="showAnnexScenario('current')">Current Boundaries</button>
-                            <button class="scenario-btn" onclick="showAnnexScenario('noannex')">Without Annexation</button>
-                        </div>
-                        <div class="scenario-content active" id="current-annex-scenario">
-                            <p>Current city boundaries provide services to 792,862 residents across 308.6 square miles.</p>
-                        </div>
-                        <div class="scenario-content" id="noannex-annex-scenario">
-                            <p>Without annexation, Charlotte would only cover 30 square miles with 300,000 residents, leaving many areas without city services.</p>
-                        </div>
-                    </div>
+<div class="scenario-switcher">
+    <h4>What about the terms 'Noise' and 'Historic'</h4>
+    <div class="scenario-options">
+        <button class="scenario-btn active" onclick="showScenario('noise')">Noise</button>
+        <button class="scenario-btn" onclick="showScenario('historic')">Historic</button>
+    </div>
+    <div class="scenario-content active" id="noise-scenario">
+        <p>Noise complaints primarily came from complaints about public events, neighbors, and additionally about noise within the town council meetings. As City Hall members asked on multiple occasions for speakers to back away from the microphone or to reduce the noise level during meetings. Thus, diluting the phrases' relation to development.</p>
+    </div>
+    <div class="scenario-content" id="historic-scenario">
+        <p>The term "historic" was frequently used by historic committees meeting during public hearings, and was often employed in contexts unrelated to zoning or development (e.g., "historic increase" or "historic relationship"), significantly diluting its association with housing debates.</p>
+    </div>
+</div>
                     <div class="policy-recommendations">
                         <h3>Policy Recommendations</h3>
                         <ul>
                             <li>Address traffic and density concerns directly in development proposals</li>
                             <li>Develop clear standards for preserving neighborhood character</li>
-                            <li>Create mechanisms to validate or mitigate claimed impacts</li>
+                            <li>Create better record keeping on discussions within Town Hall Meetings to improve quality of research.</li>
                             <li>Improve public engagement processes to surface real concerns earlier</li>
                             <li>Consider targeted communication strategies that address community preservation concerns</li>
                         </ul>
@@ -1048,6 +1043,23 @@
             event.target.classList.add('active');
         }
         
+function showScenario(selected) {
+    // Hide all scenario contents
+    document.querySelectorAll('.scenario-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Deactivate all buttons
+    document.querySelectorAll('.scenario-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected content and activate its button
+    document.getElementById(selected + '-scenario').classList.add('active');
+    event.target.classList.add('active');
+}
+
+
         function showAnnexScenario(scenario) {
             // Hide all scenario contents
             document.querySelectorAll('#current-annex-scenario, #noannex-scenario').forEach(el => {
@@ -1257,6 +1269,23 @@
                 fillColor: getColor(feature.properties.accidents_per_year)
             };
         }
+function checkAnswer(button, answerType) {
+    const feedback = document.getElementById('feedback');
+    const buttons = document.querySelectorAll('.quiz-btn');
+    
+    buttons.forEach(btn => {
+        btn.style.backgroundColor = ''; // Reset all buttons
+    });
+    
+    if (answerType === 'correct') {
+        button.style.backgroundColor = '#4CAF50'; // Green
+        feedback.textContent = 'Correct! The study found sidewalks/crosswalks had just 2.5% high-severity crashes vs 7.6% in travel lanes (Page 18).';
+    } else {
+        button.style.backgroundColor = '#f44336'; // Red
+        feedback.textContent = 'Incorrect. While bike lanes reduced severity by 26% vs travel lanes, sidewalks were safest (Page 25).';
+    }
+}
+
 
         // Add bike safety data to map
         if (typeof count !== 'undefined') {
