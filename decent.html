@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Resonance | Interactive Art Installation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            touch-action: none;
+            font-family: 'Avenir Next', sans-serif;
+        }
+        
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        #ui {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255,255,255,0.7);
+            z-index: 100;
+            font-size: 14px;
+            pointer-events: none;
+            text-shadow: 0 0 5px #000;
+        }
+        
+        #title {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: rgba(255,255,255,0.9);
+            z-index: 100;
+            font-size: 24px;
+            font-weight: 300;
+            pointer-events: none;
+            text-shadow: 0 0 10px #000;
+        }
+        
+        .hidden {
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        
+        #mic {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.5);
+            z-index: 100;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        #mic:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        #mic.active {
+            background: rgba(255,50,50,0.5);
+            border-color: rgba(255,100,100,0.8);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="title">QUANTUM RESONANCE <span id="fps">0</span>fps</div>
+    <div id="ui">
+        <div>Click/touch to create energy nodes</div>
+        <div>Move cursor to influence the field</div>
+        <div>Press space to reset the simulation</div>
+    </div>
+    <div id="mic" title="Enable microphone input"></div>
+
+    <script>
+        // Configuration
+        const config = {
+            particleCount: 1500,
+            nodeCount: 5,
+            maxNodes: 12,
+            audioSensitivity: 0.5,
+            colorPalette: [
+                [255, 100, 100],
+                [100, 255, 100],
+                [100, 100, 255],
+                [255, 255, 100],
+                [255, 100, 255],
+                [100, 255, 255]
+            ]
+        };
+
+        // State
+        let canvas, ctx;
+        let particles = [];
+        let nodes = [];
+        let audioContext, analyser, microphone;
+        let audioData = new Uint8Array(256);
+        let isMicActive = false;
+        let lastTime = 0;
+        let fps = 0;
+        let mouse = { x: 0, y: 0, down: false };
+        let screen = { width: 0, height: 0, center: { x: 0, y: 0 } };
+
+        // Initialize
+        function init() {
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            
+            setupCanvas();
+            createInitialNodes();
+            createParticles();
+            setupEventListeners();
+            
+            // Hide UI after 10 seconds
+            setTimeout(() => {
+                document.getElementById('ui').classList.add('hidden');
+            }, 10000);
+            
+            // Start animation loop
+            requestAnimationFrame(animate);
+        }
+
+        // Setup canvas
+        function setupCanvas() {
+            screen.width = window.innerWidth;
+            screen.height = window.innerHeight;
+            screen.center.x = screen.width / 2;
+            screen.center.y = screen.height / 2;
+            
+            canvas.width = screen.width;
+            canvas.height = screen.height;
+        }
+
+        // Create initial nodes
+        function createInitialNodes() {
+            for (let i = 0; i < config.nodeCount; i++) {
+                addNode(
+                    Math.random() * screen.width,
+                    Math.random() * screen.height,
+                    config.colorPalette[i % config.colorPalette.length]
+                );
+            }
+        }
+
+        // Add a new node
+        function addNode(x, y, color) {
+            if (nodes.length >= config.maxNodes) return;
+            
+            const node = {
+                x: x,
+                y: y,
+                radius: 20 + Math.random() * 30,
+                color: color || config.colorPalette[Math.floor(Math.random() * config.colorPalette.length)],
+                angle: Math.random() * Math.PI * 2,
+                speed: 0.2 + Math.random() * 0.5,
+                orbitRadius: 50 + Math.random() * 200,
+                baseX: x,
+                baseY: y,
+                connections: []
+            };
+            
+            nodes.push(node);
+            return node;
+        }
+
+        // Create particles
+        function createParticles() {
+            particles = [];
+            
+            for (let i = 0; i < config.particleCount; i++) {
+                particles.push({
+                    x: Math.random() * screen.width,
+                    y: Math.random() * screen.height,
+                    vx: Math.random() * 2 - 1,
+                    vy: Math.random() * 2 - 1,
+                    size: 0.5 + Math.random() * 2,
+                    color: `rgba(255, 255, 255, ${0.1 + Math.random() * 0.3})`,
+                    connections: []
+                });
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            window.addEventListener('resize', onResize);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('touchmove', onTouchMove, { passive: false });
+            window.addEventListener('touchstart', onTouchStart, { passive: false });
+            window.addEventListener('touchend', onTouchEnd);
+            window.addEventListener('keydown', onKeyDown);
+            
+            document.getElementById('mic').addEventListener('click', toggleMic);
+        }
+
+        // Animation loop
+        function animate(time) {
+            // Calculate FPS
+            if (lastTime) {
+                fps = Math.round(1000 / (time - lastTime));
+                document.getElementById('fps').textContent = fps;
+            }
+            lastTime = time;
+            
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, screen.width, screen.height);
+            
+            // Update and draw nodes
+            updateNodes();
+            
+            // Update and draw particles
+            updateParticles();
+            
+            // Draw connections
+            drawConnections();
+            
+            // Continue animation loop
+            requestAnimationFrame(animate);
+        }
+
+        // Update nodes
+        function updateNodes() {
+            // Get audio data if mic is active
+            if (isMicActive && analyser) {
+                analyser.getByteFrequencyData(audioData);
+            }
+            
+            nodes.forEach((node, i) => {
+                // Orbit nodes around their base position
+                node.angle += node.speed * 0.01;
+                node.x = node.baseX + Math.cos(node.angle) * node.orbitRadius;
+                node.y = node.baseY + Math.sin(node.angle) * node.orbitRadius;
+                
+                // Audio reactivity
+                if (isMicActive) {
+                    const audioValue = audioData[i % audioData.length] / 255;
+                    node.radius = 20 + audioValue * 100 * config.audioSensitivity;
+                }
+                
+                // Draw node
+                const gradient = ctx.createRadialGradient(
+                    node.x, node.y, 0,
+                    node.x, node.y, node.radius
+                );
+                gradient.addColorStop(0, `rgba(${node.color.join(',')}, 0.8)`);
+                gradient.addColorStop(1, `rgba(${node.color.join(',')}, 0)`);
+                
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Draw node center
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgb(${node.color.join(',')})`;
+                ctx.fill();
+            });
+        }
+
+        // Update particles
+        function updateParticles() {
+            particles.forEach(particle => {
+                // Reset connections
+                particle.connections = [];
+                
+                // Apply node forces
+                nodes.forEach(node => {
+                    const dx = node.x - particle.x;
+                    const dy = node.y - particle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < node.radius * 3) {
+                        const force = (node.radius * 3 - distance) / (node.radius * 3);
+                        const angle = Math.atan2(dy, dx);
+                        
+                        particle.vx += Math.cos(angle) * force * 0.1;
+                        particle.vy += Math.sin(angle) * force * 0.1;
+                        
+                        // Store connection if close enough
+                        if (distance < node.radius * 1.5) {
+                            particle.connections.push({
+                                x: node.x,
+                                y: node.y,
+                                color: node.color,
+                                strength: 1 - distance / (node.radius * 1.5)
+                            });
+                        }
+                    }
+                });
+                
+                // Apply mouse force if mouse is down
+                if (mouse.down) {
+                    const dx = mouse.x - particle.x;
+                    const dy = mouse.y - particle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 200) {
+                        const force = (200 - distance) / 200;
+                        const angle = Math.atan2(dy, dx);
+                        
+                        particle.vx += Math.cos(angle) * force * 0.5;
+                        particle.vy += Math.sin(angle) * force * 0.5;
+                    }
+                }
+                
+                // Apply random noise
+                particle.vx += (Math.random() - 0.5) * 0.1;
+                particle.vy += (Math.random() - 0.5) * 0.1;
+                
+                // Apply friction
+                particle.vx *= 0.98;
+                particle.vy *= 0.98;
+                
+                // Update position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                
+                // Wrap around edges
+                if (particle.x < 0) particle.x = screen.width;
+                if (particle.x > screen.width) particle.x = 0;
+                if (particle.y < 0) particle.y = screen.height;
+                if (particle.y > screen.height) particle.y = 0;
+                
+                // Draw particle
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color;
+                ctx.fill();
+            });
+        }
+
+        // Draw connections
+        function drawConnections() {
+            particles.forEach(particle => {
+                particle.connections.forEach(connection => {
+                    ctx.beginPath();
+                    ctx.moveTo(particle.x, particle.y);
+                    ctx.lineTo(connection.x, connection.y);
+                    ctx.strokeStyle = `rgba(${connection.color.join(',')}, ${0.1 + connection.strength * 0.3})`;
+                    ctx.lineWidth = 0.5 * connection.strength;
+                    ctx.stroke();
+                });
+            });
+        }
+
+        // Toggle microphone
+        function toggleMic() {
+            if (isMicActive) {
+                stopMic();
+            } else {
+                startMic();
+            }
+        }
+
+        // Start microphone
+        async function startMic() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                
+                isMicActive = true;
+                document.getElementById('mic').classList.add('active');
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                alert('Could not access microphone. Please ensure you have granted permission.');
+            }
+        }
+
+        // Stop microphone
+        function stopMic() {
+            if (microphone && audioContext) {
+                microphone.disconnect();
+                audioContext.close();
+            }
+            
+            isMicActive = false;
+            document.getElementById('mic').classList.remove('active');
+        }
+
+        // Event handlers
+        function onResize() {
+            setupCanvas();
+        }
+
+        function onMouseMove(e) {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        }
+
+        function onMouseDown() {
+            mouse.down = true;
+            document.getElementById('ui').classList.remove('hidden');
+        }
+
+        function onMouseUp() {
+            mouse.down = false;
+        }
+
+        function onTouchMove(e) {
+            e.preventDefault();
+            mouse.x = e.touches[0].clientX;
+            mouse.y = e.touches[0].clientY;
+        }
+
+        function onTouchStart(e) {
+            e.preventDefault();
+            mouse.down = true;
+            mouse.x = e.touches[0].clientX;
+            mouse.y = e.touches[0].clientY;
+            document.getElementById('ui').classList.remove('hidden');
+            
+            // Add new node on long press
+            setTimeout(() => {
+                if (mouse.down) {
+                    addNode(mouse.x, mouse.y);
+                }
+            }, 500);
+        }
+
+        function onTouchEnd() {
+            mouse.down = false;
+        }
+
+        function onKeyDown(e) {
+            if (e.code === 'Space') {
+                // Reset simulation
+                nodes = [];
+                createInitialNodes();
+                createParticles();
+            }
+        }
+
+        // Start the installation
+        init();
+    </script>
+</body>
+</html>
