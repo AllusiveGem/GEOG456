@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrabba's Italian Grill - CarSide Management</title>
+    <style>
+        :root {
+            --primary: #8B0000;
+            --primary-light: #a52a2a;
+            --secondary: #D4AF37;
+            --light: #F5F5F5;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+        
+        .panel h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .slot {
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        
+        .slot.available {
+            border-color: var(--success);
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+        
+        .slot.occupied {
+            border-color: var(--primary);
+            background-color: rgba(139, 0, 0, 0.05);
+        }
+        
+        .slot-number {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .order-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 5px 0;
+        }
+        
+        .order-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        
+        .order-timer {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancel {
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #c82333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            width: 100%;
+            font-size: 1.1rem;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .btn-primary:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .empty-slot {
+            color: var(--gray);
+            font-style: italic;
+            margin: 10px 0;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .last-update {
+            color: var(--gray);
+        }
+        
+        .sync-status {
+            display: flex;
+            align-items: center;
+        }
+        
+        .sync-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .sync-live {
+            background-color: var(--success);
+        }
+        
+        .sync-polling {
+            background-color: var(--warning);
+        }
+        
+        .sync-offline {
+            background-color: var(--danger);
+        }
+        
+        .instructions {
+            background-color: #e9f7fe;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary);
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Carrabba's Italian Grill</h1>
+            <p class="subtitle">CarSide Order Management System</p>
+        </header>
+        
+        <div class="status-bar">
+            <div class="last-update">Last updated: <span id="last-update-time">Just now</span></div>
+            <div class="sync-status">
+                <div class="sync-indicator sync-live" id="sync-indicator"></div>
+                <span id="sync-status-text">Live Sync Active</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p><strong>Instructions:</strong> Kitchen Staff - Click any slot to mark order as ready. Hosts/DoorDash - Use the form to add new orders.</p>
+        </div>
+        
+        <div class="dashboard">
+            <div class="panel">
+                <h2>CarSide Parking Slots</h2>
+                <div class="slots-grid" id="slots-grid">
+                    <!-- Slots will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>Order Input</h2>
+                <form id="order-form">
+                    <div class="form-group">
+                        <label for="order-name">Order Name / Driver</label>
+                        <input type="text" id="order-name" placeholder="e.g., Smith, DoorDash #1234" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="slot-assignment">Assign to Slot</label>
+                        <select id="slot-assignment">
+                            <option value="auto">Auto-assign to first available</option>
+                            <option value="1">Slot 1</option>
+                            <option value="2">Slot 2</option>
+                            <option value="3">Slot 3</option>
+                            <option value="4">Slot 4</option>
+                            <option value="5">Slot 5</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="add-order-btn">Add Order to Slot</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        New order has arrived!
+    </div>
+
+    <!-- Firebase SDKs - Using compat versions for simpler direct script inclusion -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-remote-config-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+
+
+    <script>
+        // YOUR FIREBASE CONFIGURATION - This is directly from your project settings!
+        const firebaseConfig = {
+            apiKey: "AIzaSyAp86cLEEJJisLj8xGeDBN8wgv-2wHYgy4",
+            authDomain: "carrabba-s.firebaseapp.com",
+            databaseURL: "https://carrabba-s-default-rtdb.firebaseio.com",
+            projectId: "carrabba-s",
+            storageBucket: "carrabba-s.firebasestorage.app",
+            messagingSenderId: "67699214469",
+            appId: "1:67699214469:web:03924fe4c1e29f610f01ec",
+            measurementId: "G-M2YHSVMSNY"
+        };
+        
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = app.database();
+        const remoteConfig = app.remoteConfig();
+        const analytics = app.analytics(); // Initialized if analytics compat script is included
+        
+        // Configure Remote Config
+        remoteConfig.settings.minimumFetchIntervalMillis = 3600000; // Fetch every hour in production
+        remoteConfig.defaultConfig = {
+            showAlertOnNewOrder: true // Default value for the alert toggle
+        };
+        remoteConfig.fetchAndActivate()
+            .then(activated => {
+                if (activated) {
+                    console.log('Remote Config activated');
+                } else {
+                    console.log('Remote Config values already fetched and activated');
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching and activating Remote Config:', err);
+            });
+
+        // Application state
+        let orders = {};
+        let lastOrderCount = 0;
+        let isConnected = false; // Tracks Firebase connection status
+        let syncMode = 'live'; // 'live' or 'polling'
+        let pollingInterval = null; // To store polling interval ID
+        
+        // DOM elements
+        const slotsGrid = document.getElementById('slots-grid');
+        const orderForm = document.getElementById('order-form');
+        const orderNameInput = document.getElementById('order-name');
+        const slotAssignmentSelect = document.getElementById('slot-assignment');
+        const notification = document.getElementById('notification');
+        const lastUpdateTime = document.getElementById('last-update-time');
+        const syncIndicator = document.getElementById('sync-indicator');
+        const syncStatusText = document.getElementById('sync-status-text');
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSlots();
+            setupEventListeners();
+            setupFirebaseListeners(); // Initialize data from Firebase
+            startTimerUpdates();
+            setupConnectionMonitoring(); // Monitor Firebase connection
+        });
+        
+        // Create the five slot elements
+        function initializeSlots() {
+            slotsGrid.innerHTML = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const slotElement = document.createElement('div');
+                slotElement.className = 'slot available';
+                slotElement.id = `slot-${i}`;
+                slotElement.innerHTML = `
+                    <div class="slot-number">Slot ${i}</div>
+                    <div class="order-info">
+                        <div class="empty-slot">Available</div>
+                    </div>
+                    <button class="btn btn-cancel" data-slot="${i}" style="display: none;">Cancel Order</button>
+                `;
+                slotsGrid.appendChild(slotElement);
+            }
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            orderForm.addEventListener('submit', handleOrderSubmit);
+            
+            // Add click listeners for slot clicks (for kitchen staff)
+            slotsGrid.addEventListener('click', function(e) {
+                const target = e.target;
+                let slotId = null;
+
+                if (target.closest('.slot') && !target.classList.contains('btn-cancel')) {
+                    slotId = target.closest('.slot').id.replace('slot-', '');
+                    if (orders[slotId]) { // Only toggle if slot is occupied
+                        toggleOrderReady(slotId);
+                    }
+                } else if (target.classList.contains('btn-cancel')) {
+                    slotId = target.getAttribute('data-slot');
+                    cancelOrder(slotId);
+                }
+            });
+        }
+
+        // Monitor Firebase connection status for UI feedback and polling fallback
+        function setupConnectionMonitoring() {
+            database.ref('.info/connected').on('value', (snapshot) => {
+                isConnected = snapshot.val();
+                updateSyncStatusUI();
+
+                if (isConnected) {
+                    console.log("Firebase connected. Live sync active.");
+                    // Stop polling if we reconnect
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                        pollingInterval = null;
+                    }
+                    syncMode = 'live';
+                    // Re-establish real-time listener if it was dropped
+                    // Note: Firebase RTDB listeners automatically re-establish on reconnect.
+                    // This explicit call is mostly for logging/status updates.
+                    // setupFirebaseListeners(); 
+                } else {
+                    console.warn("Firebase disconnected. Switching to polling mode.");
+                    syncMode = 'polling';
+                    // Start polling if not already
+                    if (!pollingInterval) {
+                        pollingInterval = setInterval(pollForData, 30000); // Poll every 30 seconds
+                    }
+                }
+            });
+        }
+
+        function updateSyncStatusUI() {
+            if (isConnected) {
+                syncIndicator.className = 'sync-indicator sync-live';
+                syncStatusText.textContent = 'Live Sync Active';
+            } else if (syncMode === 'polling') {
+                syncIndicator.className = 'sync-indicator sync-polling';
+                syncStatusText.textContent = 'Polling Mode (30s)';
+            } else { // Truly offline
+                syncIndicator.className = 'sync-indicator sync-offline';
+                syncStatusText.textContent = 'Offline';
+            }
+        }
+
+        function pollForData() {
+            if (syncMode === 'polling' && !isConnected) {
+                console.log("Polling Firebase for data...");
+                database.ref('orders').once('value').then((snapshot) => {
+                    orders = snapshot.val() || {};
+                    lastOrderCount = Object.keys(orders).length;
+                    updateDisplay();
+                    lastUpdateTime.textContent = new Date().toLocaleTimeString();
+                }).catch(error => {
+                    console.error("Polling error:", error);
+                });
+            }
+        }
+        
+        // Handle form submission for new orders
+        function handleOrderSubmit(e) {
+            e.preventDefault();
+            
+            const orderName = orderNameInput.value.trim();
+            const assignmentType = slotAssignmentSelect.value;
+            
+            if (!orderName) {
+                alert('Please enter an order name');
+                return;
+            }
+            
+            let targetSlot = null;
+            
+            if (assignmentType === 'auto') {
+                // Find first available slot
+                for (let i = 1; i <= 5; i++) {
+                    if (!orders[i]) {
+                        targetSlot = i;
+                        break;
+                    }
+                }
+                
+                if (!targetSlot) {
+                    alert('All slots are currently occupied. Please select a specific slot to replace.');
+                    return;
+                }
+            } else {
+                const selectedSlot = parseInt(assignmentType);
+                if (orders[selectedSlot]) {
+                    if (!confirm(`Slot ${selectedSlot} is occupied by "${orders[selectedSlot].name}". Do you want to replace it?`)) {
+                        return;
+                    }
+                }
+                targetSlot = selectedSlot;
+            }
+            
+            // Add the order
+            addOrder(targetSlot, orderName);
+            
+            // Reset form
+            orderForm.reset();
+        }
+        
+        // Add an order to a slot
+        function addOrder(slotId, orderName) {
+            const timestamp = new Date().toISOString();
+            
+            const newOrderData = {
+                name: orderName,
+                timestamp: timestamp,
+                ready: false // Orders start as not ready
+            };
+            
+            database.ref('orders/' + slotId).set(newOrderData)
+                .then(() => {
+                    console.log(`Order ${orderName} added to Slot ${slotId}`);
+                    const shouldShowAlert = remoteConfig.getValue('showAlertOnNewOrder').asBoolean();
+                    if (shouldShowAlert) {
+                        showNotification(`New order: ${orderName} in Slot ${slotId}`);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error adding order:", error);
+                    alert("Failed to add order. Please check your connection.");
+                });
+        }
+        
+        // Toggle order ready status (when kitchen staff clicks a slot)
+        function toggleOrderReady(slotId) {
+            if (orders[slotId]) {
+                const newReadyStatus = !orders[slotId].ready;
+                database.ref('orders/' + slotId).update({ready: newReadyStatus})
+                    .then(() => {
+                        console.log(`Order in Slot ${slotId} marked as ${newReadyStatus ? 'READY' : 'PREPARING'}`);
+                        showNotification(`Order ${orders[slotId].name} marked as ${newReadyStatus ? 'READY' : 'PREPARING'}`);
+                    })
+                    .catch(error => {
+                        console.error("Error updating order status:", error);
+                        alert("Failed to update order status. Please check your connection.");
+                    });
+            }
+        }
+        
+        // Cancel an order
+        function cancelOrder(slotId) {
+            if (confirm(`Are you sure you want to cancel the order in Slot ${slotId} (${orders[slotId]?.name || 'N/A'})?`)) {
+                database.ref('orders/' + slotId).remove()
+                    .then(() => {
+                        console.log(`Order in Slot ${slotId} cancelled.`);
+                    })
+                    .catch(error => {
+                        console.error("Error cancelling order:", error);
+                        alert("Failed to cancel order. Please check your connection.");
+                    });
+            }
+        }
+        
+        // Update the display of all slots
+        function updateDisplay() {
+            for (let i = 1; i <= 5; i++) {
+                const slotElement = document.getElementById(`slot-${i}`);
+                const orderInfo = slotElement.querySelector('.order-info');
+                const cancelButton = slotElement.querySelector('.btn-cancel');
+                
+                if (orders[i]) {
+                    // Slot is occupied
+                    slotElement.classList.remove('available');
+                    slotElement.classList.add('occupied');
+                    
+                    const order = orders[i];
+                    orderInfo.innerHTML = `
+                        <div class="order-name">${order.name}</div>
+                        <div class="order-timer" id="timer-${i}">${calculateElapsedTime(order.timestamp)}</div>
+                        <div class="order-status">${order.ready ? '✅ READY' : '⏳ PREPARING'}</div>
+                    `;
+                    
+                    cancelButton.style.display = 'block';
+                } else {
+                    // Slot is available
+                    slotElement.classList.remove('occupied');
+                    slotElement.classList.add('available');
+                    
+                    orderInfo.innerHTML = '<div class="empty-slot">Available</div>';
+                    cancelButton.style.display = 'none';
+                }
+            }
+            
+            // Update last update time only if not polling or explicitly set by poll
+            if (syncMode === 'live') {
+                lastUpdateTime.textContent = new Date().toLocaleTimeString();
+            }
+        }
+        
+        // Calculate elapsed time since order was placed
+        function calculateElapsedTime(timestamp) {
+            if (!timestamp) return '00:00'; // Handle cases where timestamp might be missing
+            const now = new Date();
+            const orderTime = new Date(timestamp);
+            const diffMs = now - orderTime;
+
+            if (diffMs < 0) return '00:00'; // Handle future timestamps if any
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update timers every second
+        function startTimerUpdates() {
+            setInterval(() => {
+                for (let i = 1; i <= 5; i++) {
+                    if (orders[i] && orders[i].timestamp) { // Ensure timestamp exists
+                        const timerElement = document.getElementById(`timer-${i}`);
+                        if (timerElement) {
+                            timerElement.textContent = calculateElapsedTime(orders[i].timestamp);
+                        }
+                    }
+                }
+            }, 1000);
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Setup Firebase Real-time listener
+        function setupFirebaseListeners() {
+            const ordersRef = database.ref('orders');
+            // Detach any existing listener to prevent duplicates on reconnect
+            ordersRef.off('value'); 
+
+            ordersRef.on('value', (snapshot) => {
+                const newOrders = snapshot.val() || {};
+                const currentOrderKeys = Object.keys(orders);
+                const newOrderKeys = Object.keys(newOrders);
+
+                // Check for new orders for notification (if Remote Config allows)
+                const shouldShowAlert = remoteConfig.getValue('showAlertOnNewOrder').asBoolean();
+                if (shouldShowAlert && currentOrderKeys.length < newOrderKeys.length) {
+                    const addedKeys = newOrderKeys.filter(key => !currentOrderKeys.includes(key));
+                    addedKeys.forEach(key => {
+                        if (newOrders[key]) {
+                            showNotification(`New order: ${newOrders[key].name} in Slot ${key}`);
+                        }
+                    });
+                }
+                
+                orders = newOrders;
+                lastOrderCount = newOrderKeys.length; // Keep track for future notifications
+                updateDisplay();
+                updateSyncStatusUI(); // Ensure UI reflects live sync
+                lastUpdateTime.textContent = new Date().toLocaleTimeString();
+
+            }, (error) => {
+                console.error('Firebase Realtime Database error:', error);
+                // If real-time listener encounters an error, we might temporarily switch to polling
+                // This is already handled by the .info/connected listener, but good to log here.
+                updateSyncStatusUI(); // Show potential error state or polling mode
+            });
+        }
+    </script>
+</body>
+</html>
