@@ -6,11 +6,13 @@
     <title>Carrabba's Italian Grill - CarSide Management</title>
     <style>
         :root {
-            --primary: #8B0000;
-            --primary-light: #a52a2a;
-            --secondary: #D4AF37;
-            --light: #F5F5F5;
-            --dark: #333;
+            --primary: #9D2235; /* Carrabba's red */
+            --primary-light: #B34354;
+            --secondary: #D4AF37; /* Gold */
+            --secondary-light: #E8C766;
+            --accent: #2C5530; /* Olive green */
+            --light: #F8F5F0; /* Off-white */
+            --dark: #333333;
             --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
@@ -26,9 +28,10 @@
         }
         
         body {
-            background-color: #f8f9fa;
+            background-color: var(--light);
             color: var(--dark);
             line-height: 1.6;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNGRkYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djJoLTR2LTJoLTR2NGg0djJoNHYtMmg0di00aC00em0wLTR2LTRoLTR2NGg0eiIvPjwvZz48L2c+PC9zdmc+');
         }
         
         .container {
@@ -40,19 +43,36 @@
         header {
             text-align: center;
             margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--secondary);
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary);
         }
         
         h1 {
-            color: var(--primary);
-            font-size: 2.2rem;
+            color: white;
+            font-size: 2.5rem;
             margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
         }
         
         .subtitle {
-            color: var(--gray);
+            color: var(--secondary-light);
             font-size: 1.2rem;
+            font-weight: 500;
         }
         
         .dashboard {
@@ -73,6 +93,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 25px;
+            border-top: 4px solid var(--secondary);
         }
         
         .panel h2 {
@@ -80,6 +101,18 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+        }
+        
+        .panel h2::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background: var(--secondary);
+            margin-right: 10px;
+            border-radius: 2px;
         }
         
         .slots-grid {
@@ -90,7 +123,7 @@
         }
         
         .slot {
-            border: 2px solid var(--gray);
+            border: 2px solid var(--gray-light);
             border-radius: 8px;
             padding: 15px;
             text-align: center;
@@ -100,6 +133,18 @@
             flex-direction: column;
             justify-content: space-between;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slot::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gray-light);
         }
         
         .slot.available {
@@ -107,9 +152,33 @@
             background-color: rgba(40, 167, 69, 0.05);
         }
         
+        .slot.available::after {
+            background: var(--success);
+        }
+        
         .slot.occupied {
             border-color: var(--primary);
-            background-color: rgba(139, 0, 0, 0.05);
+            background-color: rgba(157, 34, 53, 0.05);
+        }
+        
+        .slot.occupied::after {
+            background: var(--primary);
+        }
+        
+        .slot.ready {
+            border-color: var(--secondary);
+            background-color: rgba(212, 175, 55, 0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        .slot.ready::after {
+            background: var(--secondary);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
         }
         
         .slot-number {
@@ -175,23 +244,42 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(157, 34, 53, 0.2);
         }
         
         .btn-primary {
-            background-color: var(--primary);
+            background: linear-gradient(to bottom, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
             padding: 12px 20px;
             width: 100%;
             font-size: 1.1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
         
         .btn-primary:hover {
-            background-color: var(--primary-light);
+            background: linear-gradient(to bottom, var(--primary-light) 0%, var(--primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
         }
         
         .btn-primary:disabled {
-            background-color: var(--gray);
+            background: var(--gray);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
         .empty-slot {
@@ -209,6 +297,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             font-size: 0.9rem;
+            border-left: 4px solid var(--secondary);
         }
         
         .last-update {
@@ -240,8 +329,8 @@
         }
         
         .instructions {
-            background-color: #e9f7fe;
-            border-left: 4px solid #17a2b8;
+            background-color: rgba(212, 175, 55, 0.1);
+            border-left: 4px solid var(--secondary);
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 0 4px 4px 0;
@@ -259,19 +348,88 @@
             transform: translateX(150%);
             transition: transform 0.3s ease;
             z-index: 1000;
+            border-left: 4px solid var(--secondary);
         }
         
         .notification.show {
             transform: translateX(0);
+        }
+        
+        .logo {
+            max-width: 200px;
+            margin: 0 auto 15px;
+            display: block;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 3px solid var(--primary);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .order-status {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .status-ready {
+            color: var(--secondary);
+        }
+        
+        .status-preparing {
+            color: var(--primary);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Carrabba's Italian Grill</h1>
-            <p class="subtitle">CarSide Order Management System</p>
+            <!-- Carrabba's Logo Placeholder -->
+            <div class="logo">
+                <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <text x="20" y="40" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white">Carrabba's</text>
+                    <text x="20" y="55" font-family="Arial, sans-serif" font-size="14" fill="var(--secondary-light)">ITALIAN GRILL</text>
+                </svg>
+            </div>
+            <h1>CarSide Order Management</h1>
+            <p class="subtitle">Efficient order tracking for our parking slots and delivery drivers</p>
         </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="available-slots">5</div>
+                <div class="stat-label">Available Slots</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-orders">0</div>
+                <div class="stat-label">Active Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="ready-orders">0</div>
+                <div class="stat-label">Ready for Pickup</div>
+            </div>
+        </div>
         
         <div class="status-bar">
             <div class="last-update">Last updated: <span id="last-update-time">Just now</span></div>
@@ -329,7 +487,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-remote-config-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 
-
     <script>
         // YOUR FIREBASE CONFIGURATION - This is directly from your project settings!
         const firebaseConfig = {
@@ -382,6 +539,9 @@
         const lastUpdateTime = document.getElementById('last-update-time');
         const syncIndicator = document.getElementById('sync-indicator');
         const syncStatusText = document.getElementById('sync-status-text');
+        const availableSlotsEl = document.getElementById('available-slots');
+        const activeOrdersEl = document.getElementById('active-orders');
+        const readyOrdersEl = document.getElementById('ready-orders');
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
@@ -446,10 +606,6 @@
                         pollingInterval = null;
                     }
                     syncMode = 'live';
-                    // Re-establish real-time listener if it was dropped
-                    // Note: Firebase RTDB listeners automatically re-establish on reconnect.
-                    // This explicit call is mostly for logging/status updates.
-                    // setupFirebaseListeners(); 
                 } else {
                     console.warn("Firebase disconnected. Switching to polling mode.");
                     syncMode = 'polling';
@@ -588,6 +744,10 @@
         
         // Update the display of all slots
         function updateDisplay() {
+            let availableCount = 5;
+            let activeCount = 0;
+            let readyCount = 0;
+            
             for (let i = 1; i <= 5; i++) {
                 const slotElement = document.getElementById(`slot-${i}`);
                 const orderInfo = slotElement.querySelector('.order-info');
@@ -599,22 +759,39 @@
                     slotElement.classList.add('occupied');
                     
                     const order = orders[i];
+                    
+                    // Update status class based on ready state
+                    if (order.ready) {
+                        slotElement.classList.add('ready');
+                        readyCount++;
+                    } else {
+                        slotElement.classList.remove('ready');
+                    }
+                    
+                    activeCount++;
+                    availableCount--;
+                    
                     orderInfo.innerHTML = `
                         <div class="order-name">${order.name}</div>
                         <div class="order-timer" id="timer-${i}">${calculateElapsedTime(order.timestamp)}</div>
-                        <div class="order-status">${order.ready ? '✅ READY' : '⏳ PREPARING'}</div>
+                        <div class="order-status ${order.ready ? 'status-ready' : 'status-preparing'}">${order.ready ? '✅ READY' : '⏳ PREPARING'}</div>
                     `;
                     
                     cancelButton.style.display = 'block';
                 } else {
                     // Slot is available
-                    slotElement.classList.remove('occupied');
+                    slotElement.classList.remove('occupied', 'ready');
                     slotElement.classList.add('available');
                     
                     orderInfo.innerHTML = '<div class="empty-slot">Available</div>';
                     cancelButton.style.display = 'none';
                 }
             }
+            
+            // Update stats
+            availableSlotsEl.textContent = availableCount;
+            activeOrdersEl.textContent = activeCount;
+            readyOrdersEl.textContent = readyCount;
             
             // Update last update time only if not polling or explicitly set by poll
             if (syncMode === 'live') {
@@ -692,8 +869,6 @@
 
             }, (error) => {
                 console.error('Firebase Realtime Database error:', error);
-                // If real-time listener encounters an error, we might temporarily switch to polling
-                // This is already handled by the .info/connected listener, but good to log here.
                 updateSyncStatusUI(); // Show potential error state or polling mode
             });
         }
