@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dead Wax</title>
+<meta name="description" content="Point your phone at a record and find out what it's worth on Discogs.">
+<meta name="theme-color" content="#0D0F12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dead Wax">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#0D0F12; --panel:#16191E; --panel-2:#1D2127; --line:#272C33; --line-2:#3A414A;
+    --ink:#ECEDE8; --dim:#8A9199; --dimmer:#5F666E;
+    --cyan:#3CC7D8; --cyan-ink:#08171A;
+    --gold:#E9B949; --good:#4FBF7B; --bad:#E2685A; --warn:#D9A33C;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Karla","Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.45;
+    -webkit-text-size-adjust:100%;
+    padding:0 0 calc(74px + env(safe-area-inset-bottom));
+    overscroll-behavior-y:contain;
+  }
+  .wrap{max-width:540px;margin:0 auto;padding:0 14px}
+
+  header{
+    position:sticky;top:0;z-index:40;background:var(--bg);
+    border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top);
+  }
+  .bar{max-width:540px;margin:0 auto;padding:10px 14px;display:flex;align-items:baseline;gap:10px}
+  .mark{font-family:"Archivo Black","Arial Black",sans-serif;font-size:15px;
+        text-transform:uppercase;margin:0;line-height:1;letter-spacing:.01em}
+  .mark em{font-style:normal;color:var(--cyan)}
+  .cutpill{
+    margin-left:auto;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--dim);
+    border:1px solid var(--line-2);padding:3px 7px;background:transparent;
+  }
+
+  .lab{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;
+       letter-spacing:.11em;text-transform:uppercase;color:var(--dim);display:block}
+  h2.sec{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;font-weight:600;
+         letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px;
+         padding-bottom:6px;border-bottom:1px solid var(--line);
+         display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  h2.sec span{color:var(--dimmer);letter-spacing:.05em;font-weight:400;text-transform:none}
+  h2.sec:first-child{margin-top:16px}
+  p.note{font-size:13px;color:var(--dim);max-width:60ch;margin:0 0 12px;line-height:1.5}
+  p.note b{color:var(--ink);font-weight:600}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  input[type=text],input[type=number],input[type=password],select{
+    width:100%;padding:12px;background:var(--panel);color:var(--ink);
+    border:1px solid var(--line-2);border-radius:0;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:16px;
+    font-variant-numeric:tabular-nums;appearance:none;
+  }
+  input::placeholder{color:var(--dimmer)}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .row2 .field{margin-bottom:0}
+  :focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+  button{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.09em;
+    text-transform:uppercase;font-weight:500;padding:13px 14px;border-radius:0;cursor:pointer;
+    border:1px solid var(--line-2);background:var(--panel);color:var(--ink);
+  }
+  button.cyan{background:var(--cyan);color:var(--cyan-ink);border-color:var(--cyan);font-weight:600}
+  button.ghost{background:transparent}
+  button[disabled]{opacity:.45;cursor:default}
+  button:active{transform:translateY(1px)}
+  .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .btnrow.one{grid-template-columns:1fr}
+
+  /* ---- capture ---- */
+  .cam{
+    position:relative;background:#000;border:1px solid var(--line-2);
+    aspect-ratio:4/3;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  }
+  .cam video,.cam canvas,.cam img{width:100%;height:100%;object-fit:cover;display:block}
+  .cam .idle{color:var(--dimmer);font-family:"IBM Plex Mono",ui-monospace,monospace;
+             font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:20px}
+  .reticle{position:absolute;inset:18% 10%;border:2px solid rgba(60,199,216,.8);pointer-events:none}
+  .reticle::before,.reticle::after{content:"";position:absolute;left:-2px;right:-2px;height:2px;background:rgba(60,199,216,.35)}
+  .reticle::before{top:50%}
+  .camhint{
+    position:absolute;left:0;right:0;bottom:0;padding:7px 10px;background:rgba(13,15,18,.82);
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--cyan);text-align:center;
+  }
+
+  /* ---- the money ---- */
+  .money{border:1px solid var(--line-2);background:var(--panel);margin-top:14px}
+  .money .top{padding:16px 16px 14px;border-bottom:1px solid var(--line)}
+  .money .cap{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;
+              letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 4px}
+  .money .big{font-family:"Archivo Black","Arial Black",sans-serif;
+              font-size:clamp(40px,14vw,58px);line-height:1;margin:0;color:var(--gold);
+              font-variant-numeric:tabular-nums}
+  .money .big.nil{color:var(--dimmer)}
+  .money .why{font-size:13px;color:var(--dim);margin:8px 0 0;line-height:1.45}
+  .money .why b{color:var(--ink);font-weight:600}
+  .money dl{margin:0;display:grid;grid-template-columns:1fr auto}
+  .money dt,.money dd{margin:0;padding:9px 16px;border-bottom:1px solid var(--line);font-size:13px}
+  .money dt{color:var(--dim)}
+  .money dd{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+            text-align:right;font-weight:500}
+  .money dl > :nth-last-child(1),.money dl > :nth-last-child(2){border-bottom:0}
+
+  .conds{display:flex;gap:6px;overflow-x:auto;padding:12px 0 2px;-webkit-overflow-scrolling:touch}
+  .conds button{padding:8px 11px;font-size:11px;flex:none;letter-spacing:.06em;color:var(--dim)}
+  .conds button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+
+  .rel{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:start;
+       padding:12px 0;border-bottom:1px solid var(--line)}
+  .rel img{width:64px;height:64px;object-fit:cover;background:var(--panel-2);display:block}
+  .rel .noimg{width:64px;height:64px;background:var(--panel-2);display:block}
+  .rel h3{margin:0;font-size:15px;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+  .rel .meta{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;
+             color:var(--dim);letter-spacing:.02em;margin-top:3px;line-height:1.5}
+  ul.hits{list-style:none;margin:0;padding:0}
+  ul.hits li{cursor:pointer}
+  ul.hits li:active{background:var(--panel)}
+
+  .msg{border:1px solid var(--line-2);padding:11px 12px;font-size:13px;margin-top:12px;color:var(--dim)}
+  .msg.err{border-color:var(--bad);color:var(--bad)}
+  .msg.ok{border-color:var(--good);color:var(--good)}
+  .msg b{color:var(--ink)}
+  .spin{display:inline-block;width:11px;height:11px;border:2px solid var(--dimmer);
+        border-top-color:var(--cyan);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px;margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  .grades{border-top:1px solid var(--line)}
+  .grades div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;
+              border-bottom:1px solid var(--line);font-size:13.5px}
+  .grades .g{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;color:var(--cyan);flex:none}
+  ul.issues{list-style:none;margin:8px 0 0;padding:0}
+  ul.issues li{font-size:13.5px;padding:7px 0;border-bottom:1px solid var(--line);color:var(--ink)}
+  ul.issues li::before{content:"— ";color:var(--bad)}
+  ul.issues.cant li::before{content:"? ";color:var(--dimmer)}
+  ul.issues.cant li{color:var(--dim)}
+
+  ul.saved{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+  ul.saved li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;
+              padding:11px 0;border-bottom:1px solid var(--line)}
+  ul.saved strong{display:block;font-size:14.5px;font-weight:600;overflow-wrap:anywhere}
+  ul.saved .m{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--dim)}
+  ul.saved .amt{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;
+                font-size:15px;color:var(--gold);font-weight:600;text-align:right}
+  .iconbtn{border:0;background:transparent;color:var(--dimmer);padding:9px 4px;font-size:17px;letter-spacing:0}
+  .empty{border:1px dashed var(--line-2);padding:24px 16px;text-align:center;color:var(--dimmer);font-size:13.5px}
+  .totalbar{display:flex;justify-content:space-between;align-items:baseline;
+            padding:12px 0;border-bottom:1px solid var(--line-2)}
+  .totalbar .v{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:22px;
+               font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
+
+  a{color:var(--cyan)}
+  a.linkbtn{display:block;text-align:center;text-decoration:none;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.09em;
+    text-transform:uppercase;padding:13px 14px;border:1px solid var(--line-2);color:var(--ink)}
+
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--panel);
+           border-top:1px solid var(--line-2);padding-bottom:env(safe-area-inset-bottom)}
+  nav.tabs .inner{max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+  nav.tabs button{border:0;background:transparent;color:var(--dim);padding:15px 4px 16px;
+                  font-size:11px;letter-spacing:.13em;border-top:3px solid transparent;margin-top:-1px}
+  nav.tabs button[aria-selected="true"]{color:var(--ink);border-top-color:var(--cyan);font-weight:600}
+  section[hidden],[hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <h1 class="mark">Dead<em>Wax</em></h1>
+    <button class="cutpill" id="cutPill" type="button">cut 30%</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============== SCAN ============== -->
+  <section id="tab-scan" role="tabpanel">
+
+    <div id="finder">
+      <h2 class="sec">Find the record <span id="tokenState">no token</span></h2>
+
+      <div class="cam" id="camBox">
+        <div class="idle" id="camIdle">Camera off<br>Scan a barcode, or shoot the label</div>
+        <video id="video" playsinline muted hidden></video>
+        <div class="reticle" id="reticle" hidden></div>
+        <div class="camhint" id="camHint" hidden>Hold the barcode in the box</div>
+      </div>
+
+      <div class="btnrow">
+        <button class="cyan" id="btnScan">Scan barcode</button>
+        <button id="btnShoot">Shoot the label</button>
+      </div>
+      <div class="btnrow one" id="stopRow" hidden>
+        <button class="ghost" id="btnStop">Stop camera</button>
+      </div>
+
+      <h2 class="sec">Or type it</h2>
+      <div class="field">
+        <input type="text" id="q" placeholder="Artist, title, or catalog number" autocomplete="off" enterkeyhint="search">
+      </div>
+      <div class="btnrow one"><button id="btnSearch">Search Discogs</button></div>
+
+      <div id="finderMsg"></div>
+      <ul class="hits" id="hits"></ul>
+    </div>
+
+    <!-- result -->
+    <div id="result" hidden>
+      <h2 class="sec">What it's worth <span id="backLink"><a href="#" id="btnBack">new search</a></span></h2>
+      <div class="rel" id="relCard"></div>
+
+      <div class="conds" id="conds"></div>
+
+      <div class="money">
+        <div class="top">
+          <p class="cap" id="moneyCap">You get, after your cut</p>
+          <p class="big" id="moneyBig">$0.00</p>
+          <p class="why" id="moneyWhy"></p>
+        </div>
+        <dl id="moneyRows"></dl>
+      </div>
+
+      <div class="btnrow">
+        <button class="cyan" id="btnSave">Save this find</button>
+        <a class="linkbtn" id="btnDiscogs" href="#" target="_blank" rel="noopener noreferrer">Open on Discogs &#8599;</a>
+      </div>
+
+      <h2 class="sec">Check the condition <span>photo, second opinion</span></h2>
+      <p class="note">Shoot the record surface under a bright light, held at an angle so the light rakes across the grooves. Claude reads what the photo can actually show &mdash; <b>it cannot hear surface noise and it will miss fine hairlines</b>, so treat it as a prompt to look harder, never as the grade you list.</p>
+      <div class="cam" id="condBox">
+        <div class="idle" id="condIdle">No photo yet</div>
+        <img id="condImg" alt="" hidden>
+      </div>
+      <div class="btnrow">
+        <button id="btnCondShot">Take photo</button>
+        <button id="btnCondGrade" disabled>Ask Claude</button>
+      </div>
+      <div id="condMsg"></div>
+      <div id="condOut"></div>
+    </div>
+  </section>
+
+  <!-- ============== SAVED ============== -->
+  <section id="tab-saved" role="tabpanel" hidden>
+    <h2 class="sec">Saved finds</h2>
+    <div class="totalbar"><span class="lab">Total you'd get</span><span class="v" id="savedTotal">$0.00</span></div>
+    <ul class="saved" id="savedList"></ul>
+    <div class="btnrow one"><button class="ghost" id="btnClearSaved">Clear all saved</button></div>
+  </section>
+
+  <!-- ============== SETUP ============== -->
+  <section id="tab-setup" role="tabpanel" hidden>
+    <h2 class="sec">Discogs <span>required for prices</span></h2>
+    <p class="note">Discogs gives out a free personal token in about a minute: <a href="https://www.discogs.com/settings/developers" target="_blank" rel="noopener noreferrer">discogs.com/settings/developers</a> &rarr; Generate token. Paste it below. It is stored only on this phone and goes nowhere except Discogs.</p>
+    <div class="field">
+      <label class="lab" for="set-token">Discogs personal token</label>
+      <input type="password" id="set-token" placeholder="paste token" autocomplete="off" spellcheck="false">
+    </div>
+
+    <h2 class="sec">Your cut</h2>
+    <p class="note">The slice you take off the Discogs value to cover fees, shipping, and the fact that the median never quite lands. 30% is a sane default.</p>
+    <div class="row2">
+      <div class="field"><label class="lab" for="set-cut">Cut %</label>
+        <input type="number" id="set-cut" inputmode="decimal" step="1" min="0" max="95"></div>
+      <div class="field"><label class="lab" for="set-cond">Default grade</label>
+        <select id="set-cond"></select></div>
+    </div>
+
+    <h2 class="sec">Photo reading <span>optional</span></h2>
+    <p class="note">Shooting a label or checking condition sends that one photo to Anthropic's API with your own key. Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer">console.anthropic.com</a>. Stored on this phone only. Leave it blank and everything else still works &mdash; barcode scanning and search need no key.</p>
+    <div class="field">
+      <label class="lab" for="set-aikey">Anthropic API key</label>
+      <input type="password" id="set-aikey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label class="lab" for="set-model">Model</label>
+      <select id="set-model">
+        <option value="claude-opus-5">Claude Opus 5 — sharpest, costs the most</option>
+        <option value="claude-sonnet-5">Claude Sonnet 5 — middle</option>
+        <option value="claude-haiku-4-5">Claude Haiku 4.5 — cheapest per photo</option>
+      </select>
+    </div>
+    <p class="note">A label photo runs a fraction of a cent on Haiku and a few cents on Opus. Rotate the key from the console if you ever lose the phone.</p>
+
+    <h2 class="sec">Install it</h2>
+    <p class="note"><b>iPhone:</b> Share &rarr; Add to Home Screen. <b>Android:</b> the menu &rarr; Install app. It then opens full screen with no address bar, and the shell works offline &mdash; prices still need signal.</p>
+    <div id="setupMsg"></div>
+  </section>
+
+</main>
+
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <div class="inner">
+    <button role="tab" id="nav-scan" aria-selected="true" data-tab="scan">SCAN</button>
+    <button role="tab" id="nav-saved" aria-selected="false" data-tab="saved">SAVED</button>
+    <button role="tab" id="nav-setup" aria-selected="false" data-tab="setup">SETUP</button>
+  </div>
+</nav>
+
+<input type="file" id="filePick" accept="image/*" capture="environment" hidden>
+<canvas id="grab" hidden></canvas>
+
+<script src="app.js"></script>
+</body>
+</html>

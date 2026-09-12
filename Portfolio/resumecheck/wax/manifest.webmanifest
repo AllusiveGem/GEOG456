@@ -1,0 +1,16 @@
+{
+  "name": "Dead Wax",
+  "short_name": "Dead Wax",
+  "description": "Point your phone at a record and find out what it's worth on Discogs.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D0F12",
+  "theme_color": "#0D0F12",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
